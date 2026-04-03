@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mi Biblioteca Vital</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
+
+  :root {
+    --bg: #0e0e0e;
+    --surface: #161616;
+    --surface2: #1f1f1f;
+    --surface3: #2a2a2a;
+    --border: #2e2e2e;
+    --gold: #c9a84c;
+    --gold-dim: #8a6f30;
+    --gold-glow: rgba(201, 168, 76, 0.5);
+    --text: #e8e2d5;
+    --text-dim: #a09890;
+    --text-mid: #c0b8a8;
+    --green: #4a9e6b;
+    --red: #c05c5c;
+    --blue: #4a7ec0;
+    --purple: #9b6fc0;
+    --radius: 12px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'IBM Plex Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; font-size: 15px; line-height: 1.45; overflow-x: hidden; }
+
+  #app-chrome { transition: opacity 0.3s; }
+  #app-chrome.hidden { opacity: 0; pointer-events: none; position: fixed; width: 100%; }
+
+  header { padding: 32px 40px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .header-left { display: flex; flex-direction: column; gap: 12px; }
+  .header-title h1 { font-family: 'Playfair Display', serif; font-size: 32px; font-weight: 700; color: var(--gold); letter-spacing: 0.02em; }
+  .header-title p { font-size: 13px; color: var(--text-dim); font-family: 'IBM Plex Mono', monospace; text-transform: uppercase; }
+
+  .header-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .btn-export { background: var(--surface2); border: 1px solid var(--border); color: var(--text-dim); padding: 7px 16px; border-radius: 30px; font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 500; text-transform: uppercase; cursor: pointer; transition: all 0.2s; letter-spacing: 0.06em; }
+  .btn-export:hover { border-color: var(--gold-dim); color: var(--gold); }
+  .btn-import { background: var(--surface2); border: 1px dashed var(--border); color: var(--text-dim); padding: 7px 16px; border-radius: 30px; font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 500; text-transform: uppercase; cursor: pointer; transition: all 0.2s; letter-spacing: 0.06em; }
+  .btn-import:hover { border-color: var(--blue); color: var(--blue); }
+
+  .header-stats { display: flex; gap: 28px; flex-wrap: wrap; }
+  .stat { text-align: right; }
+  .stat-num { font-family: 'Playfair Display', serif; font-size: 26px; color: var(--gold); line-height: 1; }
+  .stat-lbl { font-size: 11px; color: var(--text-dim); text-transform: uppercase; font-family: 'IBM Plex Mono', monospace; }
+
+  nav { padding: 0 40px; border-bottom: 1px solid var(--border); display: flex; gap: 2px; overflow-x: auto; }
+  nav button { background: none; border: none; color: var(--text-dim); padding: 14px 20px; cursor: pointer; font-family: 'IBM Plex Mono', monospace; font-size: 12px; text-transform: uppercase; letter-spacing: 0.12em; border-bottom: 2px solid transparent; transition: all .2s; white-space: nowrap; }
+  nav button:hover { color: var(--text); }
+  nav button.active { color: var(--gold); border-bottom-color: var(--gold); text-shadow: 0 0 4px var(--gold-glow); }
+
+  #main-content { padding: 32px 40px; max-width: 1280px; margin: 0 auto; }
+  .section { display: none; }
+  .section.active { display: block; }
+
+  /* ─── TOOLBAR ─── */
+  .toolbar { display: flex; gap: 12px; margin-bottom: 28px; flex-wrap: wrap; align-items: center; }
+  .toolbar input, .toolbar select { background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 10px 14px; border-radius: var(--radius); font-size: 14px; outline: none; transition: all 0.2s; }
+  .toolbar input:focus, .toolbar select:focus { border-color: var(--gold-dim); box-shadow: 0 0 6px var(--gold-glow); }
+  .btn-add { background: var(--gold); color: #0e0e0e; border: none; padding: 10px 22px; border-radius: 30px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 600; text-transform: uppercase; cursor: pointer; transition: all 0.2s; margin-left: auto; }
+  .btn-add:hover { opacity: 0.9; box-shadow: 0 0 10px var(--gold-glow); transform: translateY(-1px); }
+  .sort-select { background: var(--surface); border: 1px solid var(--gold-dim); color: var(--gold); padding: 10px 14px; border-radius: var(--radius); font-size: 13px; font-family: 'IBM Plex Mono', monospace; outline: none; cursor: pointer; }
+  .results-info { font-size: 12px; color: var(--text-dim); font-family: 'IBM Plex Mono', monospace; padding: 4px 0; align-self: center; }
+
+  /* ─── TARJETAS ─── */
+  .books-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 22px; }
+
+  .book-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 22px 18px 18px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+    position: relative;
+    outline: none;
+  }
+  .book-card:focus-visible { border-color: var(--gold); box-shadow: 0 0 0 2px var(--gold-glow); }
+  .book-card:hover {
+    border-color: var(--gold);
+    box-shadow: 0 12px 28px rgba(201,168,76,0.12), 0 0 0 1px rgba(201,168,76,0.25);
+    transform: translateY(-4px);
+  }
+
+  .card-status-corner {
+    position: absolute; top: 14px; right: 14px;
+    font-size: 9px; font-family: 'IBM Plex Mono', monospace;
+    padding: 4px 9px; border-radius: 30px;
+    white-space: nowrap; font-weight: 600; letter-spacing: 0.06em;
+  }
+  .status-completado { background: #1a3326; color: var(--green); border: 1px solid #2a6b44; }
+  .status-no-completado { background: #2e1a1a; color: var(--red); border: 1px solid #a04545; }
+  .status-en-progreso { background: #1a2535; color: var(--blue); border: 1px solid #3a6ea5; }
+
+  .book-cover {
+    width: 120px; height: 168px;
+    object-fit: cover; border-radius: 10px;
+    background: var(--surface2); margin-bottom: 16px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+    border: 1px solid rgba(201,168,76,0.2);
+    transition: transform 0.2s;
+  }
+  .book-card:hover .book-cover { transform: scale(1.03); }
+
+  .card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 15px; font-weight: 700;
+    line-height: 1.35; color: var(--text);
+    width: 100%; margin-bottom: 5px;
+    padding: 0 4px;
+  }
+  .card-author {
+    font-size: 12px; color: var(--gold-dim);
+    margin-bottom: 12px; width: 100%;
+    font-style: italic;
+  }
+
+  .card-meta {
+    display: flex; flex-wrap: wrap;
+    justify-content: center; gap: 6px;
+    margin-bottom: 10px;
+  }
+  .tag { font-size: 10px; font-family: 'IBM Plex Mono', monospace; background: var(--surface2); border: 1px solid var(--border); padding: 3px 9px; border-radius: 20px; color: var(--text-mid); }
+  .tag-gold { color: var(--gold); border-color: var(--gold-dim); background: #1a150a; }
+  .tag-quote { color: #b07eb5; border-color: #5a3a6a; background: #1a0f1f; }
+  .tag-summary { color: #5ab5a0; border-color: #2a6a60; background: #0a1f1c; }
+  .tag-cost { background: #1a1f2e; border-color: #2a4a70; color: #7aade0; }
+
+  .card-rating {
+    display: flex; gap: 3px;
+    margin-bottom: 12px; justify-content: center;
+  }
+  .star { color: var(--border); font-size: 14px; }
+  .star.on { color: var(--gold); text-shadow: 0 0 3px rgba(201,168,76,0.4); }
+
+  /* ── HABILIDADES: pills auto-sized, centradas ── */
+  .card-skills {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 7px;
+    width: 100%;
+    margin-bottom: 10px;
+  }
+  .card-skills .skill-pill {
+    font-size: 11px;
+    background: #141b2a;
+    color: #7aade0;
+    border: 1px solid #2a4a70;
+    padding: 5px 14px;
+    border-radius: 30px;
+    white-space: nowrap;
+    line-height: 1.3;
+    flex-shrink: 0;
+  }
+
+  /* ── FRASE: centrada, con comilla decorativa sutil ── */
+  .card-quote-preview {
+    margin-top: 10px;
+    padding: 10px 14px;
+    border-top: 1px dashed rgba(201,168,76,0.15);
+    width: 100%;
+    position: relative;
+  }
+  .card-quote-preview p {
+    font-size: 11px;
+    color: var(--text-dim);
+    font-style: italic;
+    line-height: 1.55;
+    text-align: center;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .card-quote-preview p::before {
+    content: '\201C';
+    font-family: 'Playfair Display', serif;
+    font-size: 15px;
+    color: var(--gold-dim);
+    margin-right: 2px;
+    font-style: normal;
+    vertical-align: -1px;
+  }
+  .card-quote-preview p::after {
+    content: '\201D';
+    font-family: 'Playfair Display', serif;
+    font-size: 15px;
+    color: var(--gold-dim);
+    margin-left: 2px;
+    font-style: normal;
+    vertical-align: -1px;
+  }
+
+  /* ─── ESTADÍSTICAS ─── */
+  .stats-container { display: flex; flex-direction: column; gap: 28px; }
+  .stats-card { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 24px; }
+  .stats-title { font-family: 'Playfair Display', serif; font-size: 18px; color: var(--gold); margin-bottom: 20px; border-left: 3px solid var(--gold); padding-left: 16px; }
+  .category-stats { display: flex; flex-direction: column; gap: 16px; }
+  .category-bar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .category-name { width: 120px; font-size: 13px; font-family: monospace; color: var(--text-dim); }
+  .bar-container { flex: 1; height: 8px; background: var(--surface2); border-radius: 10px; overflow: hidden; }
+  .bar-fill { height: 100%; background: var(--gold); width: 0%; border-radius: 10px; transition: width 0.3s; }
+  .category-count { font-size: 12px; color: var(--text-mid); min-width: 40px; text-align: right; }
+  .rating-stats { margin-top: 20px; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
+  .rating-item { display: flex; justify-content: space-between; font-size: 13px; padding: 6px 0; border-bottom: 1px dashed var(--border); }
+  .habits-stats { margin-top: 20px; display: flex; flex-wrap: wrap; gap: 20px; justify-content: space-between; }
+  .habit-card { background: var(--surface2); border-radius: 16px; padding: 16px; flex: 1; min-width: 140px; text-align: center; }
+  .habit-number { font-size: 28px; font-family: 'Playfair Display', serif; color: var(--gold); }
+  .habit-label { font-size: 11px; text-transform: uppercase; color: var(--text-dim); margin-top: 6px; }
+  .year-chart { margin-top: 20px; }
+  .year-item { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+  .year-name { width: 50px; font-size: 12px; }
+  .year-bar { flex: 1; height: 6px; background: var(--surface2); border-radius: 10px; overflow: hidden; }
+  .year-fill { height: 100%; background: var(--blue); width: 0%; }
+  .meta-card { background: linear-gradient(135deg, #1a150a, #0e0b05); border: 1px solid var(--gold-dim); border-radius: 20px; padding: 20px; margin-bottom: 24px; }
+  .meta-header { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 12px; margin-bottom: 16px; }
+  .meta-title { font-family: 'Playfair Display', serif; font-size: 18px; color: var(--gold); }
+  .meta-input { background: var(--surface2); border: 1px solid var(--border); color: var(--text); padding: 6px 12px; border-radius: 30px; font-size: 14px; width: 80px; text-align: center; font-family: monospace; }
+  .progress-bar-container { background: var(--surface2); border-radius: 20px; height: 12px; overflow: hidden; margin: 12px 0; }
+  .progress-fill { background: var(--gold); width: 0%; height: 100%; transition: width 0.3s; }
+  .meta-stats { display: flex; justify-content: space-between; font-size: 13px; color: var(--text-dim); margin-top: 8px; }
+  .prediction { margin-top: 12px; padding: 8px 12px; background: var(--surface2); border-radius: 12px; font-size: 12px; font-style: italic; border-left: 3px solid var(--gold); }
+  .top3-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin-top: 12px; }
+  .top3-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 12px; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; text-align: center; }
+  .top3-card:hover { border-color: var(--gold); transform: translateY(-3px); box-shadow: 0 8px 16px rgba(0,0,0,0.3); }
+  .top3-cover { width: 80px; height: 110px; object-fit: cover; border-radius: 8px; background: var(--surface2); margin-bottom: 10px; }
+  .top3-title { font-family: 'Playfair Display', serif; font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+  .top3-author { font-size: 11px; color: var(--gold-dim); margin-bottom: 6px; }
+  .top3-rating { font-size: 12px; display: flex; gap: 2px; align-items: center; }
+  .speed-card { background: var(--surface); border-radius: 16px; padding: 16px; margin-top: 16px; }
+  .speed-stat { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed var(--border); }
+  .speed-label { font-size: 12px; color: var(--text-dim); }
+  .speed-value { font-size: 14px; font-weight: 600; color: var(--text); }
+  .speed-comment { margin-top: 12px; font-size: 12px; font-style: italic; color: var(--text-mid); padding: 8px; background: var(--surface2); border-radius: 10px; }
+
+  /* ─── PROYECTOS ─── */
+  .project-cards { display: flex; flex-direction: column; gap: 16px; }
+  .project-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 18px 24px; transition: all 0.2s; }
+  .project-card:hover { border-color: var(--gold); box-shadow: 0 0 0 1px rgba(201,168,76,0.4), 0 8px 16px rgba(0,0,0,0.2); }
+  .project-card h3 { font-family: 'Playfair Display', serif; font-size: 20px; color: var(--text); margin-bottom: 6px; }
+  .project-meta { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; }
+  .score-badge { display: inline-flex; align-items: center; gap: 5px; background: #1a150a; border: 1px solid var(--gold-dim); color: var(--gold); font-size: 12px; padding: 3px 12px; border-radius: 30px; }
+  .project-desc { font-size: 14px; color: var(--text-mid); border-left: 2px solid var(--gold-dim); padding-left: 16px; margin: 12px 0; }
+  .project-progress { display: flex; align-items: center; gap: 12px; margin-top: 12px; padding-top: 8px; border-top: 1px dashed var(--border); flex-wrap: wrap; }
+  .project-progress label { font-size: 12px; font-family: monospace; color: var(--text-dim); cursor: pointer; display: flex; align-items: center; gap: 8px; }
+  .project-progress input { width: 18px; height: 18px; accent-color: var(--gold); cursor: pointer; }
+  .completed-badge { background: var(--green); color: #0e0e0e; padding: 2px 10px; border-radius: 30px; font-size: 10px; font-weight: bold; text-transform: uppercase; }
+  .pending-badge { background: #4a2a2a; color: var(--red); padding: 2px 10px; border-radius: 30px; font-size: 10px; font-weight: bold; }
+
+  /* ─── FRASES TAB ─── */
+  .quotes-display { margin-top: 20px; padding: 16px 20px; background: #0f0a1a; border: 1px solid #3a2a5a; border-radius: 14px; }
+  .quotes-display h3 { font-size: 11px; font-family: monospace; text-transform: uppercase; color: #b07eb5; margin-bottom: 14px; letter-spacing: 0.1em; }
+  .quote-display-item { position: relative; padding: 10px 14px 10px 26px; margin-bottom: 8px; border-left: 2px solid #5a3a7a; color: var(--text-mid); font-size: 13px; font-style: italic; line-height: 1.6; cursor: pointer; border-radius: 0 8px 8px 0; transition: background 0.15s; }
+  .quote-display-item:hover { background: #1a0f2a; }
+  .quote-display-item::before { content: '\201C'; font-family: 'Playfair Display', serif; font-size: 20px; color: #7a5a8a; position: absolute; top: 6px; left: 8px; line-height: 1; }
+  .quote-source { display: block; font-size: 10px; font-style: normal; font-family: monospace; color: #7a5a8a; margin-top: 4px; }
+
+  /* ─── VISTA DETALLE ─── */
+  #book-detail { position: fixed; inset: 0; background: var(--bg); z-index: 200; overflow-y: auto; overflow-x: hidden; opacity: 0; transform: translateY(20px); pointer-events: none; transition: opacity 0.32s ease, transform 0.32s ease; }
+  #book-detail.open { opacity: 1; transform: translateY(0); pointer-events: all; }
+  .detail-hero { position: relative; min-height: 300px; display: flex; align-items: flex-end; overflow: hidden; }
+  .detail-hero-bg { position: absolute; inset: 0; background-size: cover; background-position: center; filter: blur(30px) brightness(0.22) saturate(1.5); transform: scale(1.1); z-index: 0; }
+  .detail-hero-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(14,14,14,0.05) 0%, rgba(14,14,14,0.55) 55%, #0e0e0e 100%); z-index: 1; }
+  .detail-hero-content { position: relative; z-index: 2; padding: 80px 60px 52px; display: flex; gap: 44px; align-items: flex-end; width: 100%; max-width: 980px; margin: 0 auto; }
+  .detail-cover { width: 155px; height: 215px; object-fit: cover; border-radius: 14px; box-shadow: 0 20px 48px rgba(0,0,0,0.75); border: 1px solid rgba(201,168,76,0.25); flex-shrink: 0; }
+  .detail-cover-placeholder { width: 155px; height: 215px; border-radius: 14px; background: var(--surface2); display: flex; align-items: center; justify-content: center; font-size: 60px; flex-shrink: 0; border: 1px solid var(--border); box-shadow: 0 20px 48px rgba(0,0,0,0.75); }
+  .detail-hero-meta { flex: 1; padding-bottom: 4px; }
+  .detail-title { font-family: 'Playfair Display', serif; font-size: 36px; font-weight: 700; line-height: 1.15; color: var(--text); margin-bottom: 10px; text-shadow: 0 2px 16px rgba(0,0,0,0.9); }
+  .detail-author { font-size: 15px; color: var(--gold); margin-bottom: 18px; font-style: italic; }
+  .detail-pills { display: flex; flex-wrap: wrap; gap: 8px; }
+  .detail-pill { font-size: 11px; font-family: 'IBM Plex Mono', monospace; padding: 5px 14px; border-radius: 30px; border: 1px solid; }
+  .pill-completado { background: #1a3326; color: var(--green); border-color: #2a6b44; }
+  .pill-no-completado { background: #2e1a1a; color: var(--red); border-color: #a04545; }
+  .pill-en-progreso { background: #1a2535; color: var(--blue); border-color: #3a6ea5; }
+  .pill-cat { background: var(--surface2); color: var(--text-mid); border-color: var(--border); }
+  .pill-stars { background: #1a150a; color: var(--gold); border-color: var(--gold-dim); }
+  .detail-back-btn { position: absolute; top: 24px; left: 32px; z-index: 10; background: rgba(14,14,14,0.75); border: 1px solid var(--border); color: var(--text-dim); padding: 8px 18px; border-radius: 30px; cursor: pointer; font-family: 'IBM Plex Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; transition: all 0.2s; backdrop-filter: blur(10px); }
+  .detail-back-btn:hover { border-color: var(--gold); color: var(--gold); }
+  .detail-edit-btn { position: absolute; top: 24px; right: 32px; z-index: 10; background: var(--gold); border: none; color: #0e0e0e; padding: 8px 20px; border-radius: 30px; cursor: pointer; font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; transition: all 0.2s; }
+  .detail-edit-btn:hover { box-shadow: 0 0 14px var(--gold-glow); }
+  .detail-body { max-width: 980px; margin: 0 auto; padding: 0 60px 80px; }
+  .detail-meta-bar { display: flex; margin-bottom: 44px; border: 1px solid var(--border); border-radius: 16px; overflow: hidden; background: var(--surface); }
+  .detail-meta-item { flex: 1; padding: 18px 20px; text-align: center; border-right: 1px solid var(--border); }
+  .detail-meta-item:last-child { border-right: none; }
+  .detail-meta-label { font-size: 10px; font-family: monospace; text-transform: uppercase; color: var(--text-dim); margin-bottom: 6px; letter-spacing: 0.08em; }
+  .detail-meta-value { font-size: 14px; color: var(--text-mid); font-weight: 500; }
+  .detail-section { margin-bottom: 48px; }
+  .detail-section-title { font-size: 11px; font-family: 'IBM Plex Mono', monospace; text-transform: uppercase; letter-spacing: 0.14em; color: var(--gold); margin-bottom: 20px; display: flex; align-items: center; gap: 12px; }
+  .detail-section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .detail-summary-text { font-size: 16px; line-height: 1.9; color: var(--text-mid); font-family: 'IBM Plex Sans', sans-serif; max-width: 72ch; }
+  .detail-summary-text h2 { font-family: 'Playfair Display', serif; font-size: 22px; color: var(--gold); margin: 28px 0 10px; font-weight: 700; }
+  .detail-summary-text h3 { font-family: 'Playfair Display', serif; font-size: 18px; color: var(--text); margin: 22px 0 8px; font-weight: 600; }
+  .detail-summary-text h4 { font-size: 14px; color: var(--gold-dim); text-transform: uppercase; letter-spacing: 0.08em; font-family: 'IBM Plex Mono', monospace; margin: 18px 0 6px; }
+  .detail-summary-text p { margin: 0 0 12px; }
+  .detail-summary-text strong { color: var(--text); font-weight: 600; }
+  .detail-summary-text em { color: var(--text-mid); font-style: italic; }
+  .detail-summary-text ul { padding-left: 20px; margin: 8px 0 14px; }
+  .detail-summary-text li { margin-bottom: 6px; }
+  .detail-summary-empty { padding: 36px; border: 1px dashed var(--border); border-radius: 12px; text-align: center; color: var(--text-dim); font-size: 14px; cursor: pointer; transition: all 0.2s; }
+  .detail-summary-empty:hover { border-color: var(--gold-dim); color: var(--text-mid); background: var(--surface); }
+  .detail-quotes-grid { display: flex; flex-direction: column; gap: 12px; }
+  .detail-quote { padding: 18px 20px 16px 36px; background: #0a0814; border: 1px solid #261638; border-left: 3px solid #7a5a9a; border-radius: 0 12px 12px 0; position: relative; font-style: italic; font-size: 15px; line-height: 1.75; color: var(--text-mid); }
+  .detail-quote::before { content: '\201C'; font-family: 'Playfair Display', serif; font-size: 40px; color: #4a2a6a; position: absolute; top: 4px; left: 10px; line-height: 1; }
+  .detail-notes { font-size: 14px; line-height: 1.8; color: var(--text-mid); background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 22px 26px; white-space: pre-wrap; }
+  .detail-project-box { background: var(--surface); border: 1px solid var(--gold-dim); border-radius: 16px; padding: 26px 30px; }
+  .detail-project-name { font-family: 'Playfair Display', serif; font-size: 22px; color: var(--text); margin-bottom: 10px; }
+  .detail-project-desc { font-size: 14px; color: var(--text-mid); line-height: 1.7; margin: 14px 0; border-left: 2px solid var(--gold-dim); padding-left: 16px; }
+  .detail-project-status { margin-top: 18px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .detail-project-status label { font-size: 13px; color: var(--text-dim); cursor: pointer; display: flex; align-items: center; gap: 8px; }
+  .detail-project-status input { width: 18px; height: 18px; accent-color: var(--gold); cursor: pointer; }
+  .detail-skills-row { display: flex; flex-wrap: wrap; gap: 10px; }
+
+  /* ─── MODALES ─── */
+  #toast { position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--surface); border: 1px solid var(--gold-dim); color: var(--text); padding: 12px 24px; border-radius: 30px; font-size: 13px; font-family: 'IBM Plex Mono', monospace; z-index: 9999; opacity: 0; transition: all 0.3s ease; pointer-events: none; box-shadow: 0 8px 24px rgba(0,0,0,0.5); }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  #toast.success { border-color: var(--green); color: var(--green); }
+  #toast.error { border-color: var(--red); color: var(--red); }
+  .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.88); z-index: 500; overflow-y: auto; padding: 30px 16px; }
+  .overlay.open { display: flex; align-items: flex-start; justify-content: center; }
+  .modal { background: var(--surface); border: 1px solid var(--gold-dim); border-radius: 24px; padding: 28px; width: 100%; max-width: 800px; position: relative; box-shadow: 0 25px 40px rgba(0,0,0,0.5); }
+  .modal h2 { font-family: 'Playfair Display', serif; font-size: 24px; color: var(--gold); margin-bottom: 20px; }
+  .modal-close { position: absolute; top: 18px; right: 18px; background: none; border: 1px solid var(--border); width: 32px; height: 32px; border-radius: 30px; cursor: pointer; font-size: 20px; color: var(--text-dim); line-height: 1; display: flex; align-items: center; justify-content: center; }
+  .modal-close:hover { border-color: var(--red); color: var(--red); }
+  .confirm-modal .modal { max-width: 450px; text-align: center; }
+  .confirm-message { margin: 20px 0; font-size: 16px; line-height: 1.5; color: var(--text-mid); }
+  .confirm-actions { display: flex; gap: 16px; justify-content: center; margin-top: 24px; }
+  .btn-confirm { background: var(--gold); color: #0e0e0e; border: none; padding: 8px 24px; border-radius: 30px; font-family: monospace; font-size: 13px; font-weight: 600; cursor: pointer; }
+  .btn-cancel { background: var(--surface3); border: 1px solid var(--border); color: var(--text-dim); padding: 8px 24px; border-radius: 30px; font-family: monospace; font-size: 13px; font-weight: 600; cursor: pointer; }
+  .import-options { display: flex; gap: 12px; margin-top: 16px; }
+  .import-mode-btn { flex: 1; padding: 10px; border-radius: var(--radius); border: 1px solid var(--border); background: var(--surface2); color: var(--text-dim); cursor: pointer; font-size: 13px; transition: all 0.2s; text-align: center; }
+  .import-mode-btn.selected { border-color: var(--blue); color: var(--blue); background: rgba(74,126,192,0.1); }
+  .gb-search-row { display: flex; gap: 10px; margin-bottom: 18px; }
+  .gb-search-row input { flex: 1; background: var(--surface2); border: 1px solid var(--border); padding: 12px; border-radius: var(--radius); color: var(--text); outline: none; }
+  .gb-search-row button { background: var(--surface3); border: 1px solid var(--border); padding: 0 20px; border-radius: var(--radius); color: var(--gold-dim); cursor: pointer; }
+  .gb-results { background: var(--surface2); border-radius: var(--radius); margin-bottom: 24px; max-height: 280px; overflow-y: auto; }
+  .gb-result-item { display: flex; gap: 14px; padding: 12px; border-bottom: 1px solid var(--border); cursor: pointer; align-items: center; }
+  .gb-result-item:hover { background: var(--surface3); }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .form-grid .full { grid-column: 1 / -1; }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field label { font-size: 11px; font-family: monospace; text-transform: uppercase; color: var(--text-dim); }
+  .field input, .field select, .field textarea { background: var(--surface2); border: 1px solid var(--border); color: var(--text); padding: 10px; border-radius: var(--radius); font-size: 14px; outline: none; font-family: 'IBM Plex Sans', sans-serif; }
+  .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--gold-dim); box-shadow: 0 0 4px var(--gold-glow); }
+  .summary-textarea { min-height: 180px; resize: vertical; line-height: 1.75; }
+  .rating-input { display: flex; align-items: center; gap: 12px; }
+  .rating-input input { width: 80px; text-align: center; }
+  .stars-preview { display: inline-flex; gap: 4px; margin-left: 12px; }
+  .stars-preview .star { font-size: 18px; }
+  .section-divider { grid-column: 1/-1; border-top: 1px solid var(--border); margin: 8px 0; }
+  .section-label { grid-column: 1/-1; font-size: 11px; color: var(--gold); text-transform: uppercase; letter-spacing: 0.1em; }
+  .modal-actions { display: flex; gap: 14px; margin-top: 28px; justify-content: flex-end; }
+  .btn { border: none; padding: 10px 22px; border-radius: 30px; cursor: pointer; font-family: monospace; font-size: 12px; font-weight: 600; transition: 0.2s; text-transform: uppercase; }
+  .btn-primary { background: var(--gold); color: #0e0e0e; }
+  .btn-primary:hover { box-shadow: 0 0 10px var(--gold-glow); }
+  .btn-ghost { background: var(--surface3); color: var(--text-dim); border: 1px solid var(--border); }
+  .btn-danger { background: #2e1a1a; color: var(--red); border: 1px solid #6a2e2e; }
+  .quotes-manager { background: var(--surface2); border: 1px solid #3a2a5a; border-radius: 14px; padding: 16px; margin-top: 4px; }
+  .quotes-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .quotes-label { font-size: 11px; font-family: monospace; text-transform: uppercase; color: #b07eb5; letter-spacing: 0.08em; }
+  .quote-item { display: flex; gap: 8px; align-items: flex-start; margin-bottom: 8px; }
+  .quote-item textarea { flex: 1; background: var(--surface3); border: 1px solid var(--border); color: var(--text-mid); padding: 8px 10px; border-radius: 8px; font-size: 13px; font-style: italic; resize: vertical; min-height: 44px; font-family: 'IBM Plex Sans', sans-serif; line-height: 1.5; outline: none; }
+  .quote-item textarea:focus { border-color: #7a5a8a; }
+  .btn-remove-quote { background: none; border: 1px solid #4a2a4a; color: #8a5a8a; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; font-size: 14px; flex-shrink: 0; line-height: 1; margin-top: 8px; display: inline-flex; align-items: center; justify-content: center; }
+  .btn-remove-quote:hover { border-color: var(--red); color: var(--red); }
+  .btn-add-quote { background: none; border: 1px dashed #5a3a7a; color: #9a7ab5; padding: 7px 14px; border-radius: 8px; cursor: pointer; font-size: 12px; font-family: monospace; width: 100%; transition: all 0.2s; margin-top: 4px; }
+  .btn-add-quote:hover { border-color: #9a6ab5; color: #c09ed5; background: #1a0f2a; }
+  .empty { text-align: center; padding: 64px; color: var(--text-dim); }
+
+  @media (max-width: 700px) {
+    header, #main-content { padding: 20px; }
+    nav { padding: 0 20px; }
+    .detail-hero-content { padding: 72px 20px 36px; gap: 20px; flex-wrap: wrap; }
+    .detail-body { padding: 0 20px 60px; }
+    .detail-title { font-size: 26px; }
+    .detail-back-btn { top: 16px; left: 16px; }
+    .detail-edit-btn { top: 16px; right: 16px; }
+    .detail-meta-bar { flex-wrap: wrap; }
+    .detail-meta-item { flex: 1 1 50%; border-bottom: 1px solid var(--border); }
+    .form-grid { grid-template-columns: 1fr; }
+    .form-grid .full { grid-column: 1; }
+    .top3-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div id="toast"></div>
+<div id="confirm-modal" class="overlay" style="z-index: 1000;">
+  <div class="modal confirm-modal">
+    <h2>Confirmar</h2>
+    <div class="confirm-message" id="confirm-message"></div>
+    <div class="confirm-actions">
+      <button class="btn-cancel" id="confirm-cancel">Cancelar</button>
+      <button class="btn-confirm" id="confirm-ok">Aceptar</button>
+    </div>
+  </div>
+</div>
+
+<div id="app-chrome">
+  <header>
+    <div class="header-left">
+      <div class="header-title">
+        <h1>Mi Biblioteca Vital</h1>
+        <p>Proyectos · Seguimiento de progreso</p>
+      </div>
+      <div class="header-actions">
+        <button class="btn-export" onclick="openExportModal()">⬇ Exportar datos</button>
+        <button class="btn-import" onclick="openImportModal()">⬆ Importar datos</button>
+      </div>
+    </div>
+    <div class="header-stats">
+      <div class="stat"><div class="stat-num" id="st-total">0</div><div class="stat-lbl">Libros</div></div>
+      <div class="stat"><div class="stat-num" id="st-done">0</div><div class="stat-lbl">Completados</div></div>
+      <div class="stat"><div class="stat-num" id="st-invest">S/ 0</div><div class="stat-lbl">Invertido</div></div>
+      <div class="stat"><div class="stat-num" id="st-avg">—</div><div class="stat-lbl">Rating prom.</div></div>
+    </div>
+  </header>
+  <nav>
+    <button class="active" onclick="showTab('biblioteca',this)">Biblioteca</button>
+    <button onclick="showTab('estadisticas',this)">Estadísticas</button>
+    <button onclick="showTab('proyectos',this)">Proyectos</button>
+    <button onclick="showTab('frases',this)">Frases</button>
+  </nav>
+</div>
+
+<div id="main-content">
+  <div id="tab-biblioteca" class="section active">
+    <div class="toolbar">
+      <input type="text" id="search" placeholder="Buscar en mi biblioteca..." oninput="renderBooks()">
+      <select id="filter-cat" onchange="renderBooks()">
+        <option value="">Todas</option>
+        <option>Finanzas</option><option>Negocios</option><option>Desarrollo Personal</option>
+        <option>Economía</option><option>Inversiones</option><option>Psicología</option>
+        <option>Filosofía</option><option>Historia</option><option>Tecnología</option><option>Otro</option>
+      </select>
+      <select id="filter-status" onchange="renderBooks()">
+        <option value="">Todos</option><option>Completado</option><option>No completado</option><option>En progreso</option>
+      </select>
+      <select id="sort-by" class="sort-select" onchange="renderBooks()">
+        <option value="newest">↓ Más recientes</option>
+        <option value="oldest">↑ Más antiguos</option>
+        <option value="rating-desc">★ Mayor rating</option>
+        <option value="rating-asc">★ Menor rating</option>
+        <option value="title-az">A–Z Título</option>
+        <option value="title-za">Z–A Título</option>
+        <option value="cost-desc">$ Mayor costo</option>
+      </select>
+      <span class="results-info" id="results-info"></span>
+      <button class="btn-add" onclick="openAddModal()">+ Agregar libro</button>
+    </div>
+    <div class="books-grid" id="books-grid" role="list"></div>
+    <div class="empty" id="empty-books" style="display:none">📚 No hay libros registrados.</div>
+  </div>
+
+  <div id="tab-estadisticas" class="section">
+    <div id="stats-container" class="stats-container"></div>
+  </div>
+
+  <div id="tab-proyectos" class="section">
+    <div id="project-list" class="project-cards"></div>
+    <div class="empty" id="empty-projects" style="display:none">No hay proyectos registrados.</div>
+  </div>
+
+  <div id="tab-frases" class="section">
+    <div id="all-quotes-list"></div>
+    <div class="empty" id="empty-frases" style="display:none">✍️ Ningún libro tiene frases registradas aún.<br><small style="font-size:12px;margin-top:8px;display:block;">Edita un libro y agrega sus frases desde el formulario.</small></div>
+  </div>
+</div>
+
+<!-- VISTA DETALLE -->
+<div id="book-detail">
+  <button class="detail-back-btn" onclick="closeDetail()">← Volver</button>
+  <button class="detail-edit-btn" onclick="editFromDetail()">✎ Editar</button>
+  <div class="detail-hero">
+    <div class="detail-hero-bg" id="detail-hero-bg"></div>
+    <div class="detail-hero-overlay"></div>
+    <div class="detail-hero-content">
+      <div id="detail-cover-wrap"></div>
+      <div class="detail-hero-meta">
+        <div class="detail-title" id="detail-title"></div>
+        <div class="detail-author" id="detail-author"></div>
+        <div class="detail-pills" id="detail-pills"></div>
+      </div>
+    </div>
+  </div>
+  <div class="detail-body">
+    <div class="detail-meta-bar" id="detail-meta-bar"></div>
+    <div class="detail-section">
+      <div class="detail-section-title">📖 Resumen</div>
+      <div id="detail-summary-content"></div>
+    </div>
+    <div class="detail-section" id="detail-section-quotes" style="display:none">
+      <div class="detail-section-title">✦ Frases destacadas</div>
+      <div class="detail-quotes-grid" id="detail-quotes-list"></div>
+    </div>
+    <div class="detail-section" id="detail-section-project" style="display:none">
+      <div class="detail-section-title">🎯 Proyecto de aplicación</div>
+      <div class="detail-project-box" id="detail-project-content"></div>
+    </div>
+    <div class="detail-section" id="detail-section-skills" style="display:none">
+      <div class="detail-section-title">⚡ Habilidades desarrolladas</div>
+      <div class="detail-skills-row" id="detail-skills-content"></div>
+    </div>
+    <div class="detail-section" id="detail-section-notes" style="display:none">
+      <div class="detail-section-title">📝 Notas personales</div>
+      <div class="detail-notes" id="detail-notes-content"></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EDICIÓN -->
+<div class="overlay" id="modal-overlay">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <h2 id="modal-title">Agregar libro</h2>
+    <div class="gb-search-row">
+      <input type="text" id="gb-search-input" placeholder="Buscar en Google Books...">
+      <button id="gb-search-btn">🔍 Buscar</button>
+    </div>
+    <div id="gb-results-container" class="gb-results" style="display:none;"></div>
+    <div id="book-form">
+      <div class="form-grid">
+        <div class="field full"><label>Título *</label><input type="text" id="f-title" required></div>
+        <div class="field full"><label>Autor</label><input type="text" id="f-author"></div>
+        <div class="field"><label>Categoría</label><select id="f-cat"><option>Finanzas</option><option>Negocios</option><option>Desarrollo Personal</option><option>Economía</option><option>Inversiones</option><option>Psicología</option><option>Filosofía</option><option>Historia</option><option>Tecnología</option><option>Otro</option></select></div>
+        <div class="field"><label>Estado</label><select id="f-status"><option>Completado</option><option>En progreso</option><option>No completado</option></select></div>
+        <div class="field"><label>Fecha inicio</label><input type="date" id="f-start"></div>
+        <div class="field"><label>Fecha fin</label><input type="date" id="f-end"></div>
+        <div class="field">
+          <label>Valoración (0-10)</label>
+          <div class="rating-input">
+            <input type="number" id="f-rating" step="0.5" min="0" max="10" value="0">
+            <div class="stars-preview" id="rating-stars-preview"></div>
+          </div>
+        </div>
+        <div class="field">
+          <label>Costo</label>
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px;"><input type="checkbox" id="f-free" onchange="toggleCost()"><label for="f-free" style="font-size:13px;">Gratis</label></div>
+          <input type="number" id="f-cost" placeholder="S/ 0.00">
+        </div>
+        <hr class="section-divider">
+        <div class="section-label">📖 Resumen</div>
+        <div class="field full"><textarea id="f-summary" class="summary-textarea" placeholder="Pega aquí el resumen completo del libro..."></textarea></div>
+        <hr class="section-divider">
+        <div class="section-label">Habilidades</div>
+        <div class="field"><label>Habilidad 1</label><input type="text" id="f-skill1"></div>
+        <div class="field"><label>Habilidad 2</label><input type="text" id="f-skill2"></div>
+        <hr class="section-divider">
+        <div class="section-label">Proyecto</div>
+        <div class="field full" style="flex-direction:row;align-items:center;gap:10px;"><input type="checkbox" id="f-has-project" onchange="toggleProject()"><label for="f-has-project" style="font-size:13px;">Tiene aplicabilidad</label></div>
+        <div id="project-fields" style="display:none;grid-column:1/-1;">
+          <div class="form-grid">
+            <div class="field full"><label>Nombre del proyecto</label><input type="text" id="f-proj-name"></div>
+            <div class="field full"><label>Descripción</label><textarea id="f-proj-desc" rows="2"></textarea></div>
+            <div class="field"><label>Utilidad (1-5)</label><input type="number" id="f-proj-score" step="1" min="0" max="5" value="0"></div>
+          </div>
+        </div>
+        <hr class="section-divider">
+        <div class="section-label">✦ Frases del libro</div>
+        <div class="full">
+          <div class="quotes-manager">
+            <div class="quotes-header"><span class="quotes-label">Citas y frases destacadas</span><span style="font-size:11px;">Se guardan al pulsar Guardar</span></div>
+            <div id="quotes-form-container"></div>
+            <div style="display:flex;gap:8px;margin-top:4px;">
+              <button type="button" class="btn-add-quote" style="flex:1" onclick="addQuoteField()">+ Agregar frase</button>
+              <button type="button" class="btn-add-quote" style="flex:1;border-color:#4a7a5a;color:#7ab595;" onclick="toggleBulkPaste()">⇩ Pegar en lote</button>
+            </div>
+            <div id="bulk-paste-area" style="display:none;margin-top:10px;">
+              <textarea id="bulk-paste-input" rows="8" placeholder="Pega aquí las frases, una por línea..." style="width:100%;background:var(--surface3);border:1px dashed #4a7a5a;color:var(--text-mid);padding:10px 12px;border-radius:8px;font-size:13px;font-style:italic;resize:vertical;"></textarea>
+              <div style="display:flex;gap:8px;margin-top:8px;">
+                <button type="button" class="btn-add-quote" style="flex:1;border-color:#4a7a5a;color:#7ab595;background:#0a1f14;" onclick="importBulkQuotes()">✓ Importar frases</button>
+                <button type="button" class="btn-add-quote" style="flex:1;" onclick="toggleBulkPaste()">Cancelar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <hr class="section-divider">
+        <div class="field full"><label>Notas</label><textarea id="f-notes" rows="2"></textarea></div>
+        <input type="hidden" id="f-cover-url">
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-danger" id="btn-delete" style="display:none" onclick="deleteBook()">Eliminar</button>
+        <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+        <button class="btn btn-primary" onclick="saveBook()">Guardar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EXPORT -->
+<div class="overlay" id="export-overlay">
+  <div class="modal" style="max-width:620px;">
+    <button class="modal-close" onclick="closeExportModal()">✕</button>
+    <h2>Exportar biblioteca</h2>
+    <p style="font-size:13px;color:var(--text-dim);margin-bottom:16px;">Copia todo el texto de abajo y guárdalo en un lugar seguro.</p>
+    <div style="position:relative;"><textarea id="export-textarea" readonly style="width:100%;height:220px;background:var(--surface2);border:1px solid var(--border);color:var(--text-mid);padding:14px;border-radius:12px;font-family:'IBM Plex Mono',monospace;font-size:11px;resize:none;"></textarea><button onclick="copyExportData()" id="btn-copy-export" style="position:absolute;top:10px;right:10px;background:var(--gold);border:none;color:#0e0e0e;padding:6px 14px;border-radius:20px;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;cursor:pointer;">Copiar todo</button></div>
+    <div class="modal-actions"><button class="btn btn-ghost" onclick="closeExportModal()">Cerrar</button></div>
+  </div>
+</div>
+
+<!-- MODAL IMPORT -->
+<div class="overlay" id="import-overlay">
+  <div class="modal" style="max-width:620px;">
+    <button class="modal-close" onclick="closeImportModal()">✕</button>
+    <h2>Importar biblioteca</h2>
+    <textarea id="import-textarea" placeholder="Pega aquí el texto exportado..." style="width:100%;height:200px;background:var(--surface2);border:1px solid var(--border);color:var(--text-mid);padding:14px;border-radius:12px;font-family:'IBM Plex Mono',monospace;font-size:11px;resize:none;margin-bottom:14px;" oninput="validateImportPaste()"></textarea>
+    <div id="import-paste-status" style="margin-bottom:14px;display:none;"></div>
+    <div style="margin-bottom:16px;">
+      <p style="font-size:13px;color:var(--text-dim);">¿Qué hacer con los libros existentes?</p>
+      <div class="import-options">
+        <div class="import-mode-btn selected" id="mode-merge" onclick="selectImportMode('merge')">Combinar<br><small>Agrega sin duplicar</small></div>
+        <div class="import-mode-btn" id="mode-replace" onclick="selectImportMode('replace')">Reemplazar<br><small>Borra todo y reimporta</small></div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeImportModal()">Cancelar</button>
+      <button class="btn btn-primary" id="btn-confirm-import" onclick="confirmImport()" disabled>Importar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const STORAGE_KEY = 'biblioteca_v1';
+  const META_KEY = 'meta_anual';
+  let books = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+  let editingId = null, viewingId = null, currentGBResults = [];
+  let importMode = 'merge', pendingImportData = null;
+  let lastFocusedElement = null;
+  const FALLBACK = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 130 180'%3E%3Crect width='130' height='180' fill='%231f1f1f'/%3E%3Ctext x='65' y='90' fill='%238a6f30' font-size='30' text-anchor='middle'%3E📖%3C/text%3E%3C/svg%3E`;
+
+  function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(books)); }
+  function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2); }
+  function esc(s){ if(!s) return ''; return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]); }
+
+  function isAutoTitle(line) { const t = line.trim(); if (!t || t.length > 80) return false; if (/[.!?,;]$/.test(t)) return false; if (/^\d+\./.test(t)) return false; if (/^[-*]/.test(t)) return false; if (t.split(' ').length > 12) return false; return true; }
+  function renderMarkdown(text) { if (!text) return ''; const lines = text.split('\n'); let html = '', inList = false, inOl = false; for (let line of lines) { const t = line.trim(); if (/^# (.+)/.test(line)) { if (inList) { html += '</ul>'; inList = false; } if (inOl) { html += '</ol>'; inOl = false; } html += `<h2>${inlineMarkdown(line.replace(/^#+\s*/,''))}</h2>`; } else if (/^[-*] (.+)/.test(t)) { if (inOl) { html += '</ol>'; inOl = false; } if (!inList) { html += '<ul>'; inList = true; } html += `<li>${inlineMarkdown(t.replace(/^[-*] /,''))}</li>`; } else if (/^\d+\.\s+(.+)/.test(t)) { if (inList) { html += '</ul>'; inList = false; } if (!inOl) { html += '<ol>'; inOl = true; } html += `<li>${inlineMarkdown(t.replace(/^\d+\.\s+/,''))}</li>`; } else if (t === '') { if (inList) { html += '</ul>'; inList = false; } if (inOl) { html += '</ol>'; inOl = false; } } else if (isAutoTitle(t)) { if (inList) { html += '</ul>'; inList = false; } if (inOl) { html += '</ol>'; inOl = false; } html += `<h3>${inlineMarkdown(t)}</h3>`; } else { if (inList) { html += '</ul>'; inList = false; } if (inOl) { html += '</ol>'; inOl = false; } html += `<p>${inlineMarkdown(t)}</p>`; } } if (inList) html += '</ul>'; if (inOl) html += '</ol>'; return html; }
+  function inlineMarkdown(text) { const safe = text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); return safe.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/\*(.+?)\*/g, '<em>$1</em>').replace(/_(.+?)_/g, '<em>$1</em>'); }
+
+  function toast(msg, type='success', dur=3000) { const t = document.getElementById('toast'); t.textContent = msg; t.className = `show ${type}`; setTimeout(() => { t.className = ''; }, dur); }
+
+  function showConfirm(message) { return new Promise((resolve) => { const modal = document.getElementById('confirm-modal'); document.getElementById('confirm-message').textContent = message; const okBtn = document.getElementById('confirm-ok'); const cancelBtn = document.getElementById('confirm-cancel'); const closeModal = () => { modal.classList.remove('open'); okBtn.removeEventListener('click', okHandler); cancelBtn.removeEventListener('click', cancelHandler); if (lastFocusedElement) lastFocusedElement.focus(); }; const okHandler = () => { closeModal(); resolve(true); }; const cancelHandler = () => { closeModal(); resolve(false); }; okBtn.addEventListener('click', okHandler); cancelBtn.addEventListener('click', cancelHandler); modal.classList.add('open'); lastFocusedElement = document.activeElement; okBtn.focus(); }); }
+
+  function openExportModal() { if(!books.length){ toast('No hay libros para exportar','error'); return; } const data={version:1,exportDate:new Date().toISOString(),books}; document.getElementById('export-textarea').value=JSON.stringify(data); document.getElementById('export-overlay').classList.add('open'); lastFocusedElement=document.activeElement; }
+  function closeExportModal(){ document.getElementById('export-overlay').classList.remove('open'); if(lastFocusedElement) lastFocusedElement.focus(); }
+  function copyExportData(){ const ta=document.getElementById('export-textarea'); navigator.clipboard.writeText(ta.value).then(()=>{ const btn=document.getElementById('btn-copy-export'); btn.textContent='¡Copiado!'; btn.style.background='var(--green)'; setTimeout(()=>{ btn.textContent='Copiar todo'; btn.style.background='var(--gold)'; },2000); }).catch(()=>toast('No se pudo copiar','error')); }
+  function openImportModal(){ pendingImportData=null; document.getElementById('import-textarea').value=''; document.getElementById('import-paste-status').style.display='none'; document.getElementById('btn-confirm-import').disabled=true; document.getElementById('import-overlay').classList.add('open'); lastFocusedElement=document.activeElement; }
+  function closeImportModal(){ document.getElementById('import-overlay').classList.remove('open'); if(lastFocusedElement) lastFocusedElement.focus(); }
+  function selectImportMode(mode){ importMode=mode; document.getElementById('mode-merge').classList.toggle('selected',mode==='merge'); document.getElementById('mode-replace').classList.toggle('selected',mode==='replace'); }
+  function validateImportPaste(){ const text=document.getElementById('import-textarea').value.trim(); const status=document.getElementById('import-paste-status'); status.style.display=''; if(!text){ status.innerHTML=''; document.getElementById('btn-confirm-import').disabled=true; return; } try{ const raw=JSON.parse(text); const imported=raw.books||(Array.isArray(raw)?raw:null); if(!imported||!imported.length) throw new Error(); pendingImportData=imported; status.innerHTML=`<div style="padding:10px 14px;background:#0a1a10;border:1px solid #2a6a40;border-radius:10px;font-size:13px;color:#5ab58a;">✓ Datos válidos — <strong>${imported.length} libro(s)</strong> detectados</div>`; document.getElementById('btn-confirm-import').disabled=false; } catch(e){ pendingImportData=null; document.getElementById('btn-confirm-import').disabled=true; if(text.length>5) status.innerHTML='<div style="padding:10px 14px;background:#1a0808;border:1px solid #4a1a1a;border-radius:10px;font-size:13px;color:var(--red);">Texto inválido. Asegúrate de copiar el texto completo.</div>'; else status.innerHTML=''; } }
+  async function confirmImport(){ if(!pendingImportData) return; if(importMode==='replace'){ if(!await showConfirm(`¿Reemplazar tu biblioteca (${books.length} libros) con ${pendingImportData.length} importados?`)) return; books=pendingImportData.map(b=>Object.assign({},b,{id:b.id||uid()})); toast('Biblioteca reemplazada con '+books.length+' libros'); }else{ const existingIds=new Set(books.map(b=>b.id)); const existingTitles=new Set(books.map(b=>(b.title||'').toLowerCase().trim())); let added=0,skipped=0; pendingImportData.forEach(b=>{ const isDupe=existingIds.has(b.id)||existingTitles.has((b.title||'').toLowerCase().trim()); if(!isDupe){ books.unshift(Object.assign({},b,{id:b.id||uid()})); added++; }else skipped++; }); toast(added+' libro(s) importados'+(skipped?', '+skipped+' omitidos':'')); } save(); closeImportModal(); renderBooks(); renderStats(); renderProjects(); renderAllQuotes(); }
+
+  function sortBooks(arr){ const by=document.getElementById('sort-by').value; return [...arr].sort((a,b)=>{ switch(by){ case 'oldest': return (a.id||'').localeCompare(b.id||''); case 'rating-desc': return (b.rating||0)-(a.rating||0); case 'rating-asc': return (a.rating||0)-(b.rating||0); case 'title-az': return (a.title||'').localeCompare(b.title||'','es'); case 'title-za': return (b.title||'').localeCompare(a.title||'','es'); case 'cost-desc': return ((b.free?0:parseFloat(b.cost||0))-(a.free?0:parseFloat(a.cost||0))); default: return (b.id||'').localeCompare(a.id||''); } }); }
+
+  function getStarsFromRating(rating){ const fullStars=Math.floor(rating/2); const halfStar=(rating%2)>=0.5?1:0; let html=''; for(let i=0;i<fullStars;i++) html+='<span class="star on">★</span>'; if(halfStar) html+='<span class="star" style="color:var(--gold-dim)">★</span>'; for(let i=0;i<5-fullStars-halfStar;i++) html+='<span class="star">★</span>'; return html; }
+  function updateStarsPreview(){ const rating=parseFloat(document.getElementById('f-rating').value)||0; const preview=document.getElementById('rating-stars-preview'); if(preview) preview.innerHTML=getStarsFromRating(rating); }
+
+  function renderBooks(){
+    const q=document.getElementById('search').value.toLowerCase();
+    const cat=document.getElementById('filter-cat').value;
+    const st=document.getElementById('filter-status').value;
+    let filtered=books.filter(b=>(!q||b.title.toLowerCase().includes(q)||(b.author||'').toLowerCase().includes(q)) && (!cat||b.category===cat) && (!st||b.status===st));
+    filtered=sortBooks(filtered);
+    const grid=document.getElementById('books-grid');
+    const empty=document.getElementById('empty-books');
+    const info=document.getElementById('results-info');
+    info.textContent=filtered.length!==books.length?`${filtered.length} de ${books.length} libros`:`${books.length} libro${books.length!==1?'s':''}`;
+    if(!filtered.length){ grid.innerHTML=''; empty.style.display=''; return; }
+    empty.style.display='none';
+    grid.innerHTML=filtered.map(b=>{
+      const starsHtml=getStarsFromRating(b.rating||0);
+      const sc=b.status==='Completado'?'status-completado':b.status==='No completado'?'status-no-completado':'status-en-progreso';
+      // Habilidades: flex centrado
+      const skills=[b.skill1,b.skill2].filter(Boolean);
+      const skillsHtml=skills.length?`<div class="card-skills">${skills.map(s=>`<span class="skill-pill">${esc(s)}</span>`).join('')}</div>`:'';
+      const costTag=b.free?'<span class="tag tag-cost">💰 Gratis</span>':(b.cost>0?`<span class="tag tag-cost">S/ ${parseFloat(b.cost).toFixed(2)}</span>`:'');
+      const coverImg=b.coverUrl?`<img class="book-cover" src="${b.coverUrl}" onerror="this.src='${FALLBACK}'" alt="">`:`<div class="book-cover" style="background:#1f1f1f;display:flex;align-items:center;justify-content:center;font-size:44px;">📖</div>`;
+      // Frases: primera frase, centrada, sin pseudo-elemento exterior
+      const qs=b.quotes||[];
+      const qPreview=qs.length?`<div class="card-quote-preview"><p>${esc(qs[0])}</p></div>`:'';
+      const qBadge=qs.length?`<span class="tag tag-quote">✦ ${qs.length} frase${qs.length>1?'s':''}</span>`:'';
+      const sBadge=b.summary?`<span class="tag tag-summary">📖 Resumen</span>`:'';
+      return `<div class="book-card" data-id="${b.id}" tabindex="0" role="listitem">
+        <span class="card-status-corner ${sc}">${b.status}</span>
+        ${coverImg}
+        <div class="card-title">${esc(b.title)}</div>
+        ${b.author?`<div class="card-author">${esc(b.author)}</div>`:''}
+        <div class="card-meta">
+          <span class="tag">${b.category}</span>
+          ${b.hasProject?'<span class="tag tag-gold">Proyecto</span>':''}
+          ${sBadge}${qBadge}${costTag}
+        </div>
+        <div class="card-rating">${starsHtml}</div>
+        ${skillsHtml}
+        ${qPreview}
+      </div>`;
+    }).join('');
+    document.querySelectorAll('.book-card').forEach(card=>{
+      card.addEventListener('click',()=>openDetail(card.dataset.id));
+      card.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); openDetail(card.dataset.id); } });
+    });
+    updateStats();
+  }
+
+  function updateStats(){ document.getElementById('st-total').innerText=books.length; document.getElementById('st-done').innerText=books.filter(b=>b.status==='Completado').length; const total=books.reduce((a,b)=>a+(b.free?0:parseFloat(b.cost||0)),0); document.getElementById('st-invest').innerText='S/ '+total.toFixed(0); const rated=books.filter(b=>b.rating>0); const avgRating=rated.length?(rated.reduce((a,b)=>a+b.rating,0)/rated.length).toFixed(1):'—'; document.getElementById('st-avg').innerText=avgRating; }
+
+  function getMetaAnual() { let meta = localStorage.getItem(META_KEY); if (meta === null) meta = 20; else meta = parseInt(meta); return isNaN(meta) ? 20 : meta; }
+  function setMetaAnual(valor) { localStorage.setItem(META_KEY, valor); renderStats(); }
+
+  function renderStats() {
+    const container = document.getElementById('stats-container');
+    if (!container) return;
+    if (!books.length) { container.innerHTML = '<div class="empty">📊 Aún no hay datos. Agrega algunos libros.</div>'; return; }
+    const currentYear = new Date().getFullYear();
+    const librosCompletadosEsteAnio = books.filter(b => b.status === 'Completado' && b.endDate && new Date(b.endDate).getFullYear() === currentYear).length;
+    const meta = getMetaAnual();
+    const porcentaje = Math.min(100, Math.round((librosCompletadosEsteAnio / meta) * 100));
+    const faltan = Math.max(0, meta - librosCompletadosEsteAnio);
+    let prediccionHtml = '';
+    const completadosConFecha = books.filter(b => b.status === 'Completado' && b.endDate && new Date(b.endDate).getFullYear() === currentYear);
+    if (completadosConFecha.length > 0 && completadosConFecha.length < meta) { const fechasOrdenadas = completadosConFecha.map(b => new Date(b.endDate)).sort((a,b)=>a-b); const primeraFecha = fechasOrdenadas[0]; const ultimaFecha = fechasOrdenadas[fechasOrdenadas.length-1]; const diasEntre = Math.ceil((ultimaFecha - primeraFecha) / (1000 * 3600 * 24)); const librosLeidos = completadosConFecha.length; const ritmo = diasEntre > 0 ? librosLeidos / diasEntre : 0; const diasRestantesAnio = Math.ceil((new Date(currentYear+1,0,1) - new Date()) / (1000*3600*24)); const librosFaltantes = meta - librosLeidos; const diasNecesarios = ritmo > 0 ? Math.ceil(librosFaltantes / ritmo) : Infinity; if (ritmo > 0 && diasNecesarios <= diasRestantesAnio) prediccionHtml = `<div class="prediction">📈 Al ritmo actual, alcanzarás la meta en ~${diasNecesarios} días. ¡Sigue así!</div>`; else if (ritmo > 0) prediccionHtml = `<div class="prediction">⚠️ Al ritmo actual, te faltarían ${diasNecesarios - diasRestantesAnio} días después de fin de año.</div>`; else prediccionHtml = `<div class="prediction">📖 Registra fechas de finalización para obtener una predicción.</div>`; } else if (librosCompletadosEsteAnio >= meta) prediccionHtml = `<div class="prediction">🎉 ¡Felicidades! Ya superaste tu meta de ${meta} libros.</div>`; else prediccionHtml = `<div class="prediction">📅 Registra fechas de finalización para ver tu predicción.</div>`;
+    const top3 = [...books].filter(b => b.rating > 0).sort((a,b) => b.rating - a.rating).slice(0,3);
+    let top3Html = '';
+    if (top3.length) { top3Html = `<div class="stats-card"><div class="stats-title">🏆 Top 3 mejor valorados</div><div class="top3-grid">${top3.map(b=>{const cover=b.coverUrl?`<img class="top3-cover" src="${b.coverUrl}" onerror="this.src='${FALLBACK}'" alt="">`:`<div class="top3-cover" style="background:#1f1f1f;display:flex;align-items:center;justify-content:center;font-size:28px;">📖</div>`;return `<div class="top3-card" onclick="openDetail('${b.id}')">${cover}<div class="top3-title">${esc(b.title)}</div><div class="top3-author">${esc(b.author||'—')}</div><div class="top3-rating">${getStarsFromRating(b.rating)} <span style="margin-left:4px;">(${b.rating.toFixed(1)})</span></div></div>`;}).join('')}</div></div>`; }
+    const completadosConFechas = books.filter(b => b.status === 'Completado' && b.startDate && b.endDate);
+    let velocidadHtml = '<div class="stats-card"><div class="stats-title">⚡ Velocidad de lectura</div>';
+    if (!completadosConFechas.length) { velocidadHtml += `<div class="speed-card" style="padding:20px;color:var(--text-dim);font-size:13px;">📌 Registra fechas de inicio y fin para ver tu velocidad.</div>`; }
+    else { let totalDias=0,masRapido={titulo:'',dias:Infinity},masLento={titulo:'',dias:0}; completadosConFechas.forEach(b=>{const start=new Date(b.startDate),end=new Date(b.endDate);if(!isNaN(start)&&!isNaN(end)&&end>=start){const dias=Math.ceil((end-start)/(1000*3600*24));totalDias+=dias;if(dias<masRapido.dias)masRapido={titulo:b.title,dias};if(dias>masLento.dias)masLento={titulo:b.title,dias};}}); const promedio=(totalDias/completadosConFechas.length).toFixed(1); let comentario=promedio<10?'🚀 ¡Muy rápido!':promedio<20?'📚 Buen ritmo.':promedio<40?'🐢 Ritmo pausado pero constante.':'⏳ Quizás puedas aumentar frecuencia.'; velocidadHtml+=`<div class="speed-card"><div class="speed-stat"><span class="speed-label">Promedio días por libro</span><span class="speed-value">${promedio} días</span></div><div class="speed-stat"><span class="speed-label">⚡ Más rápido</span><span class="speed-value">${esc(masRapido.titulo)} (${masRapido.dias} días)</span></div><div class="speed-stat"><span class="speed-label">🐢 Más lento</span><span class="speed-value">${esc(masLento.titulo)} (${masLento.dias} días)</span></div><div class="speed-comment">${comentario}</div></div>`; }
+    velocidadHtml += '</div>';
+    const catCount={},catRatings={};
+    books.forEach(b=>{ catCount[b.category]=(catCount[b.category]||0)+1; if(b.rating>0){if(!catRatings[b.category])catRatings[b.category]={sum:0,count:0};catRatings[b.category].sum+=b.rating;catRatings[b.category].count++;} });
+    const catEntries=Object.entries(catCount).sort((a,b)=>b[1]-a[1]);
+    const maxCount=Math.max(...catEntries.map(e=>e[1]),1);
+    const yearMap={};
+    books.forEach(b=>{if(b.status==='Completado'&&b.endDate){const year=b.endDate.slice(0,4);if(year)yearMap[year]=(yearMap[year]||0)+1;}});
+    const years=Object.keys(yearMap).sort();
+    const maxYearCount=Math.max(...Object.values(yearMap),1);
+    container.innerHTML=`<div class="stats-card"><div class="meta-card"><div class="meta-header"><div class="meta-title">🎯 Meta anual ${currentYear}</div><input type="number" id="meta-input" class="meta-input" value="${meta}" min="1" max="500"></div><div class="progress-bar-container"><div class="progress-fill" style="width:${porcentaje}%;"></div></div><div class="meta-stats"><span>📚 ${librosCompletadosEsteAnio} / ${meta}</span><span>${porcentaje}%</span><span>Faltan ${faltan}</span></div>${prediccionHtml}</div></div>${top3Html}${velocidadHtml}<div class="stats-card"><div class="stats-title">📚 Libros por categoría</div><div class="category-stats">${catEntries.map(([cat,count])=>`<div class="category-bar"><span class="category-name">${esc(cat)}</span><div class="bar-container"><div class="bar-fill" style="width:${(count/maxCount)*100}%"></div></div><span class="category-count">${count}</span></div>`).join('')}</div></div><div class="stats-card"><div class="stats-title">⭐ Rating promedio por categoría</div><div class="rating-stats">${Object.entries(catRatings).map(([cat,{sum,count}])=>`<div class="rating-item"><span>${esc(cat)}</span><span>${(sum/count).toFixed(1)} ★</span></div>`).join('')}${!Object.keys(catRatings).length?'<div style="padding:20px;color:var(--text-dim);font-size:13px;">No hay valoraciones aún.</div>':''}</div></div><div class="stats-card"><div class="stats-title">📈 Hábitos de lectura</div><div class="habits-stats"><div class="habit-card"><div class="habit-number">${books.filter(b=>b.status==='Completado').length}</div><div class="habit-label">Completados</div></div><div class="habit-card"><div class="habit-number">${books.filter(b=>b.status==='En progreso').length}</div><div class="habit-label">En progreso</div></div><div class="habit-card"><div class="habit-number">${books.length}</div><div class="habit-label">Total</div></div></div>${years.length?`<div class="year-chart" style="margin-top:20px;"><div class="stats-title" style="font-size:15px;">Por año</div>${years.map(y=>`<div class="year-item"><span class="year-name">${y}</span><div class="year-bar"><div class="year-fill" style="width:${(yearMap[y]/maxYearCount)*100}%"></div></div><span>${yearMap[y]}</span></div>`).join('')}</div>`:''}</div>`;
+    const metaInput=document.getElementById('meta-input');
+    if(metaInput) metaInput.addEventListener('change',(e)=>{ let newVal=parseInt(e.target.value); if(isNaN(newVal)||newVal<1)newVal=1; setMetaAnual(newVal); });
+  }
+
+  function renderProjects(){ const wp=books.filter(b=>b.hasProject&&b.projectName); const c=document.getElementById('project-list'),e=document.getElementById('empty-projects'); if(!wp.length){c.innerHTML='';e.style.display='';return;} e.style.display='none'; c.innerHTML=wp.map(b=>{const dots=[1,2,3,4,5].map(i=>`<span style="color:${i<=b.projectScore?'var(--gold)':'var(--border)'}">●</span>`).join('');const done=b.projectCompleted===true;return `<div class="project-card"><h3>${esc(b.projectName)}</h3><div class="project-meta"><span class="tag">📘 ${esc(b.title)}</span><span class="score-badge">${dots} ${b.projectScore}/5</span></div>${b.projectDesc?`<div class="project-desc">${esc(b.projectDesc)}</div>`:''}<div class="project-progress"><label><input type="checkbox" class="pcc" data-id="${b.id}" ${done?'checked':''}><span>Marcar como proyecto aplicado</span></label>${done?'<span class="completed-badge">✓ Completado</span>':'<span class="pending-badge">◌ Pendiente</span>'}</div></div>`;}).join(''); document.querySelectorAll('.pcc').forEach(cb=>{cb.addEventListener('change',()=>{const bk=books.find(x=>x.id===cb.dataset.id);if(bk){bk.projectCompleted=cb.checked;save();renderProjects();}});}); }
+
+  function renderAllQuotes(){ const c=document.getElementById('all-quotes-list'),e=document.getElementById('empty-frases'); const bq=books.filter(b=>b.quotes&&b.quotes.length>0); if(!bq.length){c.innerHTML='';e.style.display='';return;} e.style.display='none'; const FB2=`data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 55'%3E%3Crect width='40' height='55' fill='%231f1f1f'/%3E%3Ctext x='20' y='30' fill='%238a6f30' font-size='12' text-anchor='middle'%3E📖%3C/text%3E%3C/svg%3E`; c.innerHTML=bq.map(b=>{const cover=b.coverUrl?`<img src="${b.coverUrl}" onerror="this.src='${FB2}'" style="width:40px;height:55px;object-fit:cover;border-radius:6px;border:1px solid var(--gold-dim);flex-shrink:0;" alt="">`:`<div style="width:40px;height:55px;background:#1f1f1f;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">📖</div>`;const items=b.quotes.map(q=>`<div class="quote-display-item" onclick="openDetail('${b.id}')">${esc(q)}<span class="quote-source">— ${esc(b.title)}${b.author?', '+esc(b.author):''}</span></div>`).join('');return `<div style="margin-bottom:32px;"><div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;cursor:pointer;" onclick="openDetail('${b.id}')">${cover}<div><div style="font-family:'Playfair Display',serif;font-size:18px;color:var(--text);">${esc(b.title)}</div>${b.author?`<div style="font-size:12px;color:var(--gold-dim);">${esc(b.author)}</div>`:''}<div style="font-size:11px;color:#7a5a8a;font-family:monospace;">${b.quotes.length} frase${b.quotes.length>1?'s':''}</div></div></div><div class="quotes-display"><h3>Frases destacadas</h3>${items}</div></div>`;}).join(''); }
+
+  function openDetail(id){ const b=books.find(x=>x.id===id); if(!b) return; viewingId=id; const heroBg=document.getElementById('detail-hero-bg'); if(b.coverUrl){heroBg.style.backgroundImage=`url('${b.coverUrl}')`;document.getElementById('detail-cover-wrap').innerHTML=`<img class="detail-cover" src="${b.coverUrl}" onerror="this.src='${FALLBACK}'" alt="">`;}else{heroBg.style.backgroundImage='';document.getElementById('detail-cover-wrap').innerHTML=`<div class="detail-cover-placeholder">📖</div>`;} document.getElementById('detail-title').textContent=b.title; document.getElementById('detail-author').textContent=b.author||''; const pillSt=b.status==='Completado'?'pill-completado':b.status==='No completado'?'pill-no-completado':'pill-en-progreso'; document.getElementById('detail-pills').innerHTML=`<span class="detail-pill ${pillSt}">${b.status}</span><span class="detail-pill pill-cat">${b.category}</span>${b.rating>0?`<span class="detail-pill pill-stars">${getStarsFromRating(b.rating)}</span>`:''}${b.free?'<span class="detail-pill pill-cat">💰 Gratis</span>':(b.cost>0?`<span class="detail-pill pill-cat">S/ ${parseFloat(b.cost).toFixed(2)}</span>`:'')}`;
+  const mi=[]; if(b.startDate)mi.push({l:'Inicio',v:b.startDate});if(b.endDate)mi.push({l:'Fin',v:b.endDate});if(b.skill1||b.skill2)mi.push({l:'Habilidades',v:[b.skill1,b.skill2].filter(Boolean).join(', ')});if(b.quotes&&b.quotes.length)mi.push({l:'Frases',v:b.quotes.length});if(b.hasProject&&b.projectName)mi.push({l:'Proyecto',v:b.projectCompleted?'✓ Aplicado':'⏳ Pendiente'}); const mb=document.getElementById('detail-meta-bar'); mb.innerHTML=mi.map(m=>`<div class="detail-meta-item"><div class="detail-meta-label">${m.l}</div><div class="detail-meta-value">${esc(String(m.v))}</div></div>`).join(''); mb.style.display=mi.length?'':'none';
+  if(b.summary&&b.summary.trim())document.getElementById('detail-summary-content').innerHTML=`<div class="detail-summary-text">${renderMarkdown(b.summary)}</div>`;else document.getElementById('detail-summary-content').innerHTML=`<div class="detail-summary-empty" onclick="editFromDetail()">📝 Sin resumen. Haz clic para agregar uno.</div>`;
+  const qs=b.quotes||[]; const secQ=document.getElementById('detail-section-quotes'); if(qs.length){secQ.style.display='';document.getElementById('detail-quotes-list').innerHTML=qs.map(q=>`<div class="detail-quote">${esc(q)}</div>`).join('');}else secQ.style.display='none';
+  const secP=document.getElementById('detail-section-project'); if(b.hasProject&&b.projectName){secP.style.display='';const dots=[1,2,3,4,5].map(i=>`<span style="color:${i<=b.projectScore?'var(--gold)':'var(--border)'}">●</span>`).join('');document.getElementById('detail-project-content').innerHTML=`<div class="detail-project-name">${esc(b.projectName)}</div><div style="margin-bottom:6px;"><span class="score-badge">${dots} ${b.projectScore}/5</span></div>${b.projectDesc?`<div class="detail-project-desc">${esc(b.projectDesc)}</div>`:''}<div class="detail-project-status"><label><input type="checkbox" id="dp-check" ${b.projectCompleted?'checked':''}> Marcar como aplicado</label><span id="dp-badge">${b.projectCompleted?'<span class="completed-badge">✓ Completado</span>':'<span class="pending-badge">◌ Pendiente</span>'}</span></div>`;document.getElementById('dp-check').addEventListener('change',function(){b.projectCompleted=this.checked;save();renderProjects();document.getElementById('dp-badge').innerHTML=this.checked?'<span class="completed-badge">✓ Completado</span>':'<span class="pending-badge">◌ Pendiente</span>';});}else secP.style.display='none';
+  const secSk=document.getElementById('detail-section-skills'); const sk=[b.skill1,b.skill2].filter(Boolean); if(sk.length){secSk.style.display='';document.getElementById('detail-skills-content').innerHTML=sk.map(s=>`<span class="skill-pill" style="font-size:14px;padding:6px 16px;">${esc(s)}</span>`).join('');}else secSk.style.display='none';
+  const secN=document.getElementById('detail-section-notes'); if(b.notes&&b.notes.trim()){secN.style.display='';document.getElementById('detail-notes-content').textContent=b.notes;}else secN.style.display='none';
+  document.getElementById('app-chrome').classList.add('hidden'); document.getElementById('main-content').style.display='none'; const detail=document.getElementById('book-detail'); detail.scrollTop=0; requestAnimationFrame(()=>detail.classList.add('open')); }
+
+  function closeDetail(){ document.getElementById('book-detail').classList.remove('open'); setTimeout(()=>{document.getElementById('app-chrome').classList.remove('hidden');document.getElementById('main-content').style.display='';},100); viewingId=null; }
+  function editFromDetail(){ if(!viewingId) return; const idToEdit=viewingId; document.getElementById('book-detail').classList.remove('open'); document.getElementById('app-chrome').classList.remove('hidden'); document.getElementById('main-content').style.display=''; viewingId=null; setTimeout(()=>openEditModal(idToEdit),50); }
+
+  function toggleBulkPaste(){ const area=document.getElementById('bulk-paste-area'); const isVisible=area.style.display!=='none'; area.style.display=isVisible?'none':'block'; if(!isVisible)document.getElementById('bulk-paste-input').focus(); }
+  function importBulkQuotes(){ const raw=document.getElementById('bulk-paste-input').value.trim(); if(!raw) return; const lines=raw.split('\n').map(l=>l.replace(/^\s*\d+[\.\)\-]\s*/,'').trim()).filter(l=>l.length>0); lines.forEach(l=>addQuoteField(l)); document.getElementById('bulk-paste-input').value=''; document.getElementById('bulk-paste-area').style.display='none'; toast(`✓ ${lines.length} frases importadas`); }
+  function addQuoteField(text=''){ const c=document.getElementById('quotes-form-container'); const d=document.createElement('div'); d.className='quote-item'; d.innerHTML=`<textarea placeholder="Escribe una frase o cita...">${esc(text)}</textarea><button type="button" class="btn-remove-quote" onclick="this.parentElement.remove()">✕</button>`; c.appendChild(d); if(!text)d.querySelector('textarea').focus(); }
+  function getQuotesFromForm(){ return Array.from(document.querySelectorAll('#quotes-form-container .quote-item textarea')).map(t=>t.value.trim()).filter(Boolean); }
+  function loadQuotesIntoForm(quotes=[]){ document.getElementById('quotes-form-container').innerHTML=''; quotes.forEach(q=>addQuoteField(q)); }
+
+  function openAddModal(){ editingId=null; document.getElementById('modal-title').innerText='Agregar libro'; document.getElementById('btn-delete').style.display='none'; clearForm(); document.getElementById('modal-overlay').classList.add('open'); lastFocusedElement=document.activeElement; document.getElementById('f-title').focus(); }
+  function openEditModal(id){ const b=books.find(x=>x.id===id); if(!b) return; editingId=id; document.getElementById('modal-title').innerText='Editar libro'; document.getElementById('btn-delete').style.display=''; fillForm(b); document.getElementById('modal-overlay').classList.add('open'); lastFocusedElement=document.activeElement; document.getElementById('f-title').focus(); }
+  function closeModal(){ document.getElementById('modal-overlay').classList.remove('open'); clearGBResults(); if(lastFocusedElement)lastFocusedElement.focus(); }
+  function clearForm(){ ['f-title','f-author','f-skill1','f-skill2','f-start','f-end','f-cost','f-notes','f-proj-name','f-proj-desc','f-cover-url','f-summary'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';}); document.getElementById('f-cat').value='Finanzas'; document.getElementById('f-status').value='Completado'; document.getElementById('f-free').checked=false; document.getElementById('f-cost').disabled=false; document.getElementById('f-has-project').checked=false; document.getElementById('project-fields').style.display='none'; document.getElementById('f-rating').value=0; document.getElementById('f-proj-score').value=0; updateStarsPreview(); loadQuotesIntoForm([]); }
+  function fillForm(b){ document.getElementById('f-title').value=b.title||''; document.getElementById('f-author').value=b.author||''; document.getElementById('f-cat').value=b.category||'Finanzas'; document.getElementById('f-status').value=b.status||'Completado'; document.getElementById('f-start').value=b.startDate||''; document.getElementById('f-end').value=b.endDate||''; document.getElementById('f-free').checked=!!b.free; document.getElementById('f-cost').value=b.cost||''; document.getElementById('f-cost').disabled=!!b.free; document.getElementById('f-skill1').value=b.skill1||''; document.getElementById('f-skill2').value=b.skill2||''; document.getElementById('f-has-project').checked=!!b.hasProject; document.getElementById('project-fields').style.display=b.hasProject?'':'none'; document.getElementById('f-proj-name').value=b.projectName||''; document.getElementById('f-proj-desc').value=b.projectDesc||''; document.getElementById('f-notes').value=b.notes||''; document.getElementById('f-cover-url').value=b.coverUrl||''; document.getElementById('f-summary').value=b.summary||''; document.getElementById('f-rating').value=b.rating||0; document.getElementById('f-proj-score').value=b.projectScore||0; updateStarsPreview(); loadQuotesIntoForm(b.quotes||[]); }
+  function toggleCost(){ const f=document.getElementById('f-free').checked; document.getElementById('f-cost').disabled=f; if(f)document.getElementById('f-cost').value=''; }
+  function toggleProject(){ document.getElementById('project-fields').style.display=document.getElementById('f-has-project').checked?'':'none'; }
+  function saveBook(){ const title=document.getElementById('f-title').value.trim(); if(!title) return alert('Título obligatorio'); const prevId=editingId; const existingBook=editingId?books.find(b=>b.id===editingId):null; const rating=parseFloat(document.getElementById('f-rating').value)||0; const projScore=parseInt(document.getElementById('f-proj-score').value)||0; const book={id:editingId||uid(),title,author:document.getElementById('f-author').value.trim(),category:document.getElementById('f-cat').value,status:document.getElementById('f-status').value,startDate:document.getElementById('f-start').value,endDate:document.getElementById('f-end').value,rating,free:document.getElementById('f-free').checked,cost:parseFloat(document.getElementById('f-cost').value)||0,skill1:document.getElementById('f-skill1').value.trim(),skill2:document.getElementById('f-skill2').value.trim(),hasProject:document.getElementById('f-has-project').checked,projectName:document.getElementById('f-proj-name').value.trim(),projectDesc:document.getElementById('f-proj-desc').value.trim(),projectScore:projScore,notes:document.getElementById('f-notes').value.trim(),coverUrl:document.getElementById('f-cover-url').value,summary:document.getElementById('f-summary').value.trim(),projectCompleted:existingBook?.projectCompleted||false,quotes:getQuotesFromForm()}; if(editingId){const i=books.findIndex(x=>x.id===editingId);if(i!==-1)books[i]=book;}else books.unshift(book); save(); closeModal(); renderBooks(); renderStats(); renderProjects(); renderAllQuotes(); toast(`✓ "${title}" guardado`); if(prevId)setTimeout(()=>openDetail(prevId),150); }
+  async function deleteBook(){ if(!editingId) return; if(await showConfirm('¿Eliminar este libro?')){books=books.filter(x=>x.id!==editingId);save();closeModal();closeDetail();renderBooks();renderStats();renderProjects();renderAllQuotes();toast('Libro eliminado','error');} }
+
+  async function searchGoogleBooks(){ const q=document.getElementById('gb-search-input').value.trim(); if(!q) return; const c=document.getElementById('gb-results-container'); c.style.display='block'; c.innerHTML='<div style="padding:12px;">🔍 Buscando...</div>'; try{const res=await fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(q)}&maxResults=8`);const data=await res.json();if(!data.items){c.innerHTML='<div style="padding:12px;">Sin resultados</div>';return;} currentGBResults=data.items.map(it=>({title:it.volumeInfo.title,authors:it.volumeInfo.authors?.join(', ')||'',cover:it.volumeInfo.imageLinks?.thumbnail||'',description:it.volumeInfo.description||''})); c.innerHTML=currentGBResults.map((bk,i)=>`<div class="gb-result-item" data-idx="${i}">${bk.cover?`<img src="${bk.cover}" style="width:40px;border-radius:4px;">`:'<div style="width:40px;height:55px;background:#2a2a2a;border-radius:4px;"></div>'}<div><b>${esc(bk.title)}</b><br><span style="font-size:12px;color:var(--text-dim);">${esc(bk.authors)}</span></div></div>`).join(''); document.querySelectorAll('.gb-result-item').forEach(el=>{el.addEventListener('click',()=>{const s=currentGBResults[parseInt(el.dataset.idx)];document.getElementById('f-title').value=s.title;document.getElementById('f-author').value=s.authors;if(s.cover)document.getElementById('f-cover-url').value=s.cover;if(s.description&&!document.getElementById('f-summary').value)document.getElementById('f-summary').value=s.description;clearGBResults();});});}catch(e){c.innerHTML='<div style="padding:12px;color:var(--red);">Error al buscar</div>';} }
+  function clearGBResults(){ document.getElementById('gb-results-container').innerHTML=''; document.getElementById('gb-results-container').style.display='none'; }
+
+  function showTab(name,btn){ document.querySelectorAll('.section').forEach(s=>s.classList.remove('active')); document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active')); document.getElementById(`tab-${name}`).classList.add('active'); btn.classList.add('active'); if(name==='estadisticas')renderStats(); if(name==='proyectos')renderProjects(); if(name==='frases')renderAllQuotes(); }
+
+  document.getElementById('gb-search-btn').addEventListener('click',searchGoogleBooks);
+  document.getElementById('gb-search-input').addEventListener('keydown',e=>{if(e.key==='Enter')searchGoogleBooks();});
+  document.getElementById('f-rating').addEventListener('input',updateStarsPreview);
+  document.getElementById('modal-overlay').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal();});
+  document.getElementById('import-overlay').addEventListener('click',e=>{if(e.target===e.currentTarget)closeImportModal();});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(document.getElementById('modal-overlay').classList.contains('open'))closeModal();else if(document.getElementById('import-overlay').classList.contains('open'))closeImportModal();else if(document.getElementById('book-detail').classList.contains('open'))closeDetail();else if(document.getElementById('confirm-modal').classList.contains('open'))document.getElementById('confirm-cancel').click();}});
+
+  renderBooks(); renderStats(); renderProjects(); renderAllQuotes();
+</script>
+</body>
+</html>
