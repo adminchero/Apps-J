@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bóveda de Ahorro · Estadísticas por fondo</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=DM+Mono:wght@300;400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#03060a;--bg2:#0a1217;--bg3:#0f1a20;--surface:#12232c;--surface2:#1a2e3a;
+    --border:#2a4b5e;--gold:#ffd966;--gold2:#ffecb3;--green:#6ee7b7;--green2:#3b9e7a;
+    --green3:#1e7a5c;--teal:#2dd4bf;--blue:#3b82f6;--blue2:#60a5fa;--cyan:#06b6d4;
+    --red:#f87171;--pink:#f472b6;--text:#f0f9ff;--text2:#b9e6f0;--text3:#6c9eb0;
+    --glow-gold:0 0 8px rgba(255,217,102,0.4);--glow-green:0 0 8px rgba(110,231,183,0.3);
+    --glow-blue:0 0 8px rgba(59,130,246,0.4);--radius:20px;--radius-sm:10px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{
+    background:radial-gradient(circle at 20% 30%,#071217,#03060a);
+    color:var(--text);
+    font-family:'Outfit',sans-serif;
+    font-weight:300;
+    font-size:18px;
+    line-height:1.4;
+    min-height:100vh;
+    overflow-x:hidden;
+  }
+  body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 70% 40% at 30% 20%,rgba(110,231,183,0.08) 0%,transparent 70%),radial-gradient(ellipse 60% 50% at 90% 85%,rgba(59,130,246,0.08) 0%,transparent 70%);pointer-events:none;z-index:0;}
+  .container{max-width:1140px;margin:0 auto;padding:24px 20px 80px;position:relative;z-index:1;}
+  header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:36px;padding-bottom:24px;border-bottom:1px solid rgba(110,231,183,0.2);flex-wrap:wrap;gap:16px;}
+  .header-left h1{font-family:'Cormorant Garamond',serif;font-size:clamp(2.2rem,5vw,3.5rem);font-weight:300;letter-spacing:-0.02em;line-height:1;background:linear-gradient(135deg,var(--gold),var(--green));-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .header-left h1 span{color:var(--gold);font-style:italic;}
+  .header-left p{font-family:'DM Mono',monospace;font-size:0.75rem;color:var(--text3);letter-spacing:0.15em;text-transform:uppercase;margin-top:6px;}
+  .header-totals{display:flex;gap:24px;align-items:flex-end;flex-wrap:wrap;}
+  .hti{text-align:right;}
+  .hti .val{font-family:'Cormorant Garamond',serif;font-size:clamp(1.5rem,3vw,2.2rem);font-weight:600;line-height:1;text-shadow:0 0 5px rgba(255,217,102,0.3);}
+  .hti .lbl{font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--text3);letter-spacing:0.1em;text-transform:uppercase;margin-top:3px;}
+  .hdiv{width:1px;height:36px;background:rgba(110,231,183,0.3);}
+
+  /* TC LIVE BADGE */
+  .tc-live{display:flex;align-items:center;gap:8px;background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.3);border-radius:30px;padding:6px 14px;font-family:'DM Mono',monospace;font-size:0.75rem;color:var(--blue2);flex-wrap:wrap;}
+  .tc-live .tc-val{font-size:0.95rem;font-weight:500;color:var(--gold);}
+  .tc-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite;}
+  .tc-btn{background:none;border:1px solid rgba(59,130,246,0.4);border-radius:20px;color:var(--blue2);font-family:'DM Mono',monospace;font-size:0.65rem;padding:3px 8px;cursor:pointer;transition:all 0.2s;}
+  .tc-btn:hover{border-color:var(--gold);color:var(--gold);}
+
+  /* BACKUP BADGE */
+  .backup-bar{background:linear-gradient(135deg,rgba(110,231,183,0.08),rgba(59,130,246,0.05));border:1px solid rgba(110,231,183,0.2);border-radius:var(--radius-sm);padding:10px 16px;margin-bottom:20px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:0.85rem;color:var(--text2);}
+  .backup-bar .bb-info{flex:1;min-width:160px;font-family:'DM Mono',monospace;font-size:0.7rem;color:var(--text3);}
+  .btn-backup-now{background:rgba(110,231,183,0.15);border:1px solid rgba(110,231,183,0.4);border-radius:20px;color:var(--green);font-family:'DM Mono',monospace;font-size:0.7rem;padding:5px 12px;cursor:pointer;transition:all 0.2s;white-space:nowrap;}
+  .btn-backup-now:hover{background:rgba(110,231,183,0.25);border-color:var(--green);}
+
+  .tabs{display:flex;gap:6px;background:rgba(18,35,44,0.7);backdrop-filter:blur(8px);border:1px solid rgba(110,231,183,0.3);border-radius:var(--radius);padding:6px;margin-bottom:28px;overflow-x:auto;}
+  .tab{flex:1;min-width:100px;padding:10px 14px;border:none;background:transparent;color:var(--text2);font-family:'Outfit',sans-serif;font-size:0.85rem;font-weight:500;border-radius:var(--radius-sm);cursor:pointer;transition:all 0.2s ease;white-space:nowrap;}
+  .tab.active{background:linear-gradient(135deg,rgba(110,231,183,0.2),rgba(59,130,246,0.1));color:var(--gold);border:1px solid rgba(110,231,183,0.5);box-shadow:var(--glow-green);}
+  .tab:hover:not(.active){color:var(--gold2);background:rgba(110,231,183,0.1);}
+  .panel{display:none;}.panel.active{display:block;}
+
+  .funds-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:18px;margin-bottom:28px;}
+  .fund-card{background:rgba(18,35,44,0.7);backdrop-filter:blur(8px);border:1px solid rgba(110,231,183,0.25);border-radius:var(--radius);padding:22px;position:relative;overflow:hidden;transition:all 0.25s ease;box-shadow:0 8px 20px rgba(0,0,0,0.2);cursor:pointer;}
+  .fund-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+  .fund-card.emergency::before{background:linear-gradient(90deg,var(--red),var(--pink));}
+  .fund-card.groot::before{background:linear-gradient(90deg,var(--green),var(--teal));}
+  .fund-card.dollars::before{background:linear-gradient(90deg,var(--blue),var(--cyan));}
+  .fund-card:hover{border-color:rgba(110,231,183,0.6);transform:translateY(-3px);box-shadow:0 12px 28px rgba(0,0,0,0.3),var(--glow-green);}
+  .fund-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;}
+  .fund-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;background:rgba(110,231,183,0.1);box-shadow:0 0 6px rgba(110,231,183,0.3);}
+  .fund-badge{font-family:'DM Mono',monospace;font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;padding:4px 10px;border-radius:30px;border:1px solid;}
+  .fund-card.emergency .fund-badge{color:var(--red);border-color:rgba(248,113,113,0.5);background:rgba(248,113,113,0.1);}
+  .fund-card.groot .fund-badge{color:var(--green);border-color:rgba(110,231,183,0.5);background:rgba(110,231,183,0.1);}
+  .fund-card.dollars .fund-badge{color:var(--blue2);border-color:rgba(96,165,250,0.5);background:rgba(96,165,250,0.1);}
+  .fund-name{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:500;margin-bottom:2px;color:var(--gold);}
+  .fund-desc{font-size:0.75rem;color:var(--text3);font-family:'DM Mono',monospace;}
+  .fund-amount{font-family:'Cormorant Garamond',serif;font-size:2.2rem;font-weight:600;margin:12px 0 2px;line-height:1;text-shadow:0 0 6px rgba(255,217,102,0.3);}
+  .fund-card.emergency .fund-amount{color:#ffb7a0;}
+  .fund-card.groot .fund-amount{color:var(--green);}
+  .fund-card.dollars .fund-amount{color:var(--blue2);}
+  .fund-meta{font-size:0.75rem;color:var(--text3);margin-bottom:12px;}
+  .progress-track{height:6px;background:rgba(0,0,0,0.4);border-radius:6px;overflow:hidden;margin-bottom:7px;}
+  .progress-fill{height:100%;border-radius:6px;transition:width 0.7s cubic-bezier(0.34,1.56,0.64,1);box-shadow:0 0 4px currentColor;}
+  .fund-card.emergency .progress-fill{background:linear-gradient(90deg,#f87171,#ffb3a0);}
+  .fund-card.groot .progress-fill{background:linear-gradient(90deg,var(--green3),var(--green));}
+  .fund-card.dollars .progress-fill{background:linear-gradient(90deg,var(--blue),var(--cyan));}
+  .progress-labels{display:flex;justify-content:space-between;font-family:'DM Mono',monospace;font-size:0.7rem;color:var(--text3);}
+  .dollar-subrow{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;}
+  .ds-item{flex:1;min-width:90px;background:rgba(0,0,0,0.3);border:1px solid rgba(110,231,183,0.2);border-radius:var(--radius-sm);padding:9px 11px;}
+  .ds-item .dsl{font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--text3);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:3px;}
+  .ds-item .dsv{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:600;}
+
+  .dollar-calculator{background:linear-gradient(135deg,rgba(59,130,246,0.1),rgba(6,182,212,0.05));border:1px solid rgba(59,130,246,0.3);border-radius:var(--radius);padding:22px;margin-bottom:24px;}
+  .calc-title{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:400;margin-bottom:16px;color:var(--blue2);display:flex;align-items:center;gap:10px;}
+  .calc-title::after{content:'';flex:1;height:1px;background:rgba(59,130,246,0.3);}
+  .calc-input-row{display:flex;gap:14px;align-items:flex-end;flex-wrap:wrap;margin-bottom:16px;}
+  .calc-result{background:rgba(0,0,0,0.3);border:1px solid rgba(59,130,246,0.3);border-radius:var(--radius-sm);padding:16px 20px;display:flex;flex-wrap:wrap;gap:18px;align-items:center;}
+  .cri{flex:1;min-width:130px;}
+  .cri .crl{font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--text3);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:4px;}
+  .cri .crv{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:600;}
+  .crv.pos{color:var(--green);}.crv.neg{color:var(--red);}.crv.blu{color:var(--blue2);}
+
+  .register-section{background:rgba(18,35,44,0.6);backdrop-filter:blur(8px);border:1px solid rgba(110,231,183,0.3);border-radius:var(--radius);padding:24px;margin-bottom:22px;}
+  .section-title{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:400;margin-bottom:18px;display:flex;align-items:center;gap:10px;color:var(--gold);}
+  .section-title::after{content:'';flex:1;height:1px;background:rgba(110,231,183,0.3);}
+  .form-grid{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:12px;align-items:end;}
+  .form-grid-5{display:grid;grid-template-columns:1fr 1fr 1fr 1fr auto;gap:12px;align-items:end;}
+  @media(max-width:700px){.form-grid,.form-grid-5{grid-template-columns:1fr 1fr;}.form-grid .btn-submit,.form-grid-5 .btn-submit{grid-column:1/-1;}}
+  .note-field{grid-column:1/-1;}
+  .form-group label{display:block;font-family:'DM Mono',monospace;font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--text3);margin-bottom:7px;}
+  .form-group input,.form-group select{width:100%;background:rgba(0,0,0,0.5);border:1px solid rgba(110,231,183,0.3);border-radius:var(--radius-sm);color:var(--text);font-family:'Outfit',sans-serif;font-size:0.95rem;padding:11px 13px;outline:none;transition:all 0.2s;}
+  .form-group input:focus,.form-group select:focus{border-color:var(--gold);box-shadow:0 0 6px rgba(255,217,102,0.4);}
+  .btn-submit{background:linear-gradient(135deg,var(--gold),#ffb347);border:none;border-radius:var(--radius-sm);color:#0a0f0d;font-family:'Outfit',sans-serif;font-size:0.9rem;font-weight:600;padding:12px 22px;cursor:pointer;transition:all 0.2s;box-shadow:0 4px 12px rgba(0,0,0,0.2);}
+  .btn-submit.blue{background:linear-gradient(135deg,var(--blue),var(--cyan));color:white;}
+  .btn-submit:hover{transform:translateY(-1px);filter:brightness(1.05);box-shadow:0 8px 18px rgba(0,0,0,0.3);}
+
+  .metrics-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:13px;margin-bottom:26px;}
+  .metric-card{background:rgba(18,35,44,0.6);backdrop-filter:blur(4px);border:1px solid rgba(110,231,183,0.2);border-radius:var(--radius);padding:17px;transition:all 0.2s;}
+  .metric-card:hover{border-color:rgba(110,231,183,0.5);transform:translateY(-2px);}
+  .metric-label{font-family:'DM Mono',monospace;font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--text3);margin-bottom:8px;}
+  .metric-value{font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:600;line-height:1;}
+  .metric-value.gold{color:var(--gold);text-shadow:0 0 5px rgba(255,217,102,0.5);}
+  .metric-value.green{color:var(--green);}
+  .metric-value.teal{color:var(--teal);}
+  .metric-value.red{color:var(--red);}
+  .metric-value.blue{color:var(--blue2);}
+  .metric-sub{font-size:0.75rem;color:var(--text3);margin-top:5px;}
+
+  .history-section{background:rgba(18,35,44,0.6);backdrop-filter:blur(8px);border:1px solid rgba(110,231,183,0.2);border-radius:var(--radius);overflow:hidden;margin-bottom:22px;}
+  .history-header{padding:17px 20px;border-bottom:1px solid rgba(110,231,183,0.2);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+  .filter-row{display:flex;gap:6px;flex-wrap:wrap;}
+  .filter-btn{background:rgba(0,0,0,0.3);border:1px solid rgba(110,231,183,0.3);border-radius:30px;color:var(--text2);font-family:'DM Mono',monospace;font-size:0.7rem;letter-spacing:0.06em;padding:5px 11px;cursor:pointer;transition:all 0.15s;}
+  .filter-btn.active,.filter-btn:hover{border-color:var(--gold);color:var(--gold);background:rgba(255,217,102,0.1);}
+  .table-wrap{overflow-x:auto;}
+  table{width:100%;border-collapse:collapse;}
+  thead th{font-family:'DM Mono',monospace;font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--text3);text-align:left;padding:10px 18px;border-bottom:1px solid rgba(110,231,183,0.2);}
+  tbody tr{border-bottom:1px solid rgba(110,231,183,0.1);transition:background 0.12s;}
+  tbody tr:hover{background:rgba(110,231,183,0.05);}
+  tbody td{padding:11px 18px;font-size:0.9rem;vertical-align:middle;}
+  .badge-type{font-family:'DM Mono',monospace;font-size:0.65rem;letter-spacing:0.06em;padding:3px 8px;border-radius:20px;border:1px solid;white-space:nowrap;}
+  .badge-emergency{color:var(--red);border-color:rgba(248,113,113,0.5);background:rgba(248,113,113,0.1);}
+  .badge-groot{color:var(--green);border-color:rgba(110,231,183,0.5);background:rgba(110,231,183,0.1);}
+  .badge-dollars{color:var(--blue2);border-color:rgba(96,165,250,0.5);background:rgba(96,165,250,0.1);}
+  .amount-cell{font-family:'DM Mono',monospace;font-size:0.9rem;font-weight:500;color:var(--gold2);}
+  .amount-cell.usd{color:var(--blue2);}
+  .btn-delete{background:none;border:1px solid rgba(110,231,183,0.3);border-radius:6px;color:var(--text3);cursor:pointer;padding:4px 8px;font-size:0.75rem;transition:all 0.15s;}
+  .btn-delete:hover{border-color:var(--red);color:var(--red);}
+  .empty-state{text-align:center;padding:48px 20px;color:var(--text3);}
+
+  .chart-section{background:rgba(18,35,44,0.6);backdrop-filter:blur(8px);border:1px solid rgba(110,231,183,0.2);border-radius:var(--radius);padding:22px;margin-bottom:26px;}
+  .chart-legend{display:flex;gap:14px;margin-bottom:12px;flex-wrap:wrap;}
+  .legend-item{display:flex;align-items:center;gap:5px;font-family:'DM Mono',monospace;font-size:0.7rem;color:var(--text3);}
+  .legend-dot{width:8px;height:8px;border-radius:2px;}
+  .bar-chart{display:flex;align-items:flex-end;justify-content:space-around;height:150px;gap:5px;}
+  .bar-col{flex:1;display:flex;flex-direction:column;align-items:center;max-width:70px;}
+  .bar-group{display:flex;align-items:flex-end;gap:2px;height:150px;}
+  .bar{flex:1;border-radius:4px 4px 0 0;min-height:2px;transition:height 0.5s cubic-bezier(0.34,1.56,0.64,1);position:relative;cursor:pointer;width:8px;}
+  .bar:hover::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 5px);left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.9);border:1px solid var(--gold);border-radius:6px;padding:3px 7px;font-family:'DM Mono',monospace;font-size:0.7rem;color:var(--text);white-space:nowrap;z-index:10;}
+  .bar.emergency{background:linear-gradient(180deg,#ff9a7a,#f87171);}
+  .bar.groot{background:linear-gradient(180deg,var(--green),var(--green3));}
+  .bar.dollars{background:linear-gradient(180deg,var(--cyan),var(--blue));}
+  .bar-label{font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--text3);text-align:center;margin-top:5px;}
+
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:26px;}
+  @media(max-width:600px){.two-col{grid-template-columns:1fr;}}
+  .goal-card{background:rgba(18,35,44,0.6);backdrop-filter:blur(8px);border:1px solid rgba(110,231,183,0.2);border-radius:var(--radius);padding:20px;}
+  .goal-row{display:flex;align-items:center;gap:13px;margin-bottom:15px;}
+  .goal-icon{font-size:1.5rem;}
+  .goal-info{flex:1;}
+  .goal-name{font-size:0.9rem;font-weight:500;margin-bottom:3px;}
+  .goal-eta{font-family:'DM Mono',monospace;font-size:0.7rem;color:var(--text3);}
+  .goal-pct{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:600;}
+
+  .insight-strip{background:linear-gradient(135deg,rgba(255,217,102,0.1),rgba(110,231,183,0.05));border:1px solid rgba(255,217,102,0.3);border-radius:var(--radius);padding:13px 17px;margin-bottom:22px;display:flex;align-items:center;gap:10px;font-size:0.9rem;color:var(--text2);backdrop-filter:blur(4px);}
+
+  .autosave-badge{position:fixed;top:16px;right:16px;font-family:'DM Mono',monospace;font-size:0.65rem;letter-spacing:0.1em;color:var(--text3);display:flex;align-items:center;gap:5px;z-index:100;background:rgba(10,15,13,0.8);padding:5px 10px;border-radius:20px;border:1px solid rgba(110,231,183,0.3);backdrop-filter:blur(8px);}
+  .autosave-dot{width:5px;height:5px;border-radius:50%;background:var(--green3);transition:background 0.3s;}
+  .autosave-dot.saving{background:var(--gold);animation:pulse 0.8s infinite;}
+  .autosave-dot.ok{background:var(--green);}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  .toast{position:fixed;bottom:26px;right:26px;background:rgba(18,35,44,0.95);backdrop-filter:blur(8px);border:1px solid var(--gold);border-left:3px solid var(--gold);border-radius:var(--radius-sm);padding:12px 17px;font-size:0.85rem;color:var(--text);z-index:1000;transform:translateY(80px);opacity:0;transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1);max-width:300px;box-shadow:0 8px 20px rgba(0,0,0,0.3);}
+  .toast.show{transform:translateY(0);opacity:1;}
+  .toast.error{border-left-color:var(--red);}
+  .toast.blue{border-left-color:var(--blue);}
+  .toast.green{border-left-color:var(--green);}
+
+  .qm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:12px;margin-bottom:22px;}
+  .loading-overlay{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:9999;flex-direction:column;gap:14px;}
+  .loading-spinner{width:36px;height:36px;border:2px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin 0.7s linear infinite;}
+  .loading-text{font-family:'DM Mono',monospace;font-size:0.75rem;color:var(--text3);letter-spacing:0.15em;text-transform:uppercase;}
+
+  .import-section{background:rgba(18,35,44,0.6);backdrop-filter:blur(8px);border:1px dashed rgba(110,231,183,0.4);border-radius:var(--radius);padding:24px;margin-bottom:22px;}
+  .import-textarea{width:100%;background:rgba(0,0,0,0.5);border:1px solid rgba(110,231,183,0.3);border-radius:var(--radius-sm);color:var(--text);font-family:'DM Mono',monospace;font-size:0.8rem;padding:12px;min-height:100px;outline:none;resize:vertical;}
+  .btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;}
+  .btn-secondary{background:rgba(18,35,44,0.8);border:1px solid rgba(110,231,183,0.3);border-radius:var(--radius-sm);color:var(--text2);font-family:'Outfit',sans-serif;font-size:0.85rem;padding:10px 18px;cursor:pointer;transition:all 0.2s;}
+  .btn-secondary:hover{border-color:var(--gold);color:var(--gold);}
+  .btn-danger{background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.4);border-radius:var(--radius-sm);color:var(--red);font-family:'Outfit',sans-serif;font-size:0.85rem;padding:10px 18px;cursor:pointer;transition:all 0.2s;}
+  .btn-danger:hover{background:rgba(248,113,113,0.2);border-color:var(--red);}
+
+  /* Backup history list */
+  .backup-list{background:rgba(0,0,0,0.3);border:1px solid rgba(110,231,183,0.2);border-radius:var(--radius-sm);overflow:hidden;margin-top:12px;}
+  .backup-item{display:flex;align-items:center;gap:12px;padding:10px 14px;border-bottom:1px solid rgba(110,231,183,0.1);font-family:'DM Mono',monospace;font-size:0.7rem;}
+  .backup-item:last-child{border-bottom:none;}
+  .backup-item .bi-date{color:var(--gold);flex:1;}
+  .backup-item .bi-size{color:var(--text3);}
+  .btn-dl{background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);border-radius:6px;color:var(--blue2);font-family:'DM Mono',monospace;font-size:0.65rem;padding:3px 8px;cursor:pointer;transition:all 0.15s;}
+  .btn-dl:hover{background:rgba(59,130,246,0.3);}
+  .btn-del-bk{background:none;border:none;color:var(--text3);cursor:pointer;font-size:0.75rem;padding:2px 5px;transition:color 0.15s;}
+  .btn-del-bk:hover{color:var(--red);}
+
+  /* Modal */
+  .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);backdrop-filter:blur(10px);z-index:10000;justify-content:center;align-items:center;padding:20px;}
+  .modal-content{background:rgba(18,35,44,0.95);backdrop-filter:blur(12px);border:1px solid rgba(110,231,183,0.5);border-radius:var(--radius);max-width:800px;width:100%;max-height:90vh;overflow-y:auto;padding:24px;box-shadow:0 20px 40px rgba(0,0,0,0.5);position:relative;}
+  .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;border-bottom:1px solid rgba(110,231,183,0.3);padding-bottom:12px;}
+  .modal-header h2{font-family:'Cormorant Garamond',serif;font-size:1.8rem;color:var(--gold);}
+  .close-modal{background:none;border:none;color:var(--text3);font-size:1.8rem;cursor:pointer;transition:color 0.2s;}
+  .close-modal:hover{color:var(--gold);}
+  .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:20px;}
+  .stat-card{background:rgba(0,0,0,0.3);border-radius:var(--radius-sm);padding:16px;text-align:center;border:1px solid rgba(110,231,183,0.2);}
+  .stat-label{font-family:'DM Mono',monospace;font-size:0.65rem;letter-spacing:0.1em;color:var(--text3);margin-bottom:8px;}
+  .stat-value{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:600;color:var(--gold2);}
+  .mini-chart{margin-top:20px;padding:16px;background:rgba(0,0,0,0.2);border-radius:var(--radius-sm);}
+  .mini-chart h3{font-family:'Cormorant Garamond',serif;font-size:1.1rem;margin-bottom:12px;color:var(--gold);}
+</style>
+</head>
+<body>
+
+<div id="loadingOverlay" class="loading-overlay">
+  <div class="loading-spinner"></div>
+  <div class="loading-text">Cargando datos…</div>
+</div>
+
+<div class="autosave-badge"><span class="autosave-dot" id="saveDot"></span><span id="saveLabel">GUARDADO</span></div>
+
+<div class="container">
+  <header>
+    <div class="header-left">
+      <h1>Bóveda de <span>Ahorro</span></h1>
+      <p>Sistema de ahorro personal · PEN / USD</p>
+      <!-- TC LIVE -->
+      <div class="tc-live" style="margin-top:10px" id="tcLiveBar">
+        <span class="tc-dot"></span>
+        <span>TC HOY (SBS):</span>
+        <span class="tc-val" id="tcLiveVal">Cargando…</span>
+        <span id="tcLiveSub" style="color:var(--text3);font-size:0.65rem"></span>
+        <button class="tc-btn" onclick="fetchTC()">↻ Actualizar</button>
+      </div>
+    </div>
+    <div class="header-totals">
+      <div class="hti"><div class="val" id="totalSoles" style="color:var(--gold2)">S/ 0.00</div><div class="lbl">Total en soles</div></div>
+      <div class="hdiv"></div>
+      <div class="hti"><div class="val" id="totalDolares" style="color:var(--blue2)">$ 0.00</div><div class="lbl">Total en dólares</div></div>
+      <div class="hdiv"></div>
+      <div class="hti"><div class="val" id="totalGeneral" style="color:var(--text)">S/ 0.00</div><div class="lbl">Patrimonio total</div></div>
+    </div>
+  </header>
+
+  <!-- BACKUP BAR -->
+  <div class="backup-bar">
+    <span>💾</span>
+    <div class="bb-info">
+      <div>Último respaldo: <span id="lastBackupTime">Nunca</span></div>
+      <div style="margin-top:2px">Los respaldos se guardan en tu carpeta de Descargas · <strong style="color:var(--green)">Boveda_Backups/</strong></div>
+    </div>
+    <button class="btn-backup-now" onclick="backupNow()">📥 Respaldar ahora</button>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('dashboard',this)">📊 Dashboard</button>
+    <button class="tab" onclick="switchTab('registrar',this)">➕ Registrar</button>
+    <button class="tab" onclick="switchTab('dolares',this)">💵 Dólares</button>
+    <button class="tab" onclick="switchTab('historial',this)">📋 Historial</button>
+    <button class="tab" onclick="switchTab('metricas',this)">📈 Métricas</button>
+    <button class="tab" onclick="switchTab('datos',this)">⚙️ Datos</button>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="tab-dashboard" class="panel active">
+    <div id="insightStrip" class="insight-strip"><span>🧠</span><span id="insightText">Cargando inteligencia...</span></div>
+    <div class="funds-grid">
+      <div class="fund-card emergency" onclick="showFundModal('emergency')">
+        <div class="fund-header"><div class="fund-icon">🛡️</div><span class="fund-badge">EMERGENCIA</span></div>
+        <div class="fund-name">Fondo de Emergencia</div>
+        <div class="fund-desc">META · S/ 5,000</div>
+        <div class="fund-amount" id="amt-emergency">S/ 0.00</div>
+        <div class="fund-meta" id="meta-emergency">0 depósitos</div>
+        <div class="progress-track"><div class="progress-fill" id="prog-emergency" style="width:0%"></div></div>
+        <div class="progress-labels"><span id="pct-emergency">0%</span><span>S/ 5,000</span></div>
+      </div>
+      <div class="fund-card groot" onclick="showFundModal('groot')">
+        <div class="fund-header"><div class="fund-icon">🌱</div><span class="fund-badge">INVERSIÓN</span></div>
+        <div class="fund-name">Alcancía Groot</div>
+        <div class="fund-desc">META · S/ 10,000 · Largo plazo</div>
+        <div class="fund-amount" id="amt-groot">S/ 0.00</div>
+        <div class="fund-meta" id="meta-groot">0 depósitos</div>
+        <div class="progress-track"><div class="progress-fill" id="prog-groot" style="width:0%"></div></div>
+        <div class="progress-labels"><span id="pct-groot">0%</span><span>S/ 10,000</span></div>
+      </div>
+      <div class="fund-card dollars" onclick="showFundModal('dollars')">
+        <div class="fund-header"><div class="fund-icon">💵</div><span class="fund-badge">DIVISAS</span></div>
+        <div class="fund-name">Bolsa de Dólares</div>
+        <div class="fund-desc">Acumulado en USD · Costo en soles</div>
+        <div class="fund-amount" id="dash-usd">$ 0.00</div>
+        <div class="fund-meta" id="dash-usd-meta">0 compras · Invertido S/ 0.00</div>
+        <div class="dollar-subrow">
+          <div class="ds-item"><div class="dsl">Invertido S/</div><div class="dsv" id="ds-inv" style="color:#ff9a7a">S/ 0.00</div></div>
+          <div class="ds-item"><div class="dsl">TC promedio</div><div class="dsv" id="ds-tcavg" style="color:var(--teal)">—</div></div>
+          <div class="ds-item"><div class="dsl">Valor hoy (SBS)</div><div class="dsv" id="ds-valorhoy" style="color:var(--gold2)">—</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="chart-section">
+      <div class="section-title">Actividad mensual</div>
+      <div class="chart-legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#f87171"></div>Emergencia</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div>Groot</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--blue)"></div>USD (en S/)</div>
+      </div>
+      <div class="bar-chart" id="barChart"><div class="empty-state" style="width:100%"><span style="font-size:2rem">📉</span><p>Registra depósitos para ver el gráfico</p></div></div>
+    </div>
+
+    <div class="two-col">
+      <div class="goal-card">
+        <div class="section-title" style="margin-bottom:16px">Tiempo estimado a meta</div>
+        <div class="goal-row"><div class="goal-icon">🛡️</div><div class="goal-info"><div class="goal-name">Fondo Emergencia</div><div class="goal-eta" id="eta-emergency">—</div></div><div class="goal-pct" style="color:#ff9a7a" id="gpct-emergency">0%</div></div>
+        <div class="goal-row"><div class="goal-icon">🌱</div><div class="goal-info"><div class="goal-name">Alcancía Groot</div><div class="goal-eta" id="eta-groot">—</div></div><div class="goal-pct" style="color:var(--green)" id="gpct-groot">0%</div></div>
+      </div>
+      <div class="goal-card">
+        <div class="section-title" style="margin-bottom:16px">Récords</div>
+        <div class="goal-row"><div class="goal-icon">🏆</div><div class="goal-info"><div class="goal-name">Mes más productivo</div><div class="goal-eta" id="bestMonth">—</div></div></div>
+        <div class="goal-row"><div class="goal-icon">📅</div><div class="goal-info"><div class="goal-name">Mejor año</div><div class="goal-eta" id="bestYear">—</div></div></div>
+        <div class="goal-row"><div class="goal-icon">⚡</div><div class="goal-info"><div class="goal-name">Mayor depósito S/</div><div class="goal-eta" id="maxDeposit">—</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- REGISTRAR -->
+  <div id="tab-registrar" class="panel">
+    <div class="register-section">
+      <div class="section-title">Nuevo depósito en soles</div>
+      <div class="form-grid">
+        <div class="form-group"><label>Fecha</label><input type="date" id="inputFecha"></div>
+        <div class="form-group"><label>Monto (S/)</label><input type="number" id="inputMonto" placeholder="0.00" min="0.01" step="0.01"></div>
+        <div class="form-group"><label>Fondo</label>
+          <select id="inputFondo">
+            <option value="emergency">🛡️ Fondo de Emergencia</option>
+            <option value="groot">🌱 Alcancía Groot</option>
+          </select>
+        </div>
+        <button class="btn-submit" onclick="registrarDeposito()">+ Guardar</button>
+        <div class="form-group note-field"><label>Nota (opcional)</label><input type="text" id="inputNota" placeholder="Ej: Sueldo marzo, bono, etc."></div>
+      </div>
+    </div>
+    <div class="qm-grid">
+      <div class="metric-card"><div class="metric-label">Depósitos registrados</div><div class="metric-value gold" id="qs-total">0</div><div class="metric-sub">en soles</div></div>
+      <div class="metric-card"><div class="metric-label">Promedio depósito</div><div class="metric-value" id="qs-avg">S/ 0</div><div class="metric-sub">por transacción</div></div>
+      <div class="metric-card"><div class="metric-label">Días activo</div><div class="metric-value teal" id="qs-days">0</div><div class="metric-sub">desde inicio</div></div>
+      <div class="metric-card"><div class="metric-label">Frecuencia</div><div class="metric-value green" id="qs-freq">—</div><div class="metric-sub">días entre depósitos</div></div>
+    </div>
+  </div>
+
+  <!-- DÓLARES -->
+  <div id="tab-dolares" class="panel">
+    <div class="dollar-calculator">
+      <div class="calc-title">💵 Calculadora de valor actual</div>
+      <div class="calc-input-row">
+        <div class="form-group" style="min-width:220px">
+          <label>Tipo de cambio HOY (S/ por $1) — <span style="color:var(--green)">SBS auto-cargado</span></label>
+          <input type="number" id="calcTC" class="dinput" placeholder="Ej: 3.75" step="0.001" oninput="calcularValor()">
+        </div>
+        <button class="btn-secondary" onclick="useTCLive()" style="white-space:nowrap">Usar TC SBS</button>
+      </div>
+      <div class="calc-result" id="calcResult" style="display:none">
+        <div class="cri"><div class="crl">USD acumulados</div><div class="crv blu" id="cr-usd">$ 0.00</div></div>
+        <div class="cri"><div class="crl">Invertido en S/</div><div class="crv" id="cr-inv" style="color:#ff9a7a">S/ 0.00</div></div>
+        <div class="cri"><div class="crl">Valor hoy en S/</div><div class="crv blu" id="cr-hoy">S/ 0.00</div></div>
+        <div class="cri"><div class="crl">Ganancia / Pérdida</div><div class="crv" id="cr-gan">S/ 0.00</div></div>
+        <div class="cri"><div class="crl">TC promedio compra</div><div class="crv blu" id="cr-tcavg">—</div></div>
+        <div class="cri"><div class="crl">Rendimiento %</div><div class="crv" id="cr-rend">0%</div></div>
+      </div>
+    </div>
+
+    <div class="register-section" style="border-color:rgba(96,165,250,0.25)">
+      <div class="section-title" style="color:var(--blue2)">Registrar compra de dólares</div>
+      <div class="form-grid-5">
+        <div class="form-group"><label>Fecha</label><input type="date" id="dFecha"></div>
+        <div class="form-group"><label>USD comprados ($)</label><input type="number" id="dUSD" class="dinput" placeholder="0.00" min="0.01" step="0.01"></div>
+        <div class="form-group"><label>TC compra (S/$)</label><input type="number" id="dTC" class="dinput" placeholder="3.72" step="0.001"></div>
+        <div class="form-group"><label>Soles pagados (auto)</label><input type="number" id="dSoles" class="dinput" placeholder="S/ 0.00" step="0.01"></div>
+        <button class="btn-submit blue" onclick="registrarDolar()">+ Guardar</button>
+        <div class="form-group note-field"><label>Nota (opcional)</label><input type="text" id="dNota" placeholder="Ej: BCP ventanilla, app Niubiz, Wise..."></div>
+      </div>
+    </div>
+
+    <div class="metrics-grid">
+      <div class="metric-card"><div class="metric-label">Total USD</div><div class="metric-value blue" id="dm-usd">$ 0.00</div><div class="metric-sub">dólares acumulados</div></div>
+      <div class="metric-card"><div class="metric-label">Invertido S/</div><div class="metric-value red" id="dm-inv">S/ 0</div><div class="metric-sub">soles totales pagados</div></div>
+      <div class="metric-card"><div class="metric-label">TC promedio</div><div class="metric-value blue" id="dm-tcavg">—</div><div class="metric-sub">tipo de cambio promedio</div></div>
+      <div class="metric-card"><div class="metric-label">TC SBS hoy</div><div class="metric-value green" id="dm-tclive">—</div><div class="metric-sub">venta · dolar.pe / SBS</div></div>
+      <div class="metric-card"><div class="metric-label">Mejor TC (más bajo)</div><div class="metric-value green" id="dm-tcmin">—</div><div class="metric-sub">compra más barata</div></div>
+      <div class="metric-card"><div class="metric-label">Nº de compras</div><div class="metric-value" id="dm-count">0</div><div class="metric-sub">operaciones</div></div>
+      <div class="metric-card"><div class="metric-label">Mayor compra</div><div class="metric-value blue" id="dm-maxusd">—</div><div class="metric-sub" id="dm-maxusd-date">—</div></div>
+      <div class="metric-card"><div class="metric-label">Promedio por compra</div><div class="metric-value" id="dm-avgbuy">—</div><div class="metric-sub">USD por operación</div></div>
+    </div>
+
+    <div class="history-section">
+      <div class="history-header"><div class="section-title" style="margin-bottom:0;flex:none">Historial de compras</div></div>
+      <div class="table-wrap">
+          <table>
+          <thead> <tr><th>Fecha</th><th>USD comprado</th><th>TC compra</th><th>S/ pagados</th><th>Nota</th><th>USD acum.</th><th>S/ acum.</th><th></th></tr> </thead>
+          <tbody id="dollarHistBody"> <tr><td colspan="8"><div class="empty-state"><span style="font-size:2rem">💵</span><p>No hay compras registradas</p></div></td></tr> </tbody>
+          </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- HISTORIAL -->
+  <div id="tab-historial" class="panel">
+    <div class="history-section">
+      <div class="history-header">
+        <div class="section-title" style="margin-bottom:0;flex:none">Historial en soles</div>
+        <div class="filter-row">
+          <button class="filter-btn active" onclick="setFilter('all',this)">Todos</button>
+          <button class="filter-btn" onclick="setFilter('emergency',this)">🛡️ Emergencia</button>
+          <button class="filter-btn" onclick="setFilter('groot',this)">🌱 Groot</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+          <table>
+          <thead> <tr><th>Fecha</th><th>Fondo</th><th>Monto</th><th>Nota</th><th>Acum. Fondo</th><th></th></tr> </thead>
+          <tbody id="historialBody"> <tr><td colspan="6"><div class="empty-state"><span style="font-size:2.5rem">🏦</span><p>No hay registros aún</p></div></td></tr> </tbody>
+          </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- MÉTRICAS -->
+  <div id="tab-metricas" class="panel">
+    <div class="metrics-grid">
+      <div class="metric-card"><div class="metric-label">Total soles</div><div class="metric-value gold" id="m-total">S/ 0</div><div class="metric-sub">fondos PEN</div></div>
+      <div class="metric-card"><div class="metric-label">Nº depósitos S/</div><div class="metric-value" id="m-count">0</div><div class="metric-sub">transacciones</div></div>
+      <div class="metric-card"><div class="metric-label">Depósito promedio</div><div class="metric-value green" id="m-avg">S/ 0</div><div class="metric-sub">por transacción</div></div>
+      <div class="metric-card"><div class="metric-label">Mayor depósito</div><div class="metric-value teal" id="m-max">S/ 0</div><div class="metric-sub" id="m-max-date">—</div></div>
+      <div class="metric-card"><div class="metric-label">Menor depósito</div><div class="metric-value" id="m-min">S/ 0</div><div class="metric-sub" id="m-min-date">—</div></div>
+      <div class="metric-card"><div class="metric-label">Días activo</div><div class="metric-value gold" id="m-days">0</div><div class="metric-sub" id="m-since">—</div></div>
+      <div class="metric-card"><div class="metric-label">Promedio mensual</div><div class="metric-value green" id="m-monthly">S/ 0</div><div class="metric-sub">S/ por mes</div></div>
+      <div class="metric-card"><div class="metric-label">Frecuencia</div><div class="metric-value teal" id="m-freq">—</div><div class="metric-sub">días entre depósitos</div></div>
+      <div class="metric-card"><div class="metric-label">Mes más productivo</div><div class="metric-value" id="m-bestmonth" style="font-size:1.1rem">—</div><div class="metric-sub" id="m-bestmonth-amt">—</div></div>
+      <div class="metric-card"><div class="metric-label">Año más productivo</div><div class="metric-value gold" id="m-bestyear">—</div><div class="metric-sub" id="m-bestyear-amt">—</div></div>
+      <div class="metric-card"><div class="metric-label">ETA Emergencia</div><div class="metric-value red" id="m-eta-e" style="font-size:1.1rem">—</div><div class="metric-sub">para S/ 5,000</div></div>
+      <div class="metric-card"><div class="metric-label">ETA Groot</div><div class="metric-value green" id="m-eta-g" style="font-size:1.1rem">—</div><div class="metric-sub">para S/ 10,000</div></div>
+      <div class="metric-card"><div class="metric-label">Consistencia</div><div class="metric-value teal" id="m-rate">0%</div><div class="metric-sub">meses activos</div></div>
+      <div class="metric-card"><div class="metric-label">Racha máxima</div><div class="metric-value gold" id="m-streak">0</div><div class="metric-sub">meses consecutivos</div></div>
+      <div class="metric-card"><div class="metric-label">Proyección anual</div><div class="metric-value green" id="m-proj">S/ 0</div><div class="metric-sub">al ritmo actual</div></div>
+      <div class="metric-card"><div class="metric-label">Patrimonio total</div><div class="metric-value gold" id="m-patrimonio">S/ 0</div><div class="metric-sub">incl. USD × TC SBS</div></div>
+    </div>
+    <div class="two-col">
+      <div class="goal-card"><div class="section-title" style="margin-bottom:16px">Distribución patrimonio</div><div id="fundBreakdown"></div></div>
+      <div class="goal-card"><div class="section-title" style="margin-bottom:16px">Progreso metas</div><div id="goalProgress"></div></div>
+    </div>
+  </div>
+
+  <!-- DATOS -->
+  <div id="tab-datos" class="panel">
+
+    <!-- RESPALDOS -->
+    <div class="import-section" style="border-color:rgba(110,231,183,0.5)">
+      <div class="section-title" style="color:var(--green)">💾 Respaldos automáticos</div>
+      <p style="font-size:0.85rem;color:var(--text2);margin-bottom:6px">Cada vez que guardas un movimiento se descarga automáticamente un <strong style="color:var(--green)">JSON con fecha</strong> en tu carpeta de Descargas.</p>
+      <p style="font-size:0.8rem;color:var(--text3);margin-bottom:14px">Nombre del archivo: <code style="color:var(--gold)">Boveda_2026-03-31_2145.json</code></p>
+      <div class="btn-row">
+        <button class="btn-backup-now" onclick="backupNow()" style="font-size:0.8rem;padding:8px 16px">📥 Descargar respaldo ahora</button>
+      </div>
+      <div id="backupHistoryWrap" style="margin-top:16px;display:none">
+        <p style="font-family:'DM Mono',monospace;font-size:0.7rem;color:var(--text3);margin-bottom:8px">RESPALDOS DE ESTA SESIÓN</p>
+        <div class="backup-list" id="backupHistoryList"></div>
+      </div>
+    </div>
+
+    <div class="import-section">
+      <div class="section-title">Exportar datos</div>
+      <p style="font-size:0.85rem;color:var(--text2);margin-bottom:14px">Copia este JSON como respaldo adicional.</p>
+      <textarea class="import-textarea" id="exportArea" readonly placeholder="Haz clic en Exportar para ver tus datos…"></textarea>
+      <div class="btn-row">
+        <button class="btn-submit" onclick="exportData()">📤 Exportar JSON</button>
+        <button class="btn-secondary" onclick="copyExport()">📋 Copiar</button>
+      </div>
+    </div>
+
+    <div class="import-section">
+      <div class="section-title">Importar datos</div>
+      <p style="font-size:0.85rem;color:var(--text2);margin-bottom:14px">Pega tu JSON exportado previamente. <strong style="color:var(--red)">Reemplazará todos los datos actuales.</strong></p>
+      <textarea class="import-textarea" id="importArea" placeholder='Pega aquí tu JSON: {"deposits":[...],"dollars":[]}'></textarea>
+      <div class="btn-row">
+        <button class="btn-submit" onclick="importData()">📥 Importar y restaurar</button>
+      </div>
+    </div>
+
+    <div class="import-section" style="border-color:rgba(248,113,113,0.3)">
+      <div class="section-title" style="color:var(--red)">Zona de peligro</div>
+      <p style="font-size:0.85rem;color:var(--text2);margin-bottom:14px">Borra todos los datos permanentemente.</p>
+      <div class="btn-row"><button class="btn-danger" onclick="resetAll()">🗑️ Borrar todos los datos</button></div>
+    </div>
+
+    <div class="metric-card" style="margin-top:4px">
+      <div class="metric-label">Estado del almacenamiento</div>
+      <div class="metric-value green" id="storageStatus" style="font-size:1rem">—</div>
+      <div class="metric-sub" id="storageDetail">—</div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div id="fundModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2 id="modalTitle">Estadísticas del fondo</h2>
+      <button class="close-modal" onclick="closeModal()">×</button>
+    </div>
+    <div id="modalStats"></div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+const STORAGE_KEY = 'boveda_data';
+const GOALS = {emergency:5000, groot:10000};
+const MESES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+const MESES_FULL = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+let data = {deposits:[], dollars:[]};
+let filterActive = 'all';
+let saveTimeout = null;
+let insightInterval = null;
+let insightsList = [];
+let tcLive = null;
+let backupHistory = [];
+
+// ─── TC LIVE ──────────────────────────────────────────────────────────────
+async function fetchTC() {
+  const el = document.getElementById('tcLiveVal');
+  const sub = document.getElementById('tcLiveSub');
+  el.textContent = 'Cargando…';
+  try {
+    const res = await fetch('https://dolar.pe/api/public/series?pair=USD-PEN');
+    const json = await res.json();
+    const series = json?.series?.['USD-PEN'];
+    if (series && series.data && series.data.length > 0) {
+      const val = series.data[series.data.length - 1];
+      tcLive = parseFloat(val);
+      el.textContent = 'S/ ' + tcLive.toFixed(4);
+      sub.textContent = '· ' + (series.labels?.[series.labels.length-1] || 'hoy');
+      const calcField = document.getElementById('calcTC');
+      if (!calcField.value) calcField.value = tcLive.toFixed(4);
+      const dTCField = document.getElementById('dTC');
+      if (!dTCField.value) dTCField.value = tcLive.toFixed(4);
+      document.getElementById('dm-tclive').textContent = 'S/ ' + tcLive.toFixed(4);
+      calcularValor();
+      renderAll();
+    } else {
+      throw new Error('Sin datos');
+    }
+  } catch(e) {
+    el.textContent = 'Sin conexión';
+    sub.textContent = '· Ingresa TC manual';
+  }
+}
+
+function useTCLive() {
+  if (!tcLive) return showToast('⚠️ TC no disponible, verifica tu conexión','error');
+  document.getElementById('calcTC').value = tcLive.toFixed(4);
+  calcularValor();
+  showToast('✅ TC SBS aplicado: S/ ' + tcLive.toFixed(4));
+}
+
+// ─── BACKUP ────────────────────────────────────────────────────────────────
+function getTimestamp() {
+  const now = new Date();
+  const y = now.getFullYear();
+  const mo = String(now.getMonth()+1).padStart(2,'0');
+  const d  = String(now.getDate()).padStart(2,'0');
+  const h  = String(now.getHours()).padStart(2,'0');
+  const mi = String(now.getMinutes()).padStart(2,'0');
+  return `${y}-${mo}-${d}_${h}${mi}`;
+}
+
+function triggerDownload(content, filename) {
+  const blob = new Blob([content], {type:'application/json'});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+}
+
+function backupNow(silent = false) {
+  const ts       = getTimestamp();
+  const filename = `Boveda_${ts}.json`;
+  const content  = JSON.stringify(data, null, 2);
+  triggerDownload(content, filename);
+
+  const entry = {ts, filename, size: (content.length/1024).toFixed(1)+'kB', content};
+  backupHistory.unshift(entry);
+  if (backupHistory.length > 10) backupHistory.pop();
+
+  document.getElementById('lastBackupTime').textContent = ts.replace('_',' ').replace(/(\d{4}-\d{2}-\d{2}) (\d{2})(\d{2})/, '$1 $2:$3');
+  renderBackupHistory();
+
+  if (!silent) showToast('💾 Respaldo guardado: ' + filename, 'green');
+}
+
+function renderBackupHistory() {
+  const wrap = document.getElementById('backupHistoryWrap');
+  const list = document.getElementById('backupHistoryList');
+  if (!backupHistory.length) { wrap.style.display='none'; return; }
+  wrap.style.display = 'block';
+  list.innerHTML = backupHistory.map((b,i) => `
+    <div class="backup-item">
+      <span class="bi-date">📄 ${b.filename}</span>
+      <span class="bi-size">${b.size}</span>
+      <button class="btn-dl" onclick="reDownload(${i})">↓ Descargar</button>
+    </div>`).join('');
+}
+
+function reDownload(i) {
+  const b = backupHistory[i];
+  if (!b) return;
+  triggerDownload(b.content, b.filename);
+  showToast('↓ Descargando ' + b.filename);
+}
+
+function autoBackup() {
+  if (data.deposits.length + data.dollars.length === 0) return;
+  backupNow(true);
+}
+
+// ─── STORAGE ──────────────────────────────────────────────────────────────
+async function storageGet(key) {
+  try { const v = localStorage.getItem(key); return v ? {value:v} : null; } catch(e) { return null; }
+}
+async function storageSet(key, value) {
+  try { localStorage.setItem(key, value); return {success:true}; } catch(e) { return null; }
+}
+async function loadData() {
+  const result = await storageGet(STORAGE_KEY);
+  if (result?.value) {
+    try {
+      const p = JSON.parse(result.value);
+      data = {deposits:p.deposits||[], dollars:p.dollars||[]};
+    } catch(e) {
+      data = {deposits:[], dollars:[]};
+    }
+  } else {
+    data = {deposits:[], dollars:[]};
+  }
+}
+function setSaveStatus(s) {
+  const dot = document.getElementById('saveDot'), lbl = document.getElementById('saveLabel');
+  if(s==='saving'){dot.className='autosave-dot saving';lbl.textContent='GUARDANDO…';}
+  else{dot.className='autosave-dot ok';lbl.textContent='GUARDADO';}
+}
+async function save() {
+  setSaveStatus('saving');
+  await storageSet(STORAGE_KEY, JSON.stringify(data));
+  setSaveStatus('ok');
+  updateStorageStatus();
+  autoBackup();
+}
+function scheduleSave() {
+  if(saveTimeout) clearTimeout(saveTimeout);
+  setSaveStatus('saving');
+  saveTimeout = setTimeout(()=>save(), 600);
+}
+
+// ─── HELPERS ──────────────────────────────────────────────────────────────
+function fmt(n)    { return 'S/ '+n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,','); }
+function fmtUSD(n) { return '$ '+n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,','); }
+function fmtS(n)   { return n>=1000?'S/ '+(n/1000).toFixed(1)+'k':'S/ '+n.toFixed(0); }
+function fmtDate(s){ if(!s)return'—'; const[y,m,d]=s.split('-'); return`${d}/${m}/${y}`; }
+function byFund(f) { return data.deposits.filter(d=>d.fondo===f); }
+function sumFund(f){ return byFund(f).reduce((a,d)=>a+d.monto,0); }
+function totalUSD(){ return data.dollars.reduce((a,d)=>a+d.usd,0); }
+function totalInv(){ return data.dollars.reduce((a,d)=>a+d.soles,0); }
+function tcAvg()   { const u=totalUSD(),s=totalInv(); return u>0?s/u:0; }
+function fondoLabel(f){ return{emergency:'Emergencia',groot:'Groot',dollars:'Dólares'}[f]||f; }
+function getTCForCalc(){ return tcLive || parseFloat(document.getElementById('calcTC').value) || tcAvg() || 0; }
+
+function getMonthsActive() {
+  const deps=data.deposits; if(!deps.length)return 1;
+  const firstDate=new Date([...deps].sort((a,b)=>a.fecha.localeCompare(b.fecha))[0].fecha);
+  const today=new Date();
+  return Math.max(1,(today.getFullYear()-firstDate.getFullYear())*12+today.getMonth()-firstDate.getMonth()+1);
+}
+function syncSoles() {
+  const u=parseFloat(document.getElementById('dUSD').value);
+  const t=parseFloat(document.getElementById('dTC').value);
+  if(u>0&&t>0) document.getElementById('dSoles').value=(u*t).toFixed(2);
+}
+
+// ─── MODAL ────────────────────────────────────────────────────────────────
+function showFundModal(fund) {
+  const modal=document.getElementById('fundModal');
+  const modalTitle=document.getElementById('modalTitle');
+  const modalStats=document.getElementById('modalStats');
+  if(fund==='emergency'||fund==='groot'){
+    const deposits=data.deposits.filter(d=>d.fondo===fund);
+    const total=deposits.reduce((a,b)=>a+b.monto,0), count=deposits.length, avg=count?total/count:0;
+    const sorted=[...deposits].sort((a,b)=>a.fecha.localeCompare(b.fecha));
+    const firstDate=sorted[0]?.fecha||null, lastDate=sorted[sorted.length-1]?.fecha||null;
+    const maxDeposit=deposits.length?deposits.reduce((a,b)=>b.monto>a.monto?b:a):null;
+    const minDeposit=deposits.length?deposits.reduce((a,b)=>b.monto<a.monto?b:a):null;
+    const goal=GOALS[fund], progress=(total/goal)*100, remaining=goal-total;
+    let etaMsg='Sin datos suficientes';
+    if(count>0&&remaining>0){const ma=getMonthsActive();const favg=total/ma;if(favg>0){const mo=Math.ceil(remaining/favg);const y=Math.floor(mo/12),r=mo%12;etaMsg=y>0?`${y}a ${r}m`:`${mo} meses`;}}
+    else if(remaining<=0){etaMsg='Meta alcanzada 🎉';}
+    const monthlyMap={};
+    deposits.forEach(d=>{const k=d.fecha.slice(0,7);monthlyMap[k]=(monthlyMap[k]||0)+d.monto;});
+    const monthlyEntries=Object.entries(monthlyMap).sort((a,b)=>a[0].localeCompare(b[0])).slice(-6);
+    const maxMonthly=Math.max(...monthlyEntries.map(e=>e[1]),1);
+    modalTitle.innerHTML=fund==='emergency'?'🛡️ Fondo de Emergencia':'🌱 Alcancía Groot';
+    modalStats.innerHTML=`<div class="stats-grid">
+      <div class="stat-card"><div class="stat-label">Total ahorrado</div><div class="stat-value">${fmt(total)}</div></div>
+      <div class="stat-card"><div class="stat-label">Meta</div><div class="stat-value">${fmt(goal)}</div></div>
+      <div class="stat-card"><div class="stat-label">Progreso</div><div class="stat-value">${progress.toFixed(1)}%</div></div>
+      <div class="stat-card"><div class="stat-label">Depósitos</div><div class="stat-value">${count}</div></div>
+      <div class="stat-card"><div class="stat-label">Promedio por depósito</div><div class="stat-value">${fmt(avg)}</div></div>
+      <div class="stat-card"><div class="stat-label">Mayor depósito</div><div class="stat-value">${maxDeposit?fmt(maxDeposit.monto):'—'}</div></div>
+      <div class="stat-card"><div class="stat-label">Menor depósito</div><div class="stat-value">${minDeposit?fmt(minDeposit.monto):'—'}</div></div>
+      <div class="stat-card"><div class="stat-label">Primer depósito</div><div class="stat-value">${firstDate?fmtDate(firstDate):'—'}</div></div>
+      <div class="stat-card"><div class="stat-label">Último depósito</div><div class="stat-value">${lastDate?fmtDate(lastDate):'—'}</div></div>
+      <div class="stat-card"><div class="stat-label">ETA (ritmo actual)</div><div class="stat-value">${etaMsg}</div></div>
+    </div>
+    ${monthlyEntries.length?`<div class="mini-chart"><h3>📅 Evolución mensual (últimos 6 meses)</h3>
+    <div style="display:flex;gap:8px;align-items:flex-end;height:120px;">
+      ${monthlyEntries.map(([month,amount])=>{const height=(amount/maxMonthly)*100;const[y,m]=month.split('-');const label=MESES[parseInt(m)-1]+' '+y.slice(2);return`<div style="flex:1;display:flex;flex-direction:column;align-items:center;"><div style="background:linear-gradient(180deg,${fund==='emergency'?'#ff9a7a':'var(--green)'},${fund==='emergency'?'#f87171':'var(--green3)'});width:100%;border-radius:4px 4px 0 0;height:${height}px;"></div><div style="font-size:0.65rem;margin-top:4px;">${label}</div><div style="font-size:0.6rem;color:var(--text3)">${fmtS(amount)}</div></div>`;}).join('')}
+    </div></div>`:'<div class="mini-chart"><p style="color:var(--text3)">Sin datos mensuales aún.</p></div>'}`;
+  } else if(fund==='dollars'){
+    const dollars=data.dollars, totalUSDv=totalUSD(), totalSoles=totalInv(), count=dollars.length;
+    const avgTC=totalUSDv>0?totalSoles/totalUSDv:0;
+    const sorted=[...dollars].sort((a,b)=>a.fecha.localeCompare(b.fecha));
+    const firstDate=sorted[0]?.fecha||null, lastDate=sorted[sorted.length-1]?.fecha||null;
+    const bestTC=dollars.length?dollars.reduce((a,b)=>b.tc<a.tc?b:a,{tc:Infinity}):{tc:0};
+    const worstTC=dollars.length?dollars.reduce((a,b)=>b.tc>a.tc?b:a,{tc:0}):{tc:0};
+    const maxUSD=dollars.length?dollars.reduce((a,b)=>b.usd>a.usd?b:a,{usd:0}):{usd:0};
+    modalTitle.innerHTML='💵 Bolsa de Dólares';
+    modalStats.innerHTML=`<div class="stats-grid">
+      <div class="stat-card"><div class="stat-label">Total USD</div><div class="stat-value">${fmtUSD(totalUSDv)}</div></div>
+      <div class="stat-card"><div class="stat-label">Invertido en soles</div><div class="stat-value">${fmt(totalSoles)}</div></div>
+      <div class="stat-card"><div class="stat-label">TC promedio compra</div><div class="stat-value">S/ ${avgTC.toFixed(4)}</div></div>
+      <div class="stat-card"><div class="stat-label">TC SBS hoy</div><div class="stat-value">${tcLive?'S/ '+tcLive.toFixed(4):'—'}</div></div>
+      <div class="stat-card"><div class="stat-label">Mejor TC</div><div class="stat-value">${bestTC.tc<Infinity?'S/ '+bestTC.tc.toFixed(4):'—'}</div></div>
+      <div class="stat-card"><div class="stat-label">Peor TC</div><div class="stat-value">${worstTC.tc>0?'S/ '+worstTC.tc.toFixed(4):'—'}</div></div>
+      <div class="stat-card"><div class="stat-label">Nº de compras</div><div class="stat-value">${count}</div></div>
+      <div class="stat-card"><div class="stat-label">Mayor compra</div><div class="stat-value">${fmtUSD(maxUSD.usd)}</div></div>
+      <div class="stat-card"><div class="stat-label">Primera compra</div><div class="stat-value">${firstDate?fmtDate(firstDate):'—'}</div></div>
+      <div class="stat-card"><div class="stat-label">Última compra</div><div class="stat-value">${lastDate?fmtDate(lastDate):'—'}</div></div>
+    </div>`;
+  }
+  modal.style.display='flex';
+}
+function closeModal(){ document.getElementById('fundModal').style.display='none'; }
+window.onclick=e=>{if(e.target===document.getElementById('fundModal'))closeModal();};
+
+// ─── INSIGHTS ─────────────────────────────────────────────────────────────
+function generateInsights() {
+  const msgs=[], solTotal=sumFund('emergency')+sumFund('groot'), usdT=totalUSD(), tcp=tcAvg(), m=calcMetrics();
+  if(solTotal===0&&usdT===0){msgs.push("💡 ¡Comienza tu viaje! Registra tu primer depósito o compra de dólares.");}
+  else{
+    if(sumFund('emergency')>=5000)msgs.push("🎉 ¡Fondo de Emergencia completo! Disfruta tu tranquilidad financiera.");
+    else if(m?.etaEmergency&&m.etaEmergency!=='META ALCANZADA 🎉'&&m.etaEmergency!=='Sin depósitos')msgs.push(`🛡️ Fondo Emergencia: al ritmo actual lo lograrías en ${m.etaEmergency}.`);
+    if(sumFund('groot')>=10000)msgs.push("🌱 ¡Groot está lleno! Considera opciones de inversión.");
+    else if(m?.etaGroot&&m.etaGroot!=='META ALCANZADA 🎉'&&m.etaGroot!=='Sin depósitos')msgs.push(`🌱 Groot: te faltan ${(GOALS.groot-sumFund('groot')).toFixed(0)} S/ — aprox ${m.etaGroot}.`);
+    if(m?.avgFreq){if(m.avgFreq>15)msgs.push(`📆 Ahorras cada ${m.avgFreq} días. Intentar semanal podría acelerar tus metas.`);else if(m.avgFreq<=7)msgs.push(`⚡ ¡Excelente frecuencia! Ahorras cada ${m.avgFreq} días.`);}
+    if(m?.consistency<50)msgs.push("📅 Ahorrar al menos una vez al mes aumenta tu consistencia.");
+    else if(m?.consistency>=80)msgs.push("🔥 ¡Consistencia de campeón! Más del 80% de meses activos.");
+    if(usdT>0&&tcLive){const gan=usdT*tcLive-totalInv();if(gan>0)msgs.push(`💵 Tus dólares han ganado +${gan.toFixed(2)} S/ (TC SBS hoy S/ ${tcLive.toFixed(3)}).`);else msgs.push(`💵 TC promedio compra: S/ ${tcp.toFixed(3)} vs TC hoy: S/ ${tcLive.toFixed(3)}.`);}
+    if(m?.annualProjection>0)msgs.push(`📈 Proyección anual: ${fmt(m.annualProjection)}.`);
+    if(m?.maxStreak>=3)msgs.push(`🏆 ¡${m.maxStreak} meses seguidos ahorrando! Récord personal.`);
+  }
+  if(msgs.length===0)msgs.push("🧠 Sigue registrando para obtener recomendaciones personalizadas.");
+  return msgs;
+}
+function rotateInsights() {
+  insightsList=generateInsights(); let idx=0;
+  if(insightInterval)clearInterval(insightInterval);
+  const update=()=>{document.getElementById('insightText').textContent=insightsList[idx%insightsList.length];idx++;};
+  update(); insightInterval=setInterval(update,8000);
+}
+
+// ─── TAB ──────────────────────────────────────────────────────────────────
+function switchTab(name,btn) {
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  if(btn)btn.classList.add('active');
+  renderAll();
+}
+
+// ─── TOAST ────────────────────────────────────────────────────────────────
+function showToast(msg,type='') {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className='toast show'+(type?' '+type:'');
+  setTimeout(()=>t.className='toast',2900);
+}
+
+// ─── REGISTER ─────────────────────────────────────────────────────────────
+async function registrarDeposito() {
+  const fecha=document.getElementById('inputFecha').value;
+  const monto=parseFloat(document.getElementById('inputMonto').value);
+  const fondo=document.getElementById('inputFondo').value;
+  const nota=document.getElementById('inputNota').value.trim();
+  if(!fecha)return showToast('⚠️ Elige una fecha','error');
+  if(!monto||monto<=0)return showToast('⚠️ Monto inválido','error');
+  data.deposits.push({id:Date.now(),fecha,monto:parseFloat(monto.toFixed(2)),fondo,nota});
+  scheduleSave(); renderAll();
+  showToast(`✅ ${fmt(monto)} guardado en ${fondoLabel(fondo)}`);
+  document.getElementById('inputMonto').value=''; document.getElementById('inputNota').value='';
+  document.getElementById('inputFecha').valueAsDate=new Date();
+}
+async function registrarDolar() {
+  const fecha=document.getElementById('dFecha').value;
+  const usd=parseFloat(document.getElementById('dUSD').value);
+  const tc=parseFloat(document.getElementById('dTC').value);
+  const solesIn=parseFloat(document.getElementById('dSoles').value);
+  const nota=document.getElementById('dNota').value.trim();
+  if(!fecha)return showToast('⚠️ Elige una fecha','error');
+  if(!usd||usd<=0)return showToast('⚠️ USD inválido','error');
+  if(!tc||tc<=0)return showToast('⚠️ TC inválido','error');
+  const soles=solesIn>0?solesIn:parseFloat((usd*tc).toFixed(2));
+  data.dollars.push({id:Date.now(),fecha,usd:parseFloat(usd.toFixed(4)),tc:parseFloat(tc.toFixed(4)),soles:parseFloat(soles.toFixed(2)),nota});
+  scheduleSave(); renderAll();
+  showToast(`✅ ${fmtUSD(usd)} · TC S/ ${tc} · Pagado ${fmt(soles)}`,'blue');
+  ['dUSD','dTC','dSoles','dNota'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('dFecha').valueAsDate=new Date();
+  if(tcLive) document.getElementById('dTC').value=tcLive.toFixed(4);
+}
+async function deleteDeposit(id){if(!confirm('¿Eliminar?'))return;data.deposits=data.deposits.filter(d=>d.id!==id);scheduleSave();renderAll();showToast('🗑️ Eliminado');}
+async function deleteDollar(id){if(!confirm('¿Eliminar?'))return;data.dollars=data.dollars.filter(d=>d.id!==id);scheduleSave();renderAll();showToast('🗑️ Eliminado');}
+
+// ─── CALCULADORA ──────────────────────────────────────────────────────────
+function calcularValor() {
+  const tcNow=parseFloat(document.getElementById('calcTC').value)||(tcLive||0);
+  const usdT=totalUSD(),invT=totalInv(),tcp=tcAvg();
+  const res=document.getElementById('calcResult');
+  if(!tcNow||tcNow<=0||usdT===0){res.style.display='none';updateDashDollarCard(tcNow);return;}
+  res.style.display='flex';
+  const valorHoy=usdT*tcNow,gan=valorHoy-invT,rend=invT>0?(gan/invT)*100:0;
+  document.getElementById('cr-usd').textContent=fmtUSD(usdT);
+  document.getElementById('cr-inv').textContent=fmt(invT);
+  document.getElementById('cr-hoy').textContent=fmt(valorHoy);
+  document.getElementById('cr-gan').textContent=(gan>=0?'+':'')+fmt(gan);
+  document.getElementById('cr-gan').className='crv '+(gan>0?'pos':gan<0?'neg':'blu');
+  document.getElementById('cr-tcavg').textContent=tcp>0?'S/ '+tcp.toFixed(4):'—';
+  document.getElementById('cr-rend').textContent=(rend>=0?'+':'')+rend.toFixed(2)+'%';
+  document.getElementById('cr-rend').className='crv '+(rend>0?'pos':rend<0?'neg':'blu');
+  updateDashDollarCard(tcNow);
+}
+function updateDashDollarCard(tcNow) {
+  const usdT=totalUSD(),invT=totalInv(),tcp=tcAvg(),solTotal=sumFund('emergency')+sumFund('groot');
+  const tc=tcNow||tcLive||tcp;
+  if(tc>0&&usdT>0){
+    document.getElementById('ds-valorhoy').textContent=fmt(usdT*tc);
+    document.getElementById('totalGeneral').textContent=fmt(solTotal+usdT*tc);
+  } else {
+    document.getElementById('ds-valorhoy').textContent='—';
+    document.getElementById('totalGeneral').textContent=fmt(solTotal);
+  }
+}
+
+// ─── METRICS CALC ─────────────────────────────────────────────────────────
+function calcMetrics() {
+  const deps=data.deposits; if(!deps.length)return null;
+  const sorted=[...deps].sort((a,b)=>a.fecha.localeCompare(b.fecha));
+  const total=deps.reduce((a,d)=>a+d.monto,0),avg=total/deps.length;
+  const maxD=deps.reduce((a,b)=>b.monto>a.monto?b:a);
+  const minD=deps.reduce((a,b)=>b.monto<a.monto?b:a);
+  const firstDate=new Date(sorted[0].fecha),today=new Date();
+  const daysActive=Math.max(1,Math.round((today-firstDate)/86400000));
+  const monthsActive=Math.max(1,(today.getFullYear()-firstDate.getFullYear())*12+today.getMonth()-firstDate.getMonth()+1);
+  const avgFreq=deps.length>1?Math.round(daysActive/(deps.length-1)):null;
+  const monthlyMap={};
+  deps.forEach(d=>{const k=d.fecha.slice(0,7);monthlyMap[k]=(monthlyMap[k]||0)+d.monto;});
+  const monthlyArr=Object.entries(monthlyMap).sort((a,b)=>a[0].localeCompare(b[0]));
+  const bestMonth=monthlyArr.reduce((a,b)=>b[1]>a[1]?b:a,['',0]);
+  const yearlyMap={};
+  deps.forEach(d=>{const y=d.fecha.slice(0,4);yearlyMap[y]=(yearlyMap[y]||0)+d.monto;});
+  const bestYear=Object.entries(yearlyMap).reduce((a,b)=>b[1]>a[1]?b:a,['',0]);
+  const monthlyAvg=total/monthsActive,annualProjection=monthlyAvg*12;
+  function calcETA(fund,goal){
+    const cur=sumFund(fund),rem=goal-cur; if(rem<=0)return'META ALCANZADA 🎉';
+    const fd=byFund(fund); if(!fd.length)return'Sin depósitos';
+    const favg=fd.reduce((a,d)=>a+d.monto,0)/Math.max(1,monthsActive); if(favg<=0)return'—';
+    const mo=Math.ceil(rem/favg),y=Math.floor(mo/12),r=mo%12; return y>0?`~${y}a ${r}m`:`~${mo} mes${mo>1?'es':''}`;
+  }
+  const monthSet=new Set(deps.map(d=>d.fecha.slice(0,7)));
+  let maxStreak=0,cur=0;
+  for(let i=0;i<=24;i++){const d=new Date(today.getFullYear(),today.getMonth()-i,1);const k=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;if(monthSet.has(k)){cur++;maxStreak=Math.max(maxStreak,cur);}else cur=0;}
+  const consistency=Math.round((Object.keys(monthlyMap).length/monthsActive)*100);
+  return{total,avg,maxD,minD,daysActive,monthlyAvg,annualProjection,avgFreq,bestMonth,bestYear,monthlyArr,etaEmergency:calcETA('emergency',5000),etaGroot:calcETA('groot',10000),maxStreak,consistency,monthsActive,firstDate:sorted[0].fecha};
+}
+
+// ─── RENDER ALL ───────────────────────────────────────────────────────────
+function renderAll() {
+  const usdT=totalUSD(),invT=totalInv(),tcp=tcAvg(),solTotal=sumFund('emergency')+sumFund('groot');
+  document.getElementById('totalSoles').textContent=fmt(solTotal);
+  document.getElementById('totalDolares').textContent=fmtUSD(usdT);
+  ['emergency','groot'].forEach(f=>{
+    const sum=sumFund(f),count=byFund(f).length,goal=GOALS[f];
+    document.getElementById('amt-'+f).textContent=fmt(sum);
+    document.getElementById('meta-'+f).textContent=`${count} depósito${count!==1?'s':''}`;
+    const pct=Math.min(100,(sum/goal)*100);
+    document.getElementById('prog-'+f).style.width=pct+'%';
+    document.getElementById('pct-'+f).textContent=pct.toFixed(1)+'%';
+  });
+  document.getElementById('dash-usd').textContent=fmtUSD(usdT);
+  document.getElementById('dash-usd-meta').textContent=`${data.dollars.length} compra${data.dollars.length!==1?'s':''} · Invertido ${fmt(invT)}`;
+  document.getElementById('ds-inv').textContent=fmt(invT);
+  document.getElementById('ds-tcavg').textContent=tcp>0?'S/ '+tcp.toFixed(3):'—';
+  if(tcLive){document.getElementById('dm-tclive').textContent='S/ '+tcLive.toFixed(4);}
+  const m=calcMetrics();
+  renderGoalSection(m); renderMetrics(m); renderHistorial(); renderDollarHistory(); renderDollarMetrics(); renderChart(m); renderQuickStats(m);
+  calcularValor(); rotateInsights();
+}
+
+function renderGoalSection(m) {
+  if(!m)return;
+  ['emergency','groot'].forEach(f=>{const pct=Math.min(100,(sumFund(f)/GOALS[f])*100).toFixed(1);document.getElementById('eta-'+f).textContent=f==='emergency'?m.etaEmergency:m.etaGroot;document.getElementById('gpct-'+f).textContent=pct+'%';});
+  if(m.bestMonth[0]){const[y,mo]=m.bestMonth[0].split('-');document.getElementById('bestMonth').textContent=`${MESES_FULL[parseInt(mo)-1]} ${y} · ${fmt(m.bestMonth[1])}`;}
+  if(m.bestYear[0])document.getElementById('bestYear').textContent=`${m.bestYear[0]} · ${fmt(m.bestYear[1])}`;
+  if(m.maxD)document.getElementById('maxDeposit').textContent=`${fmt(m.maxD.monto)} — ${fmtDate(m.maxD.fecha)}`;
+}
+
+function renderMetrics(m) {
+  if(!m) return;
+  [['m-total',fmt(m.total)],['m-count',data.deposits.length],['m-avg',fmt(m.avg)],
+   ['m-max',fmt(m.maxD.monto)],['m-max-date',fmtDate(m.maxD.fecha)],
+   ['m-min',fmt(m.minD.monto)],['m-min-date',fmtDate(m.minD.fecha)],
+   ['m-days',m.daysActive],['m-since','desde '+fmtDate(m.firstDate)],
+   ['m-monthly',fmt(m.monthlyAvg)],['m-streak',m.maxStreak],['m-rate',m.consistency+'%'],
+   ['m-proj',fmt(m.annualProjection)],['m-eta-e',m.etaEmergency],['m-eta-g',m.etaGroot],
+   ['m-freq',m.avgFreq?m.avgFreq+' días':'—']
+  ].forEach(([id,v])=>{const el=document.getElementById(id);if(el)el.textContent=v;});
+  if(m.bestMonth[0]){const[y,mo]=m.bestMonth[0].split('-');document.getElementById('m-bestmonth').textContent=`${MESES[parseInt(mo)-1]} ${y}`;document.getElementById('m-bestmonth-amt').textContent=fmt(m.bestMonth[1]);}
+  if(m.bestYear[0]){document.getElementById('m-bestyear').textContent=m.bestYear[0];document.getElementById('m-bestyear-amt').textContent=fmt(m.bestYear[1]);}
+  const tc=getTCForCalc();
+  document.getElementById('m-patrimonio').textContent=fmt(sumFund('emergency')+sumFund('groot')+totalUSD()*tc);
+  const bdEl=document.getElementById('fundBreakdown');bdEl.innerHTML='';
+  const solT=sumFund('emergency')+sumFund('groot'),dolS=totalUSD()*tc,all=solT+dolS;
+  ['emergency','groot'].forEach(f=>{const s=sumFund(f),pct=all>0?((s/all)*100).toFixed(1):0;bdEl.innerHTML+=`<div class="goal-row"><div class="goal-icon">${{emergency:'🛡️',groot:'🌱'}[f]}</div><div class="goal-info"><div class="goal-name">${fondoLabel(f)}</div><div class="goal-eta">${fmt(s)} · ${pct}%</div></div><div class="goal-pct" style="font-size:1rem">${pct}%</div></div>`;});
+  const dpct=all>0?((dolS/all)*100).toFixed(1):0;
+  bdEl.innerHTML+=`<div class="goal-row"><div class="goal-icon">💵</div><div class="goal-info"><div class="goal-name">Dólares (TC SBS)</div><div class="goal-eta">${fmt(dolS)} · ${dpct}%</div></div><div class="goal-pct" style="font-size:1rem;color:var(--blue2)">${dpct}%</div></div>`;
+  const gpEl=document.getElementById('goalProgress');gpEl.innerHTML='';
+  [['emergency',5000,'🛡️','#ff9a7a'],['groot',10000,'🌱','var(--green)']].forEach(([f,g,icon,color])=>{const s=sumFund(f),pct=Math.min(100,(s/g)*100);gpEl.innerHTML+=`<div class="goal-row" style="flex-direction:column;align-items:flex-start;gap:7px"><div style="display:flex;align-items:center;gap:8px;width:100%"><span>${icon}</span><span style="font-size:0.9rem;flex:1">${fondoLabel(f)}</span><span style="font-family:'DM Mono',monospace;font-size:0.75rem;color:${color}">${pct.toFixed(1)}%</span></div><div class="progress-track" style="width:100%;margin:0"><div class="progress-fill" style="width:${pct}%;background:${color}"></div></div><div style="font-family:'DM Mono',monospace;font-size:0.7rem;color:var(--text3)">${fmt(s)} de ${fmt(g)}</div></div>`;});
+}
+
+function renderHistorial() {
+  const tbody=document.getElementById('historialBody');
+  let deps=[...data.deposits].sort((a,b)=>b.fecha.localeCompare(a.fecha));
+  if(filterActive!=='all')deps=deps.filter(d=>d.fondo===filterActive);
+  if(!deps.length){tbody.innerHTML=`<tr><td colspan="6"><div class="empty-state"><span style="font-size:2.5rem">🏦</span><p>No hay registros</p></div></td></tr>`;return;}
+  const running={emergency:0,groot:0},cumMap={};
+  [...data.deposits].sort((a,b)=>a.fecha.localeCompare(b.fecha)).forEach(d=>{running[d.fondo]=(running[d.fondo]||0)+d.monto;cumMap[d.id]=running[d.fondo];});
+  tbody.innerHTML=deps.map(d=>`<tr><td style="font-family:'DM Mono',monospace;font-size:0.85rem">${fmtDate(d.fecha)}</td><td><span class="badge-type badge-${d.fondo}">${fondoLabel(d.fondo)}</span></td><td class="amount-cell">${fmt(d.monto)}</td><td style="color:var(--text2);font-size:0.85rem">${d.nota||'—'}</td><td style="font-family:'DM Mono',monospace;font-size:0.8rem;color:var(--text3)">${fmt(cumMap[d.id]||0)}</td><td><button class="btn-delete" onclick="deleteDeposit(${d.id})">✕</button></td></tr>`).join('');
+}
+
+function renderDollarHistory() {
+  const tbody=document.getElementById('dollarHistBody');
+  const sorted=[...data.dollars].sort((a,b)=>b.fecha.localeCompare(a.fecha));
+  if(!sorted.length){tbody.innerHTML=`<tr><td colspan="8"><div class="empty-state"><span style="font-size:2rem">💵</span><p>No hay compras registradas</p></div></td></tr>`;return;}
+  let cumUSD=0,cumSoles=0;const cumMap={};
+  [...data.dollars].sort((a,b)=>a.fecha.localeCompare(b.fecha)).forEach(d=>{cumUSD+=d.usd;cumSoles+=d.soles;cumMap[d.id]={usd:cumUSD,soles:cumSoles};});
+  tbody.innerHTML=sorted.map(d=>`<tr><td style="font-family:'DM Mono',monospace;font-size:0.85rem">${fmtDate(d.fecha)}</td><td class="amount-cell usd">${fmtUSD(d.usd)}</td><td style="font-family:'DM Mono',monospace;font-size:0.85rem;color:var(--teal)">S/ ${d.tc.toFixed(4)}</td><td style="font-family:'DM Mono',monospace;font-size:0.85rem;color:#ff9a7a">${fmt(d.soles)}</td><td style="color:var(--text2);font-size:0.85rem">${d.nota||'—'}</td><td style="font-family:'DM Mono',monospace;font-size:0.8rem;color:var(--blue2)">${fmtUSD(cumMap[d.id]?.usd||0)}</td><td style="font-family:'DM Mono',monospace;font-size:0.8rem;color:var(--text3)">${fmt(cumMap[d.id]?.soles||0)}</td><td><button class="btn-delete" onclick="deleteDollar(${d.id})">✕</button></td></tr>`).join('');
+}
+
+function renderDollarMetrics() {
+  const dd=data.dollars; if(!dd.length)return;
+  const usdT=totalUSD(),invT=totalInv(),tcp=tcAvg();
+  const maxB=dd.reduce((a,b)=>b.usd>a.usd?b:a);
+  const tcMin=dd.reduce((a,b)=>b.tc<a.tc?b:a);
+  document.getElementById('dm-usd').textContent=fmtUSD(usdT);
+  document.getElementById('dm-inv').textContent=fmt(invT);
+  document.getElementById('dm-tcavg').textContent=tcp>0?'S/ '+tcp.toFixed(4):'—';
+  document.getElementById('dm-tcmin').textContent='S/ '+tcMin.tc.toFixed(4);
+  document.getElementById('dm-count').textContent=dd.length;
+  document.getElementById('dm-maxusd').textContent=fmtUSD(maxB.usd);
+  document.getElementById('dm-maxusd-date').textContent=fmtDate(maxB.fecha);
+  document.getElementById('dm-avgbuy').textContent=fmtUSD(usdT/dd.length);
+}
+
+function renderChart(m) {
+  const el=document.getElementById('barChart');
+  if(!m&&!data.dollars.length){el.innerHTML=`<div class="empty-state" style="width:100%"><span style="font-size:2rem">📉</span><p>Registra depósitos para ver el gráfico</p></div>`;return;}
+  const dolMonthly={};
+  data.dollars.forEach(d=>{const k=d.fecha.slice(0,7);dolMonthly[k]=(dolMonthly[k]||0)+d.soles;});
+  const fundMonthly={};
+  data.deposits.forEach(d=>{const k=d.fecha.slice(0,7);if(!fundMonthly[k])fundMonthly[k]={emergency:0,groot:0};fundMonthly[k][d.fondo]=(fundMonthly[k][d.fondo]||0)+d.monto;});
+  const allKeys=new Set([...(m?m.monthlyArr.map(x=>x[0]):[]),...Object.keys(dolMonthly)]);
+  const combined=[...allKeys].sort().slice(-8);
+  if(!combined.length)return;
+  const maxVal=Math.max(...combined.map(k=>(fundMonthly[k]?.emergency||0)+(fundMonthly[k]?.groot||0)+(dolMonthly[k]||0)),1);
+  el.innerHTML=combined.map(key=>{const[y,mo]=key.split('-');const label=MESES[parseInt(mo)-1]+' '+y.slice(2);const fd=fundMonthly[key]||{};const hE=Math.max(2,((fd.emergency||0)/maxVal)*140);const hG=Math.max(2,((fd.groot||0)/maxVal)*140);const hD=Math.max(2,((dolMonthly[key]||0)/maxVal)*140);return`<div class="bar-col"><div class="bar-group"><div class="bar emergency" style="height:${hE}px" data-tip="Emerg: ${fmtS(fd.emergency||0)}"></div><div class="bar groot" style="height:${hG}px" data-tip="Groot: ${fmtS(fd.groot||0)}"></div><div class="bar dollars" style="height:${hD}px" data-tip="USD→S/: ${fmtS(dolMonthly[key]||0)}"></div></div><div class="bar-label">${label}</div></div>`;}).join('');
+}
+
+function renderQuickStats(m) {
+  if(!m) return;
+  document.getElementById('qs-total').textContent=data.deposits.length;
+  document.getElementById('qs-avg').textContent=fmt(m.avg);
+  document.getElementById('qs-days').textContent=m.daysActive;
+  document.getElementById('qs-freq').textContent=m.avgFreq?m.avgFreq+' d.':'—';
+}
+
+function setFilter(f,btn) {
+  filterActive=f;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderHistorial();
+}
+
+// ─── IMPORT / EXPORT ──────────────────────────────────────────────────────
+function exportData() {
+  const json = JSON.stringify(data, null, 2);
+  const exportArea = document.getElementById('exportArea');
+  exportArea.value = json; // Mostrar en textarea
+
+  // Descargar archivo
+  const now = new Date();
+  const y = now.getFullYear();
+  const mo = String(now.getMonth()+1).padStart(2,'0');
+  const d = String(now.getDate()).padStart(2,'0');
+  const h = String(now.getHours()).padStart(2,'0');
+  const mi = String(now.getMinutes()).padStart(2,'0');
+  const filename = `boveda_export_${y}-${mo}-${d}_${h}${mi}.json`;
+  const blob = new Blob([json], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+
+  showToast(`📁 JSON exportado: ${filename}`, 'green');
+}
+function copyExport() {
+  const area=document.getElementById('exportArea');
+  if(!area.value){exportData();return;}
+  navigator.clipboard.writeText(area.value).then(()=>showToast('📋 Copiado al portapapeles'));
+}
+async function importData() {
+  const raw=document.getElementById('importArea').value.trim();
+  if(!raw)return showToast('⚠️ Pega tu JSON primero','error');
+  try {
+    const parsed=JSON.parse(raw);
+    if(!parsed.deposits||!parsed.dollars)throw new Error('Formato incorrecto');
+    if(!confirm(`¿Importar ${parsed.deposits.length} depósitos y ${parsed.dollars.length} compras? Se reemplazarán los datos actuales.`))return;
+    data={deposits:parsed.deposits,dollars:parsed.dollars};
+    await save(); renderAll();
+    document.getElementById('importArea').value='';
+    showToast(`✅ ${data.deposits.length} depósitos + ${data.dollars.length} compras importados`);
+  } catch(e){showToast('❌ JSON inválido: '+e.message,'error');}
+}
+async function resetAll() {
+  if(!confirm('¿Borrar TODOS los datos?'))return;
+  data={deposits:[],dollars:[]};
+  await save(); renderAll(); showToast('🗑️ Todos los datos eliminados');
+}
+function updateStorageStatus() {
+  const el=document.getElementById('storageStatus'),sub=document.getElementById('storageDetail');
+  if(!el)return;
+  const deps=data.deposits.length,dols=data.dollars.length;
+  el.textContent=deps+dols>0?'Datos guardados':'Sin datos';
+  sub.textContent=`${deps} depósito${deps!==1?'s':''} · ${dols} compra${dols!==1?'s':''} de USD`;
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────
+async function init() {
+  await loadData();
+  document.getElementById('loadingOverlay').style.display='none';
+  document.getElementById('inputFecha').valueAsDate=new Date();
+  document.getElementById('dFecha').valueAsDate=new Date();
+  ['dUSD','dTC'].forEach(id=>document.getElementById(id).addEventListener('input',syncSoles));
+  renderAll();
+  updateStorageStatus();
+  await fetchTC();
+  if(tcLive) document.getElementById('dTC').value=tcLive.toFixed(4);
+}
+init();
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='Enter'){
+    if(document.getElementById('tab-registrar').classList.contains('active'))registrarDeposito();
+    if(document.getElementById('tab-dolares').classList.contains('active'))registrarDolar();
+  }
+});
+</script>
+</body>
+</html>
