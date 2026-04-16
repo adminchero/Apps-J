@@ -1,0 +1,2174 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>STUDIUM — Tu Registro Académico</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,900;1,400;1,700&family=JetBrains+Mono:wght@300;400;500;600&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+/* ============================================================
+   DESIGN SYSTEM
+   ============================================================ */
+:root {
+  --bg:           #0A0C10;
+  --surface:      #111318;
+  --surface-el:   #181C24;
+  --surface-hi:   #1E2230;
+  --border:       rgba(255,255,255,0.07);
+  --border-md:    rgba(255,255,255,0.12);
+  --accent:       #6C63FF;
+  --accent-dim:   rgba(108,99,255,0.15);
+  --accent-glow:  rgba(108,99,255,0.4);
+  --teal:         #00E5CC;
+  --teal-dim:     rgba(0,229,204,0.12);
+  --warning:      #FFB547;
+  --danger:       #FF4D6D;
+  --success:      #3EE0A0;
+  --text-1:       #EDF0F7;
+  --text-2:       #8892A4;
+  --text-3:       #3D4557;
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-mono:    'JetBrains Mono', monospace;
+  --font-ui:      'Outfit', sans-serif;
+  --radius-sm:    6px;
+  --radius-md:    10px;
+  --radius-lg:    16px;
+  --radius-xl:    24px;
+  --shadow-sm:    0 2px 8px rgba(0,0,0,0.4);
+  --shadow-md:    0 8px 32px rgba(0,0,0,0.5);
+  --shadow-lg:    0 16px 64px rgba(0,0,0,0.6);
+  --transition:   all 0.25s cubic-bezier(0.4,0,0.2,1);
+  --header-h:     60px;
+}
+
+.c0 { --cc: #6C63FF; --cc-dim: rgba(108,99,255,0.12); }
+.c1 { --cc: #00E5CC; --cc-dim: rgba(0,229,204,0.10); }
+.c2 { --cc: #FF6B6B; --cc-dim: rgba(255,107,107,0.12); }
+.c3 { --cc: #FFB547; --cc-dim: rgba(255,181,71,0.12); }
+.c4 { --cc: #3EE0A0; --cc-dim: rgba(62,224,160,0.12); }
+.c5 { --cc: #FF7EB3; --cc-dim: rgba(255,126,179,0.12); }
+.c6 { --cc: #5BA8FF; --cc-dim: rgba(91,168,255,0.12); }
+.c7 { --cc: #C4A1FF; --cc-dim: rgba(196,161,255,0.12); }
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text-1);
+  font-family: var(--font-ui);
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+button { cursor: pointer; border: none; background: none; font-family: inherit; color: inherit; }
+input, textarea, select { font-family: var(--font-ui); outline: none; }
+a { text-decoration: none; color: inherit; }
+
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--text-3); border-radius: 3px; }
+
+#app { min-height: 100vh; }
+.view { display: none; }
+.view.active { display: block; }
+
+/* ============================================================
+   GLOBAL HEADER
+   ============================================================ */
+.global-header {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(10,12,16,0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  height: var(--header-h);
+  display: flex; align-items: center; gap: 0; padding: 0;
+}
+
+.gh-left {
+  display: flex; align-items: center; gap: 16px;
+  padding: 0 20px; border-right: 1px solid var(--border);
+  height: 100%; flex-shrink: 0;
+}
+
+.gh-logo {
+  font-family: var(--font-display);
+  font-size: 20px; font-weight: 700; letter-spacing: -0.5px;
+  background: linear-gradient(135deg, var(--text-1) 0%, var(--accent) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text; cursor: pointer; user-select: none;
+}
+
+.gh-back {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 12px; color: var(--text-2);
+  padding: 6px 10px; border-radius: var(--radius-sm);
+  border: 1px solid var(--border); transition: var(--transition); flex-shrink: 0;
+}
+.gh-back:hover { color: var(--text-1); border-color: var(--border-md); background: var(--surface-el); }
+.gh-back svg { width: 12px; height: 12px; }
+
+.gh-center {
+  flex: 1; padding: 0 20px;
+  display: flex; align-items: center; gap: 16px;
+}
+
+.gh-search { flex: 1; max-width: 360px; position: relative; }
+.gh-search input {
+  width: 100%; background: var(--surface-el);
+  border: 1px solid var(--border); border-radius: var(--radius-md);
+  padding: 8px 14px 8px 36px; font-size: 13px; color: var(--text-1); transition: var(--transition);
+}
+.gh-search input::placeholder { color: var(--text-3); }
+.gh-search input:focus { border-color: var(--accent); background: var(--surface-hi); }
+.gh-search svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text-3); width: 14px; height: 14px; pointer-events: none; }
+
+.gh-progress-compact { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.gh-progress-bar-wrap { width: 120px; height: 4px; background: var(--surface-hi); border-radius: 2px; overflow: hidden; }
+.gh-progress-bar { height: 100%; border-radius: 2px; background: linear-gradient(90deg, var(--accent), var(--teal)); transition: width 0.8s cubic-bezier(0.4,0,0.2,1); }
+.gh-progress-pct { font-family: var(--font-mono); font-size: 12px; font-weight: 600; color: var(--text-2); min-width: 34px; text-align: right; }
+
+.gh-right {
+  display: flex; align-items: center; gap: 8px;
+  padding: 0 16px; border-left: 1px solid var(--border); height: 100%; flex-shrink: 0;
+}
+
+/* ============================================================
+   BUTTON SYSTEM
+   ============================================================ */
+.btn-primary {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: var(--accent); color: #fff;
+  font-size: 13px; font-weight: 600;
+  padding: 9px 18px; border-radius: var(--radius-md);
+  transition: var(--transition); box-shadow: 0 0 20px var(--accent-dim); white-space: nowrap;
+}
+.btn-primary:hover { background: #7B73FF; box-shadow: 0 0 30px var(--accent-glow); transform: translateY(-1px); }
+.btn-primary svg { width: 14px; height: 14px; }
+
+.btn-secondary {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: var(--surface-el); color: var(--text-2);
+  font-size: 12px; font-weight: 500;
+  padding: 8px 14px; border-radius: var(--radius-md);
+  border: 1px solid var(--border); transition: var(--transition); white-space: nowrap;
+}
+.btn-secondary:hover { color: var(--text-1); border-color: var(--border-md); background: var(--surface-hi); }
+.btn-secondary svg { width: 13px; height: 13px; }
+
+.btn-ghost {
+  display: inline-flex; align-items: center; gap: 6px;
+  color: var(--text-2); font-size: 12px; font-weight: 500;
+  padding: 7px 12px; border-radius: var(--radius-sm);
+  transition: var(--transition); white-space: nowrap;
+}
+.btn-ghost:hover { color: var(--text-1); background: var(--surface-el); }
+.btn-ghost svg { width: 13px; height: 13px; }
+
+/* ============================================================
+   ONBOARDING
+   ============================================================ */
+#onboarding {
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  position: relative; overflow: hidden;
+}
+
+.ob-bg {
+  position: absolute; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(ellipse 60% 40% at 20% 30%, rgba(108,99,255,0.08) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 60% at 80% 70%, rgba(0,229,204,0.06) 0%, transparent 60%);
+}
+
+.ob-grid {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, black 0%, transparent 100%);
+}
+
+.ob-card {
+  position: relative; z-index: 2;
+  background: var(--surface); border: 1px solid var(--border-md);
+  border-radius: var(--radius-xl); padding: 56px 64px;
+  text-align: center; max-width: 480px;
+  box-shadow: var(--shadow-lg), 0 0 80px rgba(108,99,255,0.08);
+  animation: obIn 0.7s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+
+@keyframes obIn {
+  from { opacity: 0; transform: translateY(24px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.ob-wordmark {
+  font-family: var(--font-display);
+  font-size: 72px; font-weight: 900;
+  letter-spacing: -3px; line-height: 1;
+  background: linear-gradient(135deg, #EDF0F7 0%, #6C63FF 55%, #00E5CC 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text; margin-bottom: 14px;
+}
+
+.ob-tagline {
+  font-family: var(--font-mono);
+  font-size: 11px; letter-spacing: 3px;
+  text-transform: uppercase; color: var(--text-3); margin-bottom: 36px;
+}
+.ob-tagline em { color: var(--accent); font-style: normal; }
+
+.ob-actions { display: flex; flex-direction: column; gap: 12px; }
+
+.ob-cta {
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  background: var(--accent); color: #fff;
+  font-size: 14px; font-weight: 600;
+  padding: 16px 32px; border-radius: var(--radius-lg);
+  box-shadow: 0 0 40px var(--accent-glow); transition: var(--transition);
+}
+.ob-cta:hover { transform: translateY(-2px); box-shadow: 0 0 60px var(--accent-glow); background: #7B73FF; }
+
+.ob-import-hint { font-size: 12px; color: var(--text-3); }
+.ob-import-link { color: var(--accent); cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
+.ob-import-link:hover { color: var(--teal); }
+
+/* ============================================================
+   DASHBOARD
+   ============================================================ */
+.dashboard { max-width: 1400px; margin: 0 auto; padding: 32px 28px; }
+
+.dash-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 28px; gap: 20px; flex-wrap: wrap;
+}
+
+.dash-title { font-family: var(--font-display); font-size: 40px; font-weight: 700; letter-spacing: -1.5px; line-height: 1; color: var(--text-1); }
+.dash-subtitle { font-size: 12px; color: var(--text-2); margin-top: 6px; font-family: var(--font-mono); letter-spacing: 1px; }
+
+.dash-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+.semester-filter {
+  display: flex; align-items: center;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-md); overflow: hidden;
+}
+.sf-btn {
+  padding: 7px 14px; font-size: 12px; font-weight: 500;
+  color: var(--text-2); transition: var(--transition);
+  border-right: 1px solid var(--border);
+}
+.sf-btn:last-child { border-right: none; }
+.sf-btn.active { background: var(--accent); color: #fff; }
+.sf-btn:hover:not(.active) { background: var(--surface-el); color: var(--text-1); }
+
+/* ============================================================
+   STATS STRIP
+   ============================================================ */
+.stats-strip {
+  display: grid; grid-template-columns: repeat(5, 1fr);
+  gap: 2px; margin-bottom: 28px;
+  background: var(--border); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); overflow: hidden;
+}
+
+.stat-block { background: var(--surface); padding: 18px 20px; position: relative; transition: background 0.2s ease; }
+.stat-block:hover { background: var(--surface-el); }
+.stat-block-val { font-family: var(--font-mono); font-size: 26px; font-weight: 600; color: var(--text-1); margin-bottom: 4px; display: flex; align-items: baseline; gap: 4px; }
+.stat-block-val .unit { font-size: 13px; color: var(--text-2); font-weight: 400; }
+.stat-block-lbl { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-3); }
+
+/* ============================================================
+   DASHBOARD LAYOUT — two-column when pendientes exist
+   ============================================================ */
+.dash-main-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 28px;
+  margin-bottom: 40px;
+}
+.dash-main-grid.has-pending {
+  grid-template-columns: 1fr 340px;
+  align-items: start;
+}
+
+/* ============================================================
+   COURSE GRID
+   ============================================================ */
+.course-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.course-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 24px;
+  cursor: pointer; position: relative; overflow: hidden;
+  transition: transform 0.3s cubic-bezier(0.4,0,0.2,1), box-shadow 0.3s ease, border-color 0.3s ease;
+  animation: cardFadeUp 0.4s cubic-bezier(0.4,0,0.2,1) both;
+}
+@keyframes cardFadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.course-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: var(--cc, var(--accent)); opacity: 0; transition: opacity 0.3s ease;
+}
+.course-card:hover { transform: translateY(-3px); border-color: var(--cc, var(--accent)); box-shadow: 0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px var(--cc, var(--accent)), 0 0 32px var(--cc-dim, var(--accent-dim)); }
+.course-card:hover::before { opacity: 1; }
+
+.cc-bg-accent { position: absolute; top: -40px; right: -40px; width: 140px; height: 140px; background: var(--cc-dim, var(--accent-dim)); border-radius: 50%; pointer-events: none; }
+
+.cc-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 16px; }
+.cc-emoji { font-size: 28px; line-height: 1; }
+
+.cc-actions { display: flex; gap: 4px; opacity: 0; transition: opacity 0.2s ease; }
+.course-card:hover .cc-actions { opacity: 1; }
+
+.cc-action-btn { width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; border-radius: var(--radius-sm); color: var(--text-2); transition: var(--transition); }
+.cc-action-btn:hover { background: var(--surface-hi); color: var(--text-1); }
+.cc-action-btn.danger:hover { background: rgba(255,77,109,0.15); color: var(--danger); }
+.cc-action-btn svg { width: 13px; height: 13px; }
+
+.cc-name { font-family: var(--font-display); font-size: 22px; font-weight: 700; letter-spacing: -0.5px; color: var(--text-1); margin-bottom: 4px; line-height: 1.2; }
+.cc-meta { display: flex; align-items: center; gap: 8px; margin-bottom: 20px; }
+.cc-semester { font-family: var(--font-mono); font-size: 10px; letter-spacing: 1px; color: var(--text-3); text-transform: uppercase; }
+.cc-dot { width: 3px; height: 3px; border-radius: 50%; background: var(--text-3); }
+.cc-weeks { font-family: var(--font-mono); font-size: 10px; color: var(--text-3); }
+
+.cc-progress-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+.cc-progress-label { font-size: 10px; color: var(--text-3); text-transform: uppercase; letter-spacing: 1px; }
+.cc-progress-pct { font-family: var(--font-mono); font-size: 18px; font-weight: 600; color: var(--cc, var(--accent)); }
+
+.progress-bar-wrap { height: 4px; background: var(--surface-el); border-radius: 2px; overflow: hidden; margin-bottom: 14px; }
+.progress-bar {
+  height: 100%; border-radius: 2px;
+  background: linear-gradient(90deg, var(--cc, var(--accent)), color-mix(in srgb, var(--cc, var(--accent)) 60%, var(--teal)));
+  transition: width 0.8s cubic-bezier(0.4,0,0.2,1);
+}
+
+.cc-stats { display: flex; gap: 16px; }
+.cc-stat { display: flex; flex-direction: column; gap: 2px; }
+.cc-stat-val { font-family: var(--font-mono); font-size: 13px; font-weight: 600; color: var(--text-1); }
+.cc-stat-lbl { font-size: 10px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.8px; }
+
+.empty-state { grid-column: 1 / -1; text-align: center; padding: 80px 40px; }
+.empty-state-icon { font-size: 56px; margin-bottom: 16px; opacity: 0.35; }
+.empty-state-title { font-family: var(--font-display); font-size: 22px; font-weight: 600; color: var(--text-2); margin-bottom: 6px; }
+.empty-state-text { font-size: 13px; color: var(--text-3); margin-bottom: 20px; }
+
+/* ============================================================
+   PENDIENTES WIDGET — sidebar panel in dashboard
+   ============================================================ */
+.pendientes-widget {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  position: sticky;
+  top: calc(var(--header-h) + 16px);
+  max-height: calc(100vh - var(--header-h) - 48px);
+  display: flex;
+  flex-direction: column;
+}
+
+.pw-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.pw-title-row {
+  display: flex; align-items: center; gap: 10px;
+}
+
+.pw-icon {
+  width: 32px; height: 32px; border-radius: var(--radius-sm);
+  background: rgba(255,181,71,0.12);
+  border: 1px solid rgba(255,181,71,0.2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; flex-shrink: 0;
+}
+
+.pw-title {
+  font-family: var(--font-display);
+  font-size: 16px; font-weight: 700;
+  letter-spacing: -0.3px; color: var(--text-1);
+}
+
+.pw-count-badge {
+  font-family: var(--font-mono);
+  font-size: 10px; font-weight: 600;
+  background: rgba(255,181,71,0.15);
+  color: var(--warning);
+  border: 1px solid rgba(255,181,71,0.25);
+  padding: 2px 7px; border-radius: 20px;
+  transition: var(--transition);
+}
+
+.pw-count-badge.done { background: rgba(62,224,160,0.1); color: var(--success); border-color: rgba(62,224,160,0.25); }
+
+.pw-filter-row {
+  display: flex; gap: 4px; padding: 10px 20px 0;
+  flex-shrink: 0;
+}
+.pw-filter-btn {
+  flex: 1; padding: 5px 8px; font-size: 10px; font-weight: 600;
+  border-radius: var(--radius-sm); border: 1px solid var(--border);
+  color: var(--text-3); background: var(--surface-el);
+  transition: var(--transition); letter-spacing: 0.5px; text-transform: uppercase;
+}
+.pw-filter-btn.active { background: var(--surface-hi); color: var(--text-1); border-color: var(--border-md); }
+.pw-filter-btn:hover:not(.active) { color: var(--text-2); border-color: var(--border-md); }
+
+.pw-body {
+  flex: 1; overflow-y: auto;
+  padding: 12px 20px 16px;
+}
+
+.pw-empty {
+  text-align: center; padding: 32px 16px;
+  color: var(--text-3); font-size: 12px;
+}
+.pw-empty-icon { font-size: 32px; margin-bottom: 10px; opacity: 0.5; }
+.pw-empty-msg { line-height: 1.5; }
+
+.pw-course-group { margin-bottom: 16px; }
+.pw-course-group:last-child { margin-bottom: 0; }
+
+.pw-course-label {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 10px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 1px;
+  color: var(--text-3); margin-bottom: 8px;
+  padding-bottom: 6px; border-bottom: 1px solid var(--border);
+}
+.pw-course-label-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+
+.pw-topic-block { margin-bottom: 10px; }
+.pw-topic-block:last-child { margin-bottom: 0; }
+
+.pw-topic-name {
+  font-size: 11px; font-weight: 600; color: var(--text-2);
+  margin-bottom: 5px; padding-left: 2px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.pw-topic-name button {
+  font-size: 10px; color: var(--accent);
+  opacity: 0; transition: opacity 0.2s ease;
+  text-decoration: underline; text-underline-offset: 2px;
+}
+.pw-topic-block:hover .pw-topic-name button { opacity: 1; }
+
+.pw-mat-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 10px;
+  background: var(--surface-el); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); margin-bottom: 4px;
+  cursor: pointer; transition: var(--transition);
+}
+.pw-mat-item:last-child { margin-bottom: 0; }
+.pw-mat-item:hover { border-color: var(--border-md); background: var(--surface-hi); }
+
+.pw-mat-item.completed {
+  opacity: 0.5;
+  background: rgba(62,224,160,0.04);
+  border-color: rgba(62,224,160,0.12);
+}
+.pw-mat-item.completed .pw-mat-name { text-decoration: line-through; color: var(--text-3); }
+
+.pw-check {
+  width: 16px; height: 16px; border-radius: 4px;
+  border: 2px solid var(--border-md);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; transition: all 0.2s cubic-bezier(0.34,1.56,0.64,1);
+}
+.pw-check.done {
+  background: var(--success); border-color: var(--success);
+  transform: scale(1.1);
+  box-shadow: 0 0 8px rgba(62,224,160,0.3);
+}
+.pw-check svg { opacity: 0; width: 8px; height: 8px; transition: opacity 0.15s ease; }
+.pw-check.done svg { opacity: 1; }
+
+.pw-mat-icon { font-size: 11px; line-height: 1; flex-shrink: 0; }
+.pw-mat-name { font-size: 11px; color: var(--text-1); flex: 1; line-height: 1.3; }
+
+.pw-footer {
+  padding: 12px 20px;
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.pw-overall-bar-wrap { height: 3px; background: var(--surface-hi); border-radius: 2px; overflow: hidden; margin-bottom: 6px; }
+.pw-overall-bar { height: 100%; border-radius: 2px; background: linear-gradient(90deg, var(--accent), var(--teal)); transition: width 0.6s cubic-bezier(0.4,0,0.2,1); }
+.pw-footer-meta { display: flex; justify-content: space-between; align-items: center; }
+.pw-footer-text { font-size: 10px; color: var(--text-3); }
+.pw-footer-pct { font-family: var(--font-mono); font-size: 11px; font-weight: 600; color: var(--text-2); }
+
+/* ============================================================
+   ANALYSIS SECTION
+   ============================================================ */
+.stats-section { margin-top: 8px; }
+.stats-title { font-family: var(--font-display); font-size: 26px; font-weight: 700; letter-spacing: -0.5px; color: var(--text-1); margin-bottom: 20px; }
+.stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.stats-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; }
+.stats-card-title { font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-3); margin-bottom: 18px; font-weight: 600; }
+.course-comparison-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+.course-comparison-row:last-child { margin-bottom: 0; }
+.ccr-name { width: 80px; font-size: 12px; font-weight: 500; color: var(--text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-shrink: 0; }
+.ccr-bar-wrap { flex: 1; height: 5px; background: var(--surface-el); border-radius: 3px; overflow: hidden; }
+.ccr-bar { height: 100%; border-radius: 3px; transition: width 0.8s cubic-bezier(0.4,0,0.2,1); }
+.ccr-pct { font-family: var(--font-mono); font-size: 11px; font-weight: 600; color: var(--text-2); min-width: 32px; text-align: right; flex-shrink: 0; }
+.material-usage-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.material-usage-row:last-child { margin-bottom: 0; }
+.mur-icon { font-size: 13px; width: 20px; text-align: center; flex-shrink: 0; }
+.mur-name { flex: 1; font-size: 12px; color: var(--text-2); }
+.mur-bar-wrap { width: 80px; height: 4px; background: var(--surface-el); border-radius: 2px; overflow: hidden; flex-shrink: 0; }
+.mur-bar { height: 100%; background: var(--accent); border-radius: 2px; }
+.mur-count { font-family: var(--font-mono); font-size: 11px; color: var(--text-3); min-width: 20px; text-align: right; flex-shrink: 0; }
+
+/* ============================================================
+   COURSE VIEW
+   ============================================================ */
+.course-view { max-width: 960px; margin: 0 auto; padding: 32px 28px; }
+
+.cv-header {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  margin-bottom: 32px; padding: 28px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); position: relative; overflow: hidden;
+}
+.cv-header::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--cc, var(--accent)), transparent); }
+.cv-header-left { display: flex; align-items: center; gap: 16px; }
+.cv-emoji { font-size: 40px; line-height: 1; }
+.cv-name { font-family: var(--font-display); font-size: 34px; font-weight: 700; letter-spacing: -1.5px; color: var(--text-1); margin-bottom: 6px; }
+.cv-meta { display: flex; gap: 10px; align-items: center; }
+.cv-semester-badge { background: var(--surface-el); border: 1px solid var(--border); border-radius: 20px; padding: 3px 10px; font-family: var(--font-mono); font-size: 10px; color: var(--text-2); letter-spacing: 1px; }
+.cv-header-right { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; flex-shrink: 0; }
+.cv-progress-pct { font-family: var(--font-mono); font-size: 40px; font-weight: 600; color: var(--cc, var(--accent)); line-height: 1; }
+.cv-progress-lbl { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-3); text-align: right; }
+.cv-progress-bar-wide { width: 180px; }
+
+/* Weeks Timeline */
+.weeks-timeline { display: flex; flex-direction: column; gap: 10px; }
+
+.week-block {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); overflow: hidden; transition: border-color 0.3s ease;
+}
+.week-block.alert { border-color: rgba(255,181,71,0.25); }
+
+.wb-header {
+  display: flex; align-items: center; gap: 14px;
+  padding: 18px 22px; cursor: pointer;
+  transition: background 0.2s ease; user-select: none;
+}
+.wb-header:hover { background: var(--surface-el); }
+
+.wb-number {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: var(--surface-el); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-mono); font-size: 12px; font-weight: 600;
+  color: var(--text-2); flex-shrink: 0; transition: var(--transition);
+}
+.week-block.expanded .wb-number, .wb-header:hover .wb-number { background: var(--cc, var(--accent)); color: #fff; border-color: var(--cc, var(--accent)); }
+
+.wb-info { flex: 1; }
+.wb-title { font-size: 14px; font-weight: 600; color: var(--text-1); margin-bottom: 5px; }
+.wb-progress-inline { display: flex; align-items: center; gap: 8px; }
+.wb-progress-bar-wrap { width: 100px; height: 3px; background: var(--surface-hi); border-radius: 2px; overflow: hidden; }
+.wb-progress-bar { height: 100%; border-radius: 2px; background: var(--cc, var(--accent)); transition: width 0.6s cubic-bezier(0.4,0,0.2,1); }
+.wb-progress-pct { font-family: var(--font-mono); font-size: 11px; font-weight: 600; color: var(--text-2); min-width: 32px; }
+.wb-alert-badge { font-size: 9px; background: rgba(255,181,71,0.15); color: var(--warning); border: 1px solid rgba(255,181,71,0.3); padding: 2px 7px; border-radius: 20px; }
+.wb-topics-count { font-size: 11px; color: var(--text-3); }
+
+.wb-chevron { width: 18px; height: 18px; color: var(--text-3); transition: transform 0.3s cubic-bezier(0.4,0,0.2,1); flex-shrink: 0; }
+.week-block.expanded .wb-chevron { transform: rotate(180deg); }
+
+.wb-body { max-height: 0; overflow: hidden; transition: max-height 0.4s cubic-bezier(0.4,0,0.2,1); }
+.week-block.expanded .wb-body { max-height: 2000px; }
+.wb-body-inner { padding: 0 22px 18px; border-top: 1px solid var(--border); }
+
+/* Topics */
+.topics-list { display: flex; flex-direction: column; gap: 6px; margin-top: 14px; margin-bottom: 12px; }
+.topic-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 16px;
+  background: var(--surface-el); border: 1px solid var(--border);
+  border-radius: var(--radius-md); cursor: pointer; transition: var(--transition);
+}
+.topic-row:hover { border-color: var(--cc, var(--accent)); background: var(--surface-hi); }
+.topic-priority-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.priority-alta { background: var(--danger); }
+.priority-media { background: var(--warning); }
+.priority-baja { background: var(--text-3); }
+.topic-title { flex: 1; font-size: 13px; font-weight: 500; color: var(--text-1); }
+.topic-progress-area { display: flex; align-items: center; gap: 8px; }
+.topic-progress-mini { width: 70px; height: 3px; background: var(--surface-hi); border-radius: 2px; overflow: hidden; }
+.topic-progress-fill { height: 100%; border-radius: 2px; background: var(--cc, var(--accent)); transition: width 0.5s cubic-bezier(0.4,0,0.2,1); }
+.topic-pct { font-family: var(--font-mono); font-size: 11px; color: var(--text-2); min-width: 28px; text-align: right; }
+.topic-materials-count { font-size: 11px; color: var(--text-3); }
+.topic-complete-badge { font-size: 10px; background: var(--teal-dim); color: var(--teal); border: 1px solid rgba(0,229,204,0.3); padding: 2px 7px; border-radius: 20px; }
+
+.wb-add-topic {
+  display: flex; align-items: center; gap: 8px;
+  padding: 9px 14px; border: 1px dashed var(--border-md);
+  border-radius: var(--radius-md); color: var(--text-3);
+  font-size: 12px; transition: var(--transition); width: 100%;
+}
+.wb-add-topic:hover { border-color: var(--cc, var(--accent)); color: var(--cc, var(--accent)); background: var(--cc-dim, var(--accent-dim)); }
+
+.add-week-btn {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  padding: 16px; border: 1px dashed var(--border-md);
+  border-radius: var(--radius-lg); color: var(--text-3);
+  font-size: 13px; transition: var(--transition); width: 100%;
+}
+.add-week-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+
+.wb-actions-bar { display: flex; gap: 8px; padding-top: 10px; border-top: 1px solid var(--border); margin-top: 6px; }
+.wb-del-btn { margin-left: auto; padding: 5px 10px; border-radius: var(--radius-sm); border: 1px solid var(--border); font-size: 11px; color: var(--text-3); transition: var(--transition); }
+.wb-del-btn:hover { border-color: rgba(255,77,109,0.4); color: var(--danger); background: rgba(255,77,109,0.08); }
+
+/* ============================================================
+   TOPIC PANEL
+   ============================================================ */
+.panel-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.55); backdrop-filter: blur(4px);
+  z-index: 200; opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+}
+.panel-overlay.active { opacity: 1; pointer-events: all; }
+
+.topic-panel {
+  position: fixed; top: 0; right: 0; bottom: 0; width: 500px;
+  background: var(--surface); border-left: 1px solid var(--border);
+  z-index: 201; overflow-y: auto;
+  transform: translateX(100%);
+  transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
+}
+.topic-panel.active { transform: translateX(0); }
+
+.tp-header {
+  position: sticky; top: 0; background: var(--surface);
+  border-bottom: 1px solid var(--border); padding: 22px; z-index: 10;
+}
+.tp-course-tag { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 10px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 10px; }
+.tp-title-edit { font-family: var(--font-display); font-size: 26px; font-weight: 700; letter-spacing: -0.5px; color: var(--text-1); background: none; border: none; width: 100%; border-bottom: 2px solid transparent; padding: 4px 0; transition: border-color 0.2s ease; resize: none; line-height: 1.2; }
+.tp-title-edit:focus { border-bottom-color: var(--accent); outline: none; }
+.tp-desc-edit { font-size: 13px; color: var(--text-2); background: none; border: none; width: 100%; margin-top: 6px; resize: none; line-height: 1.6; }
+.tp-desc-edit:focus { outline: none; color: var(--text-1); }
+.tp-desc-edit::placeholder { color: var(--text-3); }
+.tp-close { position: absolute; top: 22px; right: 22px; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border-radius: var(--radius-sm); color: var(--text-3); transition: var(--transition); }
+.tp-close:hover { background: var(--surface-el); color: var(--text-1); }
+
+.tp-body { padding: 22px; }
+
+.tp-progress-section { margin-bottom: 24px; padding: 18px; background: var(--surface-el); border-radius: var(--radius-md); border: 1px solid var(--border); }
+.tp-progress-top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
+.tp-progress-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-3); }
+.tp-progress-pct { font-family: var(--font-mono); font-size: 28px; font-weight: 600; color: var(--cc, var(--accent)); }
+.tp-progress-bar-wrap { height: 6px; background: var(--surface-hi); border-radius: 3px; overflow: hidden; margin-bottom: 10px; }
+.tp-progress-bar { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--cc, var(--accent)), var(--teal)); transition: width 0.6s cubic-bezier(0.4,0,0.2,1); }
+.tp-progress-sub { font-size: 11px; color: var(--text-3); }
+
+/* ============================================================
+   PENDIENTES — Section in topic panel
+   ============================================================ */
+.tp-pendientes-section {
+  margin-bottom: 24px;
+  background: var(--surface-el);
+  border: 1px solid rgba(255,181,71,0.18);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.tp-pendientes-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 16px;
+  background: rgba(255,181,71,0.05);
+  border-bottom: 1px solid rgba(255,181,71,0.12);
+}
+
+.tp-pendientes-title-row {
+  display: flex; align-items: center; gap: 8px;
+}
+
+.tp-pendientes-label {
+  font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 1.5px;
+  color: var(--warning);
+}
+
+.tp-pendientes-badge {
+  font-family: var(--font-mono); font-size: 10px; font-weight: 600;
+  background: rgba(255,181,71,0.15); color: var(--warning);
+  border: 1px solid rgba(255,181,71,0.3);
+  padding: 1px 6px; border-radius: 20px;
+  transition: var(--transition);
+}
+.tp-pendientes-badge.all-done {
+  background: rgba(62,224,160,0.1); color: var(--success);
+  border-color: rgba(62,224,160,0.3);
+}
+
+.tp-pendientes-list { padding: 8px 12px 10px; }
+
+.tp-pend-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 10px; border-radius: var(--radius-sm);
+  cursor: pointer; transition: var(--transition);
+  border: 1px solid transparent; margin-bottom: 4px;
+}
+.tp-pend-item:last-child { margin-bottom: 0; }
+.tp-pend-item:hover { background: var(--surface-hi); border-color: var(--border); }
+.tp-pend-item.done-item { opacity: 0.5; }
+.tp-pend-item.done-item .tp-pend-name { text-decoration: line-through; color: var(--text-3); }
+
+.tp-pend-check {
+  width: 18px; height: 18px; border-radius: 5px;
+  border: 2px solid rgba(255,181,71,0.4);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; transition: all 0.2s cubic-bezier(0.34,1.56,0.64,1);
+}
+.tp-pend-item.done-item .tp-pend-check {
+  background: var(--success); border-color: var(--success);
+  transform: scale(1.1); box-shadow: 0 0 8px rgba(62,224,160,0.3);
+}
+.tp-pend-check svg { opacity: 0; width: 9px; height: 9px; transition: opacity 0.15s ease; }
+.tp-pend-item.done-item .tp-pend-check svg { opacity: 1; }
+
+.tp-pend-icon { font-size: 13px; flex-shrink: 0; }
+.tp-pend-name { font-size: 12px; font-weight: 500; color: var(--text-1); flex: 1; }
+
+.tp-pendientes-all-done {
+  display: flex; align-items: center; gap: 8px;
+  padding: 14px 16px;
+  font-size: 12px; color: var(--success);
+  font-weight: 500;
+}
+
+/* ============================================================
+   TOPIC PANEL — Rest of sections
+   ============================================================ */
+.tp-section { margin-bottom: 24px; }
+.tp-section-title { font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-3); margin-bottom: 10px; font-weight: 600; }
+
+.priority-toggle { display: flex; gap: 6px; }
+.priority-btn { flex: 1; padding: 9px; border-radius: var(--radius-md); border: 1px solid var(--border); font-size: 11px; font-weight: 600; text-align: center; transition: var(--transition); color: var(--text-2); background: var(--surface-el); }
+.priority-btn:hover { border-color: var(--border-md); color: var(--text-1); }
+.priority-btn.active[data-p="alta"] { background: rgba(255,77,109,0.15); border-color: var(--danger); color: var(--danger); }
+.priority-btn.active[data-p="media"] { background: rgba(255,181,71,0.15); border-color: var(--warning); color: var(--warning); }
+.priority-btn.active[data-p="baja"] { background: rgba(92,100,120,0.2); border-color: rgba(92,100,120,0.5); color: var(--text-2); }
+
+/* Materials */
+.materials-list { display: flex; flex-direction: column; gap: 6px; }
+.material-item { display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: var(--surface-el); border: 1px solid var(--border); border-radius: var(--radius-md); transition: var(--transition); }
+.material-item.not-applicable { opacity: 0.4; }
+.material-item:hover { border-color: var(--border-md); }
+
+.material-check { width: 20px; height: 20px; border-radius: 5px; border: 2px solid var(--border-md); display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; transition: all 0.2s cubic-bezier(0.34,1.56,0.64,1); }
+.material-check.checked { background: var(--cc, var(--accent)); border-color: var(--cc, var(--accent)); transform: scale(1.1); box-shadow: 0 0 10px var(--cc-dim, var(--accent-dim)); }
+.material-check.checked svg { opacity: 1; }
+.material-check svg { opacity: 0; transition: opacity 0.15s ease; width: 10px; height: 10px; }
+
+.material-icon { font-size: 14px; width: 22px; text-align: center; flex-shrink: 0; }
+.material-name { flex: 1; font-size: 12px; font-weight: 500; color: var(--text-1); }
+.material-item.not-applicable .material-name { text-decoration: line-through; color: var(--text-3); }
+
+.material-applicable-toggle { width: 26px; height: 14px; background: var(--surface-hi); border-radius: 7px; position: relative; cursor: pointer; flex-shrink: 0; transition: background 0.2s ease; border: 1px solid var(--border); }
+.material-applicable-toggle.on { background: rgba(108,99,255,0.4); border-color: var(--accent); }
+.material-applicable-toggle::after { content: ''; position: absolute; top: 1px; left: 1px; width: 10px; height: 10px; border-radius: 50%; background: var(--text-3); transition: transform 0.2s cubic-bezier(0.4,0,0.2,1), background 0.2s ease; }
+.material-applicable-toggle.on::after { transform: translateX(12px); background: var(--accent); }
+
+/* Notes */
+.tp-notes { width: 100%; background: var(--surface-el); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 12px 14px; color: var(--text-1); font-size: 13px; line-height: 1.7; resize: vertical; min-height: 100px; transition: border-color 0.2s ease; }
+.tp-notes:focus { border-color: var(--accent); outline: none; }
+.tp-notes::placeholder { color: var(--text-3); }
+.tp-date { margin-top: 14px; font-family: var(--font-mono); font-size: 10px; color: var(--text-3); text-align: right; }
+
+.tp-delete-topic { display: flex; align-items: center; gap: 6px; margin-top: 16px; padding: 8px 12px; border: 1px solid var(--border); border-radius: var(--radius-md); font-size: 11px; color: var(--text-3); transition: var(--transition); }
+.tp-delete-topic:hover { border-color: rgba(255,77,109,0.4); color: var(--danger); background: rgba(255,77,109,0.06); }
+
+/* ============================================================
+   MODALS
+   ============================================================ */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); z-index: 300; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.25s ease; }
+.modal-overlay.active { opacity: 1; pointer-events: all; }
+
+.modal { background: var(--surface-el); border: 1px solid var(--border-md); border-radius: var(--radius-xl); padding: 32px; width: 460px; max-width: calc(100vw - 48px); box-shadow: var(--shadow-lg); transform: scale(0.95) translateY(10px); transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1); }
+.modal-overlay.active .modal { transform: scale(1) translateY(0); }
+.modal.modal-wide { width: 560px; }
+
+.modal-title { font-family: var(--font-display); font-size: 24px; font-weight: 700; letter-spacing: -0.5px; color: var(--text-1); margin-bottom: 4px; }
+.modal-subtitle { font-size: 13px; color: var(--text-2); margin-bottom: 24px; }
+
+.form-group { margin-bottom: 18px; }
+.form-label { display: block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--text-3); margin-bottom: 7px; }
+.form-input { width: 100%; background: var(--surface); border: 1px solid var(--border-md); border-radius: var(--radius-md); padding: 11px 14px; font-size: 13px; color: var(--text-1); transition: border-color 0.2s ease, background 0.2s ease; }
+.form-input:focus { border-color: var(--accent); outline: none; background: var(--surface-hi); }
+.form-input::placeholder { color: var(--text-3); }
+.form-textarea { min-height: 80px; resize: vertical; line-height: 1.6; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+.emoji-picker { display: flex; gap: 6px; flex-wrap: wrap; }
+.emoji-opt { width: 40px; height: 40px; border-radius: var(--radius-md); border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; transition: var(--transition); }
+.emoji-opt:hover { border-color: var(--border-md); background: var(--surface-hi); }
+.emoji-opt.selected { border-color: var(--accent); background: var(--accent-dim); }
+
+.color-picker { display: flex; gap: 10px; flex-wrap: wrap; }
+.color-opt { width: 30px; height: 30px; border-radius: 50%; cursor: pointer; border: 3px solid transparent; transition: var(--transition); position: relative; }
+.color-opt::after { content: ''; position: absolute; inset: -4px; border-radius: 50%; border: 2px solid transparent; transition: border-color 0.2s ease; }
+.color-opt.selected::after { border-color: currentColor; }
+
+.modal-actions { display: flex; gap: 10px; margin-top: 24px; justify-content: flex-end; }
+.btn-cancel { padding: 10px 18px; border-radius: var(--radius-md); border: 1px solid var(--border); font-size: 13px; font-weight: 500; color: var(--text-2); transition: var(--transition); }
+.btn-cancel:hover { color: var(--text-1); border-color: var(--border-md); background: var(--surface-hi); }
+.btn-confirm { padding: 10px 22px; border-radius: var(--radius-md); background: var(--accent); color: #fff; font-size: 13px; font-weight: 600; transition: var(--transition); }
+.btn-confirm:hover { background: #7B73FF; }
+.btn-danger-confirm { padding: 10px 22px; border-radius: var(--radius-md); background: var(--danger); color: #fff; font-size: 13px; font-weight: 600; transition: var(--transition); }
+.btn-danger-confirm:hover { background: #ff3357; }
+
+/* Export/Import Modal */
+.export-tabs { display: flex; gap: 2px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; margin-bottom: 20px; }
+.export-tab { flex: 1; padding: 9px 16px; font-size: 12px; font-weight: 500; color: var(--text-2); transition: var(--transition); text-align: center; }
+.export-tab.active { background: var(--accent); color: #fff; }
+.export-tab:hover:not(.active) { background: var(--surface-el); color: var(--text-1); }
+
+.export-panel { display: none; }
+.export-panel.active { display: block; }
+
+.json-box { width: 100%; height: 200px; background: var(--surface); border: 1px solid var(--border-md); border-radius: var(--radius-md); padding: 14px; color: var(--text-2); font-family: var(--font-mono); font-size: 11px; line-height: 1.6; resize: vertical; transition: border-color 0.2s ease; }
+.json-box:focus { border-color: var(--accent); outline: none; color: var(--text-1); }
+
+.export-info { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-radius: var(--radius-md); background: var(--surface); border: 1px solid var(--border); font-size: 12px; color: var(--text-2); margin-bottom: 14px; }
+.export-info svg { width: 14px; height: 14px; color: var(--accent); flex-shrink: 0; }
+
+.import-warning { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-radius: var(--radius-md); background: rgba(255,181,71,0.08); border: 1px solid rgba(255,181,71,0.25); font-size: 12px; color: var(--warning); margin-bottom: 14px; }
+.import-warning svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+.copy-success { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--success); opacity: 0; transition: opacity 0.3s ease; }
+.copy-success.visible { opacity: 1; }
+
+/* Search Dropdown */
+.search-dropdown { position: absolute; top: calc(100% + 6px); left: 0; right: 0; background: var(--surface-el); border: 1px solid var(--border-md); border-radius: var(--radius-md); max-height: 300px; overflow-y: auto; box-shadow: var(--shadow-md); z-index: 150; display: none; }
+.search-dropdown.visible { display: block; }
+.search-result { padding: 10px 14px; cursor: pointer; border-bottom: 1px solid var(--border); transition: background 0.15s ease; display: flex; flex-direction: column; gap: 2px; }
+.search-result:last-child { border-bottom: none; }
+.search-result:hover { background: var(--surface-hi); }
+.sr-topic { font-size: 13px; font-weight: 500; color: var(--text-1); }
+.sr-path { font-size: 11px; color: var(--text-3); }
+.sr-highlight { color: var(--accent); }
+
+/* Toasts */
+.toast-container { position: fixed; bottom: 28px; right: 28px; z-index: 500; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+.toast { background: var(--surface-hi); border: 1px solid var(--border-md); border-radius: var(--radius-md); padding: 12px 18px; font-size: 13px; color: var(--text-1); box-shadow: var(--shadow-md); display: flex; align-items: center; gap: 8px; transform: translateX(120%); transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1); pointer-events: auto; max-width: 300px; }
+.toast.visible { transform: translateX(0); }
+.toast.success { border-color: rgba(62,224,160,0.3); }
+.toast.error { border-color: rgba(255,77,109,0.3); }
+
+.hidden { display: none !important; }
+.divider { height: 1px; background: var(--border); margin: 16px 0; }
+</style>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ONBOARDING -->
+  <div id="onboarding" class="view active">
+    <div class="ob-bg"></div>
+    <div class="ob-grid"></div>
+    <div class="ob-card">
+      <div class="ob-wordmark">STUDIUM</div>
+      <div class="ob-tagline">Tu registro académico. <em>Sin excusas.</em></div>
+      <div class="ob-actions">
+        <button class="ob-cta" id="obCta">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="18" height="18">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+          </svg>
+          Crear mi primer curso
+        </button>
+        <div class="ob-import-hint">
+          ¿Ya tienes datos? <span class="ob-import-link" id="obImportLink">Importar desde JSON</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="dashboard" class="view">
+    <header class="global-header">
+      <div class="gh-left">
+        <div class="gh-logo" id="dashLogo">STUDIUM</div>
+      </div>
+      <div class="gh-center">
+        <div class="gh-search">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="M21 21l-4.35-4.35"/>
+          </svg>
+          <input type="text" id="searchInput" placeholder="Buscar temas…" autocomplete="off">
+          <div class="search-dropdown" id="searchDropdown"></div>
+        </div>
+        <div class="gh-progress-compact">
+          <div class="gh-progress-bar-wrap">
+            <div class="gh-progress-bar" id="globalProgressBar" style="width:0%"></div>
+          </div>
+          <div class="gh-progress-pct" id="globalProgressPct">0%</div>
+        </div>
+      </div>
+      <div class="gh-right">
+        <button class="btn-ghost" id="exportBtn" title="Exportar / Importar datos">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+          </svg>
+          Datos
+        </button>
+        <button class="btn-primary" id="addCourseBtn">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+          </svg>
+          Nuevo curso
+        </button>
+      </div>
+    </header>
+
+    <div class="dashboard">
+      <div class="dash-header">
+        <div class="dash-title-group">
+          <div class="dash-title">Mis Cursos</div>
+          <div class="dash-subtitle" id="dashSubtitle">— semestre actual</div>
+        </div>
+        <div class="dash-controls">
+          <div class="semester-filter" id="semesterFilter"></div>
+        </div>
+      </div>
+
+      <div class="stats-strip" id="statsStrip">
+        <div class="stat-block">
+          <div class="stat-block-val"><span id="statCourses">0</span></div>
+          <div class="stat-block-lbl">Cursos</div>
+        </div>
+        <div class="stat-block">
+          <div class="stat-block-val"><span id="statWeeks">0</span></div>
+          <div class="stat-block-lbl">Semanas</div>
+        </div>
+        <div class="stat-block">
+          <div class="stat-block-val"><span id="statTopics">0</span></div>
+          <div class="stat-block-lbl">Temas</div>
+        </div>
+        <div class="stat-block">
+          <div class="stat-block-val"><span id="statCompleted">0</span></div>
+          <div class="stat-block-lbl">Completados</div>
+        </div>
+        <div class="stat-block">
+          <div class="stat-block-val"><span id="statStreak">0</span><span class="unit">d</span></div>
+          <div class="stat-block-lbl">Racha</div>
+        </div>
+      </div>
+
+      <!-- Main grid: courses left, pendientes right -->
+      <div class="dash-main-grid" id="dashMainGrid">
+        <div class="course-grid" id="courseGrid"></div>
+        <!-- Pendientes widget inserted here dynamically -->
+      </div>
+
+      <div class="stats-section" id="statsSection">
+        <div class="stats-title">Análisis</div>
+        <div class="stats-grid">
+          <div class="stats-card">
+            <div class="stats-card-title">Progreso por Curso</div>
+            <div id="courseComparisonList"></div>
+          </div>
+          <div class="stats-card">
+            <div class="stats-card-title">Materiales más usados</div>
+            <div id="materialUsageList"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COURSE VIEW -->
+  <div id="courseView" class="view">
+    <header class="global-header">
+      <div class="gh-left">
+        <div class="gh-logo" id="cvLogo">STUDIUM</div>
+        <button class="gh-back" id="backToDash">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+          </svg>
+          Dashboard
+        </button>
+      </div>
+      <div class="gh-center">
+        <div class="gh-progress-compact" style="margin-left:auto">
+          <div class="gh-progress-bar-wrap">
+            <div class="gh-progress-bar" id="courseProgressBar" style="width:0%"></div>
+          </div>
+          <div class="gh-progress-pct" id="courseProgressPct">0%</div>
+        </div>
+      </div>
+      <div class="gh-right">
+        <button class="btn-ghost" id="exportBtnCv" title="Exportar / Importar datos">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+          </svg>
+          Datos
+        </button>
+      </div>
+    </header>
+    <div class="course-view" id="courseViewContent"></div>
+  </div>
+
+</div>
+
+<!-- TOPIC PANEL -->
+<div class="panel-overlay" id="panelOverlay"></div>
+<div class="topic-panel" id="topicPanel">
+  <div class="tp-header">
+    <div class="tp-course-tag" id="tpCourseTag">●&nbsp;<span></span></div>
+    <textarea class="tp-title-edit" id="tpTitle" rows="2" placeholder="Título del tema…"></textarea>
+    <textarea class="tp-desc-edit" id="tpDesc" rows="2" placeholder="Descripción opcional…"></textarea>
+    <button class="tp-close" id="tpClose">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="14" height="14">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+      </svg>
+    </button>
+  </div>
+  <div class="tp-body">
+    <div class="tp-progress-section">
+      <div class="tp-progress-top">
+        <div class="tp-progress-label">Progreso del tema</div>
+        <div class="tp-progress-pct" id="tpProgressPct">0%</div>
+      </div>
+      <div class="tp-progress-bar-wrap">
+        <div class="tp-progress-bar" id="tpProgressBar" style="width:0%"></div>
+      </div>
+      <div class="tp-progress-sub" id="tpProgressSub">0 de 0 materiales completados</div>
+    </div>
+
+    <!-- PENDIENTES SECTION in topic panel -->
+    <div class="tp-pendientes-section" id="tpPendientesSection">
+      <div class="tp-pendientes-header">
+        <div class="tp-pendientes-title-row">
+          <span style="font-size:13px">📋</span>
+          <span class="tp-pendientes-label">Pendientes</span>
+        </div>
+        <span class="tp-pendientes-badge" id="tpPendientesBadge">—</span>
+      </div>
+      <div id="tpPendientesList" class="tp-pendientes-list"></div>
+    </div>
+
+    <div class="tp-section">
+      <div class="tp-section-title">Prioridad</div>
+      <div class="priority-toggle">
+        <button class="priority-btn" data-p="alta">🔴 Alta</button>
+        <button class="priority-btn" data-p="media">🟡 Media</button>
+        <button class="priority-btn" data-p="baja">⚪ Baja</button>
+      </div>
+    </div>
+
+    <div class="tp-section">
+      <div class="tp-section-title">Todos los materiales</div>
+      <div style="font-size:11px;color:var(--text-3);margin-bottom:10px;">Toggle activa/desactiva el material. Solo los activos cuentan en el progreso.</div>
+      <div class="materials-list" id="materialsList"></div>
+    </div>
+
+    <div class="tp-section">
+      <div class="tp-section-title">Notas</div>
+      <textarea class="tp-notes" id="tpNotes" placeholder="Escribe aquí cualquier nota, duda, referencia…" rows="5"></textarea>
+    </div>
+
+    <button class="tp-delete-topic" id="tpDeleteTopic">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="12" height="12">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+      </svg>
+      Eliminar este tema
+    </button>
+
+    <div class="tp-date" id="tpDate"></div>
+  </div>
+</div>
+
+<!-- MODALS -->
+
+<!-- Course Modal -->
+<div class="modal-overlay" id="courseModal">
+  <div class="modal">
+    <div class="modal-title" id="courseModalTitle">Nuevo Curso</div>
+    <div class="modal-subtitle">Configura los datos del curso</div>
+    <input type="hidden" id="courseModalId">
+    <div class="form-group">
+      <label class="form-label">Nombre del curso</label>
+      <input class="form-input" id="courseModalName" placeholder="Ej: Cálculo III, CPL2…" maxlength="40">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Semestre</label>
+        <input class="form-input" id="courseModalSemester" placeholder="2025-1" maxlength="10">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Emoji</label>
+        <div class="emoji-picker" id="emojiPicker"></div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Color identificador</label>
+      <div class="color-picker" id="colorPicker"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" id="courseModalCancel">Cancelar</button>
+      <button class="btn-confirm" id="courseModalConfirm">Guardar curso</button>
+    </div>
+  </div>
+</div>
+
+<!-- Topic Modal -->
+<div class="modal-overlay" id="topicModal">
+  <div class="modal">
+    <div class="modal-title">Agregar tema</div>
+    <div class="modal-subtitle" id="topicModalSubtitle"></div>
+    <input type="hidden" id="topicModalCourseId">
+    <input type="hidden" id="topicModalWeekId">
+    <div class="form-group">
+      <label class="form-label">Título del tema</label>
+      <input class="form-input" id="topicModalTitle" placeholder="Ej: Límites y continuidad…" maxlength="80">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Descripción (opcional)</label>
+      <input class="form-input" id="topicModalDesc" placeholder="Breve descripción…" maxlength="200">
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" id="topicModalCancel">Cancelar</button>
+      <button class="btn-confirm" id="topicModalConfirm">Agregar tema</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm Modal -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal">
+    <div class="modal-title" id="confirmTitle">¿Eliminar?</div>
+    <div class="modal-subtitle" id="confirmText"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" id="confirmCancel">Cancelar</button>
+      <button class="btn-danger-confirm" id="confirmOk">Eliminar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Export / Import Modal -->
+<div class="modal-overlay" id="exportModal">
+  <div class="modal modal-wide">
+    <div class="modal-title">Exportar / Importar datos</div>
+    <div class="modal-subtitle">Copia tu JSON para hacer backup o pégalo para restaurar</div>
+    <div class="export-tabs">
+      <button class="export-tab active" data-tab="export">📤 Exportar</button>
+      <button class="export-tab" data-tab="import">📥 Importar</button>
+    </div>
+    <div class="export-panel active" id="exportPanelEl">
+      <div class="export-info">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 16v-4m0-4h.01"/>
+        </svg>
+        Copia este JSON. Guárdalo en un archivo .txt o en Notas para hacer backup.
+      </div>
+      <textarea class="json-box" id="exportJsonBox" readonly></textarea>
+      <div class="modal-actions">
+        <button class="btn-cancel" id="exportModalClose">Cerrar</button>
+        <span class="copy-success" id="copySuccess">✓ Copiado</span>
+        <button class="btn-confirm" id="copyJsonBtn">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="14" height="14" style="display:inline;margin-right:6px">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+          </svg>
+          Copiar al portapapeles
+        </button>
+      </div>
+    </div>
+    <div class="export-panel" id="importPanelEl">
+      <div class="import-warning">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+        </svg>
+        ⚠ Esto reemplazará TODOS tus datos actuales. Exporta primero si tienes cursos que quieres conservar.
+      </div>
+      <textarea class="json-box" id="importJsonBox" placeholder='Pega aquí el JSON exportado desde STUDIUM…'></textarea>
+      <div class="modal-actions">
+        <button class="btn-cancel" id="importModalClose">Cancelar</button>
+        <button class="btn-danger-confirm" id="importJsonBtn">Importar y reemplazar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+/* ============================================================
+   CONSTANTS
+   ============================================================ */
+const MATERIAL_DEFS = [
+  { key: 'resumen_pdf',         icon: '📄', name: 'Resumen PDF' },
+  { key: 'cuestionario',        icon: '❓', name: 'Cuestionario IA' },
+  { key: 'fichero',             icon: '🗂️', name: 'Fichero / fichas' },
+  { key: 'mapa_conceptual',     icon: '🧠', name: 'Mapa conceptual' },
+  { key: 'flashcards',          icon: '🃏', name: 'Flashcards' },
+  { key: 'practica_ejercicios', icon: '✏️', name: 'Práctica / ejercicios' },
+  { key: 'notas_propias',       icon: '📝', name: 'Notas propias' },
+  { key: 'video_repaso',        icon: '🎥', name: 'Video de repaso' },
+];
+
+const COURSE_COLORS = ['#6C63FF','#00E5CC','#FF6B6B','#FFB547','#3EE0A0','#FF7EB3','#5BA8FF','#C4A1FF'];
+const COURSE_EMOJIS = ['📚','🧮','💻','🔬','🧬','📐','🏛️','🎯','🧪','📊','🌐','⚗️'];
+const COLOR_CLASS   = ['c0','c1','c2','c3','c4','c5','c6','c7'];
+const LS_KEY   = 'studium_courses';
+const LS_PREFS = 'studium_prefs';
+
+/* ============================================================
+   DATA LAYER
+   ============================================================ */
+const DataLayer = {
+  load() { try { const r = localStorage.getItem(LS_KEY); return r ? JSON.parse(r) : []; } catch(e) { return []; } },
+  save(c) { try { localStorage.setItem(LS_KEY, JSON.stringify(c)); } catch(e) {} },
+  loadPrefs() { try { const r = localStorage.getItem(LS_PREFS); return r ? JSON.parse(r) : { streak:0, lastStreakDate:null }; } catch(e) { return { streak:0, lastStreakDate:null }; } },
+  savePrefs(p) { try { localStorage.setItem(LS_PREFS, JSON.stringify(p)); } catch(e) {} }
+};
+
+/* ============================================================
+   APP STATE
+   ============================================================ */
+const AppState = {
+  courses: [],
+  prefs: {},
+  activeCourseId: null,
+  activeTopicPath: null,
+  activeSemesterFilter: 'all',
+  pendientesFilter: 'pending', // 'pending' | 'all'
+
+  init() {
+    this.courses = DataLayer.load();
+    this.prefs = DataLayer.loadPrefs();
+    this.updateStreak();
+  },
+
+  updateStreak() {
+    const today = new Date().toDateString();
+    const yesterday = new Date(Date.now() - 86400000).toDateString();
+    if (this.prefs.lastStreakDate === today) return;
+    if (this.prefs.lastStreakDate === yesterday) this.prefs.streak = (this.prefs.streak || 0) + 1;
+    else this.prefs.streak = 1;
+    this.prefs.lastStreakDate = today;
+    DataLayer.savePrefs(this.prefs);
+  },
+
+  saveCourses() { DataLayer.save(this.courses); },
+  getSemesters() { const s = new Set(); this.courses.forEach(c => { if (c.semester) s.add(c.semester); }); return [...s].sort().reverse(); },
+  getFilteredCourses() { if (this.activeSemesterFilter === 'all') return this.courses; return this.courses.filter(c => c.semester === this.activeSemesterFilter); },
+  getCourse(id) { return this.courses.find(c => c.id === id); },
+  getWeek(cId, wId) { const c = this.getCourse(cId); return c ? c.weeks.find(w => w.id === wId) : null; },
+  getTopic(cId, wId, tId) { const w = this.getWeek(cId, wId); return w ? w.topics.find(t => t.id === tId) : null; },
+
+  addCourse(data) { const c = { id: uid(), name: data.name, color: data.color, emoji: data.emoji, semester: data.semester, weeks: [] }; this.courses.push(c); this.saveCourses(); return c; },
+  updateCourse(id, data) { const c = this.getCourse(id); if (!c) return; Object.assign(c, data); this.saveCourses(); },
+  deleteCourse(id) { this.courses = this.courses.filter(c => c.id !== id); this.saveCourses(); },
+
+  addWeek(cId) { const c = this.getCourse(cId); if (!c) return null; const w = { id: uid(), number: c.weeks.length + 1, topics: [] }; c.weeks.push(w); this.saveCourses(); return w; },
+  deleteWeek(cId, wId) { const c = this.getCourse(cId); if (!c) return; c.weeks = c.weeks.filter(w => w.id !== wId); c.weeks.forEach((w,i) => w.number = i+1); this.saveCourses(); },
+
+  addTopic(cId, wId, data) {
+    const w = this.getWeek(cId, wId); if (!w) return null;
+    const defaultM = {}, defaultA = {};
+    MATERIAL_DEFS.forEach(m => { defaultM[m.key] = false; defaultA[m.key] = true; });
+    const t = { id: uid(), title: data.title, description: data.description || '', materials: defaultM, applicable: defaultA, notes: '', priority: 'media', updatedAt: new Date().toISOString() };
+    w.topics.push(t); this.saveCourses(); return t;
+  },
+  deleteTopic(cId, wId, tId) { const w = this.getWeek(cId, wId); if (!w) return; w.topics = w.topics.filter(t => t.id !== tId); this.saveCourses(); },
+  updateTopic(cId, wId, tId, data) { const t = this.getTopic(cId, wId, tId); if (!t) return; Object.assign(t, data); t.updatedAt = new Date().toISOString(); this.saveCourses(); },
+
+  exportJSON() { return JSON.stringify(this.courses, null, 2); },
+  importJSON(s) { const p = JSON.parse(s); if (!Array.isArray(p)) throw new Error('Formato inválido'); this.courses = p; this.saveCourses(); },
+
+  /* ── PENDIENTES HELPERS ── */
+  getAllPendientes(coursesFilter) {
+    // Returns flat list of { course, week, topic, matKey, matDef, done }
+    const result = [];
+    const courses = coursesFilter || this.getFilteredCourses();
+    courses.forEach(c => {
+      c.weeks.forEach(w => {
+        w.topics.forEach(t => {
+          MATERIAL_DEFS.forEach(m => {
+            const applicable = !t.applicable || t.applicable[m.key] !== false;
+            if (!applicable) return;
+            result.push({
+              course: c, week: w, topic: t,
+              matKey: m.key, matDef: m,
+              done: !!t.materials[m.key]
+            });
+          });
+        });
+      });
+    });
+    return result;
+  }
+};
+
+/* ============================================================
+   CALC
+   ============================================================ */
+const Calc = {
+  topicProgress(t) {
+    if (!t.applicable) return 0;
+    const ap = MATERIAL_DEFS.filter(m => t.applicable[m.key] !== false);
+    if (!ap.length) return 0;
+    return Math.round(ap.filter(m => t.materials[m.key]).length / ap.length * 100);
+  },
+  topicStats(t) {
+    if (!t.applicable) return { done:0, total:0 };
+    const ap = MATERIAL_DEFS.filter(m => t.applicable[m.key] !== false);
+    return { done: ap.filter(m => t.materials[m.key]).length, total: ap.length };
+  },
+  weekProgress(w) { if (!w.topics.length) return 0; return Math.round(w.topics.reduce((a,t) => a + this.topicProgress(t), 0) / w.topics.length); },
+  courseProgress(c) { const all = c.weeks.flatMap(w => w.topics); if (!all.length) return 0; return Math.round(all.reduce((a,t) => a + this.topicProgress(t), 0) / all.length); },
+  globalProgress(cs) { if (!cs.length) return 0; return Math.round(cs.reduce((a,c) => a + this.courseProgress(c), 0) / cs.length); },
+  totalTopics(cs) { return cs.reduce((a,c) => a + c.weeks.reduce((b,w) => b + w.topics.length, 0), 0); },
+  completedTopics(cs) { let n=0; cs.forEach(c => c.weeks.forEach(w => w.topics.forEach(t => { if (this.topicProgress(t)===100) n++; }))); return n; },
+  materialUsage(cs) { const u={}; MATERIAL_DEFS.forEach(m => u[m.key]=0); cs.forEach(c => c.weeks.forEach(w => w.topics.forEach(t => { MATERIAL_DEFS.forEach(m => { if (t.materials[m.key]) u[m.key]++; }); }))); return u; }
+};
+
+/* ============================================================
+   UTILS
+   ============================================================ */
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+function colorClass(color) { const i = COURSE_COLORS.indexOf(color); return i >= 0 ? COLOR_CLASS[i] : COLOR_CLASS[0]; }
+function formatDate(iso) { if (!iso) return ''; return new Date(iso).toLocaleDateString('es-PE', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' }); }
+function escHtml(str) { const d = document.createElement('div'); d.textContent = str; return d.innerHTML; }
+
+/* ============================================================
+   TOAST
+   ============================================================ */
+function showToast(msg, type = 'info') {
+  const c = document.getElementById('toastContainer');
+  const el = document.createElement('div');
+  el.className = `toast ${type}`; el.textContent = msg; c.appendChild(el);
+  requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('visible')));
+  setTimeout(() => { el.classList.remove('visible'); setTimeout(() => el.remove(), 400); }, 2800);
+}
+
+function showView(id) { document.querySelectorAll('.view').forEach(v => v.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+function openModal(id) { document.getElementById(id).classList.add('active'); }
+function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+/* ============================================================
+   EXPORT / IMPORT
+   ============================================================ */
+function openExportModal() {
+  document.querySelectorAll('.export-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === 'export'));
+  document.getElementById('exportPanelEl').classList.add('active');
+  document.getElementById('importPanelEl').classList.remove('active');
+  document.getElementById('exportJsonBox').value = AppState.exportJSON();
+  document.getElementById('copySuccess').classList.remove('visible');
+  document.getElementById('importJsonBox').value = '';
+  openModal('exportModal');
+}
+
+document.querySelectorAll('.export-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.export-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('exportPanelEl').classList.toggle('active', tab.dataset.tab === 'export');
+    document.getElementById('importPanelEl').classList.toggle('active', tab.dataset.tab === 'import');
+  });
+});
+
+document.getElementById('exportModalClose').addEventListener('click', () => closeModal('exportModal'));
+document.getElementById('importModalClose').addEventListener('click', () => closeModal('exportModal'));
+document.getElementById('exportModal').addEventListener('click', e => { if (e.target === document.getElementById('exportModal')) closeModal('exportModal'); });
+
+document.getElementById('copyJsonBtn').addEventListener('click', () => {
+  const box = document.getElementById('exportJsonBox');
+  navigator.clipboard.writeText(box.value).then(() => {
+    const s = document.getElementById('copySuccess'); s.classList.add('visible');
+    setTimeout(() => s.classList.remove('visible'), 2000);
+    showToast('JSON copiado al portapapeles ✓', 'success');
+  }).catch(() => { box.select(); document.execCommand('copy'); showToast('JSON copiado ✓', 'success'); });
+});
+
+document.getElementById('importJsonBtn').addEventListener('click', () => {
+  const raw = document.getElementById('importJsonBox').value.trim();
+  if (!raw) { showToast('Pega el JSON antes de importar', 'error'); return; }
+  try { AppState.importJSON(raw); closeModal('exportModal'); renderDashboard(); showView('dashboard'); showToast(`Datos importados: ${AppState.courses.length} cursos ✓`, 'success'); }
+  catch(e) { showToast('JSON inválido — revisa el formato', 'error'); }
+});
+
+document.getElementById('exportBtn').addEventListener('click', openExportModal);
+document.getElementById('exportBtnCv').addEventListener('click', openExportModal);
+
+/* ============================================================
+   COURSE MODAL
+   ============================================================ */
+let courseModalEmoji = COURSE_EMOJIS[0];
+let courseModalColor = COURSE_COLORS[0];
+
+function initCourseModal() {
+  const picker = document.getElementById('emojiPicker');
+  picker.innerHTML = COURSE_EMOJIS.map(e =>
+    `<div class="emoji-opt${e === courseModalEmoji ? ' selected' : ''}" data-emoji="${e}">${e}</div>`
+  ).join('');
+  picker.onclick = e => {
+    const opt = e.target.closest('.emoji-opt'); if (!opt) return;
+    courseModalEmoji = opt.dataset.emoji;
+    picker.querySelectorAll('.emoji-opt').forEach(o => o.classList.toggle('selected', o === opt));
+  };
+  const cp = document.getElementById('colorPicker');
+  cp.innerHTML = COURSE_COLORS.map((c, i) =>
+    `<div class="color-opt ${COLOR_CLASS[i]}${c === courseModalColor ? ' selected' : ''}" data-color="${c}" style="background:${c};color:${c}"></div>`
+  ).join('');
+  cp.onclick = e => {
+    const opt = e.target.closest('.color-opt'); if (!opt) return;
+    courseModalColor = opt.dataset.color;
+    cp.querySelectorAll('.color-opt').forEach(o => o.classList.toggle('selected', o === opt));
+  };
+}
+
+function openCourseModal(course = null) {
+  courseModalEmoji = course ? course.emoji : COURSE_EMOJIS[0];
+  courseModalColor = course ? course.color : COURSE_COLORS[0];
+  initCourseModal();
+  document.getElementById('courseModalTitle').textContent = course ? 'Editar Curso' : 'Nuevo Curso';
+  document.getElementById('courseModalId').value = course ? course.id : '';
+  document.getElementById('courseModalName').value = course ? course.name : '';
+  document.getElementById('courseModalSemester').value = course ? course.semester : '';
+  openModal('courseModal');
+  setTimeout(() => document.getElementById('courseModalName').focus(), 100);
+}
+
+document.getElementById('courseModalCancel').addEventListener('click', () => closeModal('courseModal'));
+document.getElementById('courseModal').addEventListener('click', e => { if (e.target === document.getElementById('courseModal')) closeModal('courseModal'); });
+document.getElementById('courseModalConfirm').addEventListener('click', () => {
+  const name = document.getElementById('courseModalName').value.trim();
+  if (!name) { showToast('El nombre es requerido', 'error'); return; }
+  const semester = document.getElementById('courseModalSemester').value.trim();
+  const id = document.getElementById('courseModalId').value;
+  if (id) { AppState.updateCourse(id, { name, semester, emoji: courseModalEmoji, color: courseModalColor }); showToast('Curso actualizado ✓', 'success'); }
+  else { AppState.addCourse({ name, semester, emoji: courseModalEmoji, color: courseModalColor }); showToast('Curso creado ✓', 'success'); }
+  closeModal('courseModal');
+  if (AppState.activeCourseId) renderCourseView(AppState.activeCourseId);
+  renderDashboard();
+  if (!document.getElementById('dashboard').classList.contains('active') && !document.getElementById('courseView').classList.contains('active')) showView('dashboard');
+});
+
+/* ============================================================
+   TOPIC MODAL
+   ============================================================ */
+document.getElementById('topicModalCancel').addEventListener('click', () => closeModal('topicModal'));
+document.getElementById('topicModal').addEventListener('click', e => { if (e.target === document.getElementById('topicModal')) closeModal('topicModal'); });
+
+function openTopicModal(courseId, weekId) {
+  const c = AppState.getCourse(courseId); const w = AppState.getWeek(courseId, weekId); if (!c||!w) return;
+  document.getElementById('topicModalSubtitle').textContent = `${c.name} — Semana ${w.number}`;
+  document.getElementById('topicModalCourseId').value = courseId;
+  document.getElementById('topicModalWeekId').value = weekId;
+  document.getElementById('topicModalTitle').value = '';
+  document.getElementById('topicModalDesc').value = '';
+  openModal('topicModal');
+  setTimeout(() => document.getElementById('topicModalTitle').focus(), 100);
+}
+
+document.getElementById('topicModalConfirm').addEventListener('click', () => {
+  const title = document.getElementById('topicModalTitle').value.trim();
+  if (!title) { showToast('El título es requerido', 'error'); return; }
+  const courseId = document.getElementById('topicModalCourseId').value;
+  const weekId = document.getElementById('topicModalWeekId').value;
+  AppState.addTopic(courseId, weekId, { title, description: document.getElementById('topicModalDesc').value.trim() });
+  closeModal('topicModal');
+  renderCourseView(courseId);
+  showToast('Tema agregado ✓', 'success');
+});
+
+/* ============================================================
+   CONFIRM MODAL
+   ============================================================ */
+let confirmCallback = null;
+function openConfirm(title, text, cb) { document.getElementById('confirmTitle').textContent = title; document.getElementById('confirmText').textContent = text; confirmCallback = cb; openModal('confirmModal'); }
+document.getElementById('confirmCancel').addEventListener('click', () => { confirmCallback = null; closeModal('confirmModal'); });
+document.getElementById('confirmModal').addEventListener('click', e => { if (e.target === document.getElementById('confirmModal')) { confirmCallback = null; closeModal('confirmModal'); } });
+document.getElementById('confirmOk').addEventListener('click', () => { if (confirmCallback) confirmCallback(); confirmCallback = null; closeModal('confirmModal'); });
+
+/* ============================================================
+   ONBOARDING
+   ============================================================ */
+document.getElementById('obCta').addEventListener('click', () => { showView('dashboard'); renderDashboard(); openCourseModal(); });
+document.getElementById('obImportLink').addEventListener('click', () => {
+  showView('dashboard'); renderDashboard(); openExportModal();
+  document.querySelectorAll('.export-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === 'import'));
+  document.getElementById('exportPanelEl').classList.remove('active');
+  document.getElementById('importPanelEl').classList.add('active');
+});
+
+/* ============================================================
+   PENDIENTES WIDGET — Dashboard sidebar
+   ============================================================ */
+function buildPendientesWidget(courses) {
+  const all = AppState.getAllPendientes(courses);
+  const pending = all.filter(p => !p.done);
+  const total = all.length;
+  const doneCount = all.filter(p => p.done).length;
+  const pct = total ? Math.round(doneCount / total * 100) : 0;
+
+  const showAll = AppState.pendientesFilter === 'all';
+  const items = showAll ? all : pending;
+
+  // Group by course → topic
+  const grouped = {};
+  items.forEach(p => {
+    const cKey = p.course.id;
+    if (!grouped[cKey]) grouped[cKey] = { course: p.course, topics: {} };
+    const tKey = p.topic.id;
+    if (!grouped[cKey].topics[tKey]) grouped[cKey].topics[tKey] = { topic: p.topic, week: p.week, courseId: p.course.id, weekId: p.week.id, mats: [] };
+    grouped[cKey].topics[tKey].mats.push(p);
+  });
+
+  let bodyHtml = '';
+  const courseGroups = Object.values(grouped);
+
+  if (!courseGroups.length) {
+    bodyHtml = `<div class="pw-empty">
+      <div class="pw-empty-icon">${showAll ? '📋' : '✅'}</div>
+      <div class="pw-empty-msg">${showAll ? 'Sin materiales registrados aún.' : '¡Todo completado! Sin pendientes.'}</div>
+    </div>`;
+  } else {
+    bodyHtml = courseGroups.map(cg => {
+      const topicsHtml = Object.values(cg.topics).map(tg => {
+        const matsHtml = tg.mats.map(p => `
+          <div class="pw-mat-item${p.done ? ' completed' : ''}"
+               data-cid="${p.course.id}" data-wid="${p.week.id}" data-tid="${p.topic.id}" data-mat="${p.matKey}">
+            <div class="pw-check${p.done ? ' done' : ''}">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+              </svg>
+            </div>
+            <div class="pw-mat-icon">${p.matDef.icon}</div>
+            <div class="pw-mat-name">${escHtml(p.matDef.name)}</div>
+          </div>`).join('');
+
+        return `<div class="pw-topic-block">
+          <div class="pw-topic-name">
+            <span>${escHtml(tg.topic.title)}</span>
+            <button data-open-topic="${tg.courseId}|${tg.weekId}|${tg.topic.id}">Abrir →</button>
+          </div>
+          ${matsHtml}
+        </div>`;
+      }).join('');
+
+      return `<div class="pw-course-group">
+        <div class="pw-course-label">
+          <div class="pw-course-label-dot" style="background:${cg.course.color}"></div>
+          ${escHtml(cg.course.emoji)} ${escHtml(cg.course.name)}
+        </div>
+        ${topicsHtml}
+      </div>`;
+    }).join('');
+  }
+
+  const badgeClass = pending.length === 0 && total > 0 ? ' done' : '';
+  const badgeText = pending.length === 0 && total > 0 ? '✓ Al día' : `${pending.length} pendiente${pending.length !== 1 ? 's' : ''}`;
+
+  const widget = document.createElement('div');
+  widget.className = 'pendientes-widget';
+  widget.id = 'pendientesWidget';
+  widget.innerHTML = `
+    <div class="pw-header">
+      <div class="pw-title-row">
+        <div class="pw-icon">📋</div>
+        <div class="pw-title">Pendientes</div>
+      </div>
+      <span class="pw-count-badge${badgeClass}">${badgeText}</span>
+    </div>
+    <div class="pw-filter-row">
+      <button class="pw-filter-btn${AppState.pendientesFilter === 'pending' ? ' active' : ''}" data-pf="pending">Por hacer</button>
+      <button class="pw-filter-btn${AppState.pendientesFilter === 'all' ? ' active' : ''}" data-pf="all">Todos</button>
+    </div>
+    <div class="pw-body" id="pwBody">${bodyHtml}</div>
+    <div class="pw-footer">
+      <div class="pw-overall-bar-wrap">
+        <div class="pw-overall-bar" style="width:${pct}%"></div>
+      </div>
+      <div class="pw-footer-meta">
+        <div class="pw-footer-text">${doneCount} de ${total} materiales completados</div>
+        <div class="pw-footer-pct">${pct}%</div>
+      </div>
+    </div>`;
+
+  // Filter buttons
+  widget.querySelectorAll('.pw-filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      AppState.pendientesFilter = btn.dataset.pf;
+      renderPendientesWidget();
+    });
+  });
+
+  // Checkbox clicks — toggle material directly
+  widget.querySelectorAll('.pw-mat-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const { cid, wid, tid, mat } = item.dataset;
+      const topic = AppState.getTopic(cid, wid, tid);
+      if (!topic) return;
+      topic.materials[mat] = !topic.materials[mat];
+      AppState.updateTopic(cid, wid, tid, { materials: topic.materials });
+      // Refresh widget + panel if open
+      renderPendientesWidget();
+      if (AppState.activeTopicPath && AppState.activeTopicPath.topicId === tid) {
+        renderTopicPanel();
+      }
+      refreshTopicInView(cid, wid, tid);
+      showToast(topic.materials[mat] ? `✓ ${MATERIAL_DEFS.find(m=>m.key===mat)?.name} completado` : 'Marcado como pendiente', topic.materials[mat] ? 'success' : 'info');
+    });
+  });
+
+  // Open topic links
+  widget.querySelectorAll('[data-open-topic]').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const [cId, wId, tId] = btn.dataset.openTopic.split('|');
+      if (AppState.activeCourseId !== cId) { renderCourseView(cId); showView('courseView'); }
+      setTimeout(() => {
+        openTopicPanel(cId, wId, tId);
+        const wb = document.getElementById(`wb-${wId}`);
+        if (wb) wb.classList.add('expanded');
+      }, AppState.activeCourseId !== cId ? 120 : 0);
+    });
+  });
+
+  return widget;
+}
+
+function renderPendientesWidget() {
+  const grid = document.getElementById('dashMainGrid');
+  const old = document.getElementById('pendientesWidget');
+  if (old) old.remove();
+
+  const courses = AppState.getFilteredCourses();
+  const all = AppState.getAllPendientes(courses);
+  if (!all.length) { grid.classList.remove('has-pending'); return; }
+
+  grid.classList.add('has-pending');
+  const widget = buildPendientesWidget(courses);
+  grid.appendChild(widget);
+}
+
+/* ============================================================
+   DASHBOARD RENDER
+   ============================================================ */
+function renderDashboard() {
+  const allCourses = AppState.courses;
+  const courses = AppState.getFilteredCourses();
+
+  // Semester filter
+  const semesters = AppState.getSemesters();
+  const sfEl = document.getElementById('semesterFilter');
+  sfEl.innerHTML = `
+    <button class="sf-btn${AppState.activeSemesterFilter === 'all' ? ' active' : ''}" data-sem="all">Todos</button>
+    ${semesters.map(s => `<button class="sf-btn${AppState.activeSemesterFilter === s ? ' active' : ''}" data-sem="${s}">${s}</button>`).join('')}
+  `;
+  sfEl.querySelectorAll('.sf-btn').forEach(btn => {
+    btn.addEventListener('click', () => { AppState.activeSemesterFilter = btn.dataset.sem; renderDashboard(); });
+  });
+
+  // Stats
+  document.getElementById('statCourses').textContent = allCourses.length;
+  document.getElementById('statWeeks').textContent = allCourses.reduce((a,c) => a + c.weeks.length, 0);
+  document.getElementById('statTopics').textContent = Calc.totalTopics(allCourses);
+  document.getElementById('statCompleted').textContent = Calc.completedTopics(allCourses);
+  document.getElementById('statStreak').textContent = AppState.prefs.streak || 0;
+
+  const gp = Calc.globalProgress(allCourses);
+  document.getElementById('globalProgressBar').style.width = gp + '%';
+  animateNumber(document.getElementById('globalProgressPct'), gp, '%');
+
+  const sem = semesters[0] || '';
+  document.getElementById('dashSubtitle').textContent = sem ? `— ${sem}` : '— sin semestres';
+
+  // Course grid
+  const grid = document.getElementById('courseGrid');
+  if (!courses.length) {
+    grid.innerHTML = `<div class="empty-state">
+      <div class="empty-state-icon">📚</div>
+      <div class="empty-state-title">${allCourses.length ? 'Sin cursos en este semestre' : 'No hay cursos aún'}</div>
+      <div class="empty-state-text">${allCourses.length ? 'Prueba "Todos" en el filtro.' : 'Crea tu primer curso con el botón de arriba.'}</div>
+    </div>`;
+  } else {
+    grid.innerHTML = courses.map((c, i) => {
+      const p = Calc.courseProgress(c);
+      const cc = colorClass(c.color);
+      const totalW = c.weeks.length;
+      const totalT = c.weeks.reduce((a,w) => a + w.topics.length, 0);
+      return `<div class="course-card ${cc}" data-course-id="${c.id}" style="animation-delay:${i*50}ms">
+        <div class="cc-bg-accent"></div>
+        <div class="cc-top">
+          <div class="cc-emoji">${escHtml(c.emoji)}</div>
+          <div class="cc-actions">
+            <button class="cc-action-btn" data-action="edit" data-id="${c.id}">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+            </button>
+            <button class="cc-action-btn danger" data-action="delete" data-id="${c.id}">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="cc-name">${escHtml(c.name)}</div>
+        <div class="cc-meta">
+          <span class="cc-semester">${escHtml(c.semester || 'sin semestre')}</span>
+          <div class="cc-dot"></div>
+          <span class="cc-weeks">${totalW} sem.</span>
+        </div>
+        <div class="cc-progress-header">
+          <span class="cc-progress-label">Progreso</span>
+          <span class="cc-progress-pct">${p}%</span>
+        </div>
+        <div class="progress-bar-wrap"><div class="progress-bar" style="width:${p}%"></div></div>
+        <div class="cc-stats">
+          <div class="cc-stat"><div class="cc-stat-val">${totalW}</div><div class="cc-stat-lbl">Semanas</div></div>
+          <div class="cc-stat"><div class="cc-stat-val">${totalT}</div><div class="cc-stat-lbl">Temas</div></div>
+          <div class="cc-stat"><div class="cc-stat-val">${Calc.completedTopics([c])}</div><div class="cc-stat-lbl">Completados</div></div>
+        </div>
+      </div>`;
+    }).join('');
+
+    grid.querySelectorAll('.course-card').forEach(card => {
+      card.addEventListener('click', e => {
+        const btn = e.target.closest('[data-action]');
+        if (btn) {
+          e.stopPropagation();
+          const id = btn.dataset.id;
+          if (btn.dataset.action === 'edit') openCourseModal(AppState.getCourse(id));
+          else openConfirm('¿Eliminar curso?', `Se eliminará "${AppState.getCourse(id)?.name}" y todos sus datos.`, () => {
+            AppState.deleteCourse(id); renderDashboard(); showToast('Curso eliminado', 'error');
+            if (!AppState.courses.length) showView('onboarding');
+          });
+          return;
+        }
+        renderCourseView(card.dataset.courseId); showView('courseView');
+      });
+    });
+  }
+
+  renderPendientesWidget();
+  renderStatsSection(allCourses);
+}
+
+function renderStatsSection(courses) {
+  const list = document.getElementById('courseComparisonList');
+  if (!courses.length) { list.innerHTML = '<div style="color:var(--text-3);font-size:12px;">Sin cursos.</div>'; }
+  else { list.innerHTML = courses.map(c => { const p = Calc.courseProgress(c); return `<div class="course-comparison-row"><div class="ccr-name">${escHtml(c.emoji)} ${escHtml(c.name)}</div><div class="ccr-bar-wrap"><div class="ccr-bar" style="width:${p}%;background:${c.color}"></div></div><div class="ccr-pct">${p}%</div></div>`; }).join(''); }
+  const usage = Calc.materialUsage(courses);
+  const maxU = Math.max(...Object.values(usage), 1);
+  document.getElementById('materialUsageList').innerHTML = MATERIAL_DEFS.map(m => ({ ...m, count: usage[m.key] })).sort((a,b) => b.count - a.count).map(m => `<div class="material-usage-row"><div class="mur-icon">${m.icon}</div><div class="mur-name">${m.name}</div><div class="mur-bar-wrap"><div class="mur-bar" style="width:${Math.round(m.count/maxU*100)}%"></div></div><div class="mur-count">${m.count}</div></div>`).join('');
+}
+
+/* ============================================================
+   COURSE VIEW RENDER
+   ============================================================ */
+function renderCourseView(courseId) {
+  AppState.activeCourseId = courseId;
+  const course = AppState.getCourse(courseId); if (!course) return;
+  const cc = colorClass(course.color);
+  const p = Calc.courseProgress(course);
+
+  document.getElementById('courseProgressBar').style.width = p + '%';
+  document.getElementById('courseProgressPct').textContent = p + '%';
+
+  const content = document.getElementById('courseViewContent');
+  content.className = `course-view ${cc}`;
+  content.innerHTML = `
+    <div class="cv-header ${cc}">
+      <div class="cv-header-left">
+        <div class="cv-emoji">${escHtml(course.emoji)}</div>
+        <div>
+          <div class="cv-name">${escHtml(course.name)}</div>
+          <div class="cv-meta"><span class="cv-semester-badge">${escHtml(course.semester || 'sin semestre')}</span></div>
+        </div>
+      </div>
+      <div class="cv-header-right">
+        <div><div class="cv-progress-pct">${p}%</div><div class="cv-progress-lbl">Progreso total</div></div>
+        <div class="progress-bar-wrap cv-progress-bar-wide"><div class="progress-bar" style="width:${p}%"></div></div>
+        <button class="btn-secondary" id="editCourseInView">✏️ Editar</button>
+      </div>
+    </div>
+    <div class="weeks-timeline" id="weeksTimeline"></div>
+    <button class="add-week-btn" id="addWeekBtn">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="16" height="16">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+      </svg>
+      Agregar Semana ${course.weeks.length + 1}
+    </button>`;
+
+  document.getElementById('editCourseInView').addEventListener('click', () => openCourseModal(course));
+  document.getElementById('addWeekBtn').addEventListener('click', () => { AppState.addWeek(courseId); renderCourseView(courseId); showToast(`Semana ${course.weeks.length} agregada ✓`, 'success'); });
+  renderWeeksTimeline(courseId);
+}
+
+function renderWeeksTimeline(courseId) {
+  const course = AppState.getCourse(courseId);
+  const timeline = document.getElementById('weeksTimeline');
+  if (!timeline || !course) return;
+
+  timeline.innerHTML = course.weeks.map((week, wi) => {
+    const wp = Calc.weekProgress(week);
+    const isAlert = wp < 50 && week.topics.length > 0;
+    return `<div class="week-block${isAlert ? ' alert' : ''}${wi === 0 ? ' expanded' : ''}" id="wb-${week.id}">
+      <div class="wb-header" data-week-id="${week.id}">
+        <div class="wb-number">${week.number}</div>
+        <div class="wb-info">
+          <div class="wb-title">Semana ${week.number}</div>
+          <div class="wb-progress-inline">
+            <div class="wb-progress-bar-wrap"><div class="wb-progress-bar" style="width:${wp}%;background:${course.color}"></div></div>
+            <div class="wb-progress-pct">${wp}%</div>
+            ${isAlert ? '<span class="wb-alert-badge">⚠ Atención</span>' : ''}
+            <span class="wb-topics-count">${week.topics.length} tema${week.topics.length !== 1 ? 's' : ''}</span>
+          </div>
+        </div>
+        <svg class="wb-chevron" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+        </svg>
+      </div>
+      <div class="wb-body">
+        <div class="wb-body-inner">
+          <div class="topics-list" id="tl-${week.id}">
+            ${week.topics.map(t => renderTopicRow(t, courseId, week.id, course.color)).join('')}
+            ${!week.topics.length ? '<div style="color:var(--text-3);font-size:12px;padding:10px 0;">Sin temas aún.</div>' : ''}
+          </div>
+          <button class="wb-add-topic" data-course-id="${courseId}" data-week-id="${week.id}">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="12" height="12">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+            </svg>
+            Agregar tema
+          </button>
+          <div class="wb-actions-bar">
+            <button class="wb-del-btn" data-del-week="${week.id}" data-course-id="${courseId}">🗑 Eliminar semana</button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  timeline.querySelectorAll('.wb-header').forEach(h => { h.addEventListener('click', () => h.closest('.week-block').classList.toggle('expanded')); });
+  timeline.querySelectorAll('.wb-add-topic').forEach(btn => { btn.addEventListener('click', e => { e.stopPropagation(); openTopicModal(btn.dataset.courseId, btn.dataset.weekId); }); });
+  timeline.querySelectorAll('[data-del-week]').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const w = AppState.getWeek(btn.dataset.courseId, btn.dataset.delWeek);
+      openConfirm('¿Eliminar semana?', `Se eliminará la Semana ${w?.number} y todos sus temas.`, () => { AppState.deleteWeek(btn.dataset.courseId, btn.dataset.delWeek); renderCourseView(btn.dataset.courseId); showToast('Semana eliminada', 'error'); });
+    });
+  });
+  timeline.querySelectorAll('.topic-row').forEach(row => { row.addEventListener('click', () => openTopicPanel(row.dataset.courseId, row.dataset.weekId, row.dataset.topicId)); });
+}
+
+function renderTopicRow(topic, courseId, weekId, courseColor) {
+  const p = Calc.topicProgress(topic);
+  const s = Calc.topicStats(topic);
+  return `<div class="topic-row" data-course-id="${courseId}" data-week-id="${weekId}" data-topic-id="${topic.id}">
+    <div class="topic-priority-dot priority-${topic.priority}"></div>
+    <div class="topic-title">${escHtml(topic.title)}</div>
+    <div class="topic-progress-area">
+      <div class="topic-progress-mini"><div class="topic-progress-fill" style="width:${p}%;background:${courseColor}"></div></div>
+      <div class="topic-pct">${p}%</div>
+    </div>
+    <div class="topic-materials-count">${s.done}/${s.total}</div>
+    ${p === 100 ? '<span class="topic-complete-badge">✓</span>' : ''}
+  </div>`;
+}
+
+/* ============================================================
+   TOPIC PANEL
+   ============================================================ */
+function openTopicPanel(courseId, weekId, topicId) {
+  AppState.activeTopicPath = { courseId, weekId, topicId };
+  renderTopicPanel();
+  document.getElementById('panelOverlay').classList.add('active');
+  document.getElementById('topicPanel').classList.add('active');
+}
+
+function closeTopicPanel() {
+  document.getElementById('panelOverlay').classList.remove('active');
+  document.getElementById('topicPanel').classList.remove('active');
+  AppState.activeTopicPath = null;
+}
+
+document.getElementById('panelOverlay').addEventListener('click', closeTopicPanel);
+document.getElementById('tpClose').addEventListener('click', closeTopicPanel);
+
+function renderTopicPanel() {
+  const path = AppState.activeTopicPath; if (!path) return;
+  const { courseId, weekId, topicId } = path;
+  const course = AppState.getCourse(courseId);
+  const week = AppState.getWeek(courseId, weekId);
+  const topic = AppState.getTopic(courseId, weekId, topicId);
+  if (!course || !week || !topic) return;
+
+  const cc = colorClass(course.color);
+  document.getElementById('topicPanel').className = `topic-panel active ${cc}`;
+
+  const tag = document.getElementById('tpCourseTag');
+  tag.querySelector('span').textContent = `${course.name} › Semana ${week.number}`;
+  tag.style.color = course.color;
+
+  document.getElementById('tpTitle').value = topic.title;
+  document.getElementById('tpDesc').value = topic.description || '';
+  document.getElementById('tpNotes').value = topic.notes || '';
+  document.getElementById('tpDate').textContent = topic.updatedAt ? `Actualizado: ${formatDate(topic.updatedAt)}` : '';
+
+  document.querySelectorAll('.priority-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.p === topic.priority));
+  updatePanelProgress(topic, course.color);
+  renderPendientesInPanel(topic, courseId, weekId, topicId, course.color);
+  renderMaterialsList(topic, courseId, weekId, topicId, course.color);
+
+  document.querySelectorAll('.priority-btn').forEach(btn => {
+    btn.onclick = () => {
+      document.querySelectorAll('.priority-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      AppState.updateTopic(courseId, weekId, topicId, { priority: btn.dataset.p });
+      refreshTopicInView(courseId, weekId, topicId);
+    };
+  });
+
+  let t1, t2, t3;
+  document.getElementById('tpTitle').oninput = function() {
+    clearTimeout(t1); t1 = setTimeout(() => { AppState.updateTopic(courseId, weekId, topicId, { title: this.value.trim() }); refreshTopicInView(courseId, weekId, topicId); document.getElementById('tpDate').textContent = `Actualizado: ${formatDate(new Date().toISOString())}`; }, 600);
+  };
+  document.getElementById('tpDesc').oninput = function() {
+    clearTimeout(t2); t2 = setTimeout(() => AppState.updateTopic(courseId, weekId, topicId, { description: this.value.trim() }), 600);
+  };
+  document.getElementById('tpNotes').oninput = function() {
+    clearTimeout(t3); t3 = setTimeout(() => { AppState.updateTopic(courseId, weekId, topicId, { notes: this.value }); document.getElementById('tpDate').textContent = `Actualizado: ${formatDate(new Date().toISOString())}`; }, 600);
+  };
+
+  document.getElementById('tpDeleteTopic').onclick = () => {
+    openConfirm('¿Eliminar tema?', `Se eliminará "${topic.title}".`, () => {
+      closeTopicPanel(); AppState.deleteTopic(courseId, weekId, topicId);
+      renderCourseView(courseId); showToast('Tema eliminado', 'error');
+    });
+  };
+}
+
+/* ── PENDIENTES in topic panel ── */
+function renderPendientesInPanel(topic, courseId, weekId, topicId, courseColor) {
+  const section = document.getElementById('tpPendientesSection');
+  const list = document.getElementById('tpPendientesList');
+  const badge = document.getElementById('tpPendientesBadge');
+
+  const applicable = MATERIAL_DEFS.filter(m => !topic.applicable || topic.applicable[m.key] !== false);
+  const pending = applicable.filter(m => !topic.materials[m.key]);
+  const done = applicable.filter(m => topic.materials[m.key]);
+
+  badge.textContent = pending.length === 0 ? '✓ Listo' : `${pending.length} por hacer`;
+  badge.className = `tp-pendientes-badge${pending.length === 0 ? ' all-done' : ''}`;
+
+  if (!applicable.length) {
+    list.innerHTML = '<div style="padding:10px 4px;font-size:11px;color:var(--text-3);">Sin materiales activos en este tema.</div>';
+    return;
+  }
+
+  if (pending.length === 0) {
+    list.innerHTML = `<div class="tp-pendientes-all-done">
+      <span style="font-size:18px">🎉</span>
+      ¡Todos los materiales completados!
+    </div>`;
+    return;
+  }
+
+  // Show pending first, then done (greyed)
+  const allItems = [...pending.map(m => ({ m, done: false })), ...done.map(m => ({ m, done: true }))];
+  list.innerHTML = allItems.map(({ m, done: isDone }) => `
+    <div class="tp-pend-item${isDone ? ' done-item' : ''}" data-mat="${m.key}">
+      <div class="tp-pend-check">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+        </svg>
+      </div>
+      <div class="tp-pend-icon">${m.icon}</div>
+      <div class="tp-pend-name">${m.name}</div>
+    </div>`).join('');
+
+  list.querySelectorAll('.tp-pend-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const key = item.dataset.mat;
+      topic.materials[key] = !topic.materials[key];
+      AppState.updateTopic(courseId, weekId, topicId, { materials: topic.materials });
+      updatePanelProgress(topic, courseColor);
+      renderPendientesInPanel(topic, courseId, weekId, topicId, courseColor);
+      renderMaterialsList(topic, courseId, weekId, topicId, courseColor);
+      refreshTopicInView(courseId, weekId, topicId);
+      // Also refresh dashboard widget if visible
+      if (document.getElementById('pendientesWidget')) renderPendientesWidget();
+      showToast(topic.materials[key] ? `✓ ${MATERIAL_DEFS.find(m=>m.key===key)?.name} completado` : 'Marcado como pendiente', topic.materials[key] ? 'success' : 'info');
+    });
+  });
+}
+
+function renderMaterialsList(topic, courseId, weekId, topicId, courseColor) {
+  const list = document.getElementById('materialsList');
+  list.innerHTML = MATERIAL_DEFS.map(m => {
+    const checked = topic.materials[m.key];
+    const applicable = topic.applicable ? topic.applicable[m.key] !== false : true;
+    return `<div class="material-item${applicable ? '' : ' not-applicable'}" id="mi-${m.key}">
+      <div class="material-check${checked && applicable ? ' checked' : ''}" data-mat="${m.key}" style="${checked && applicable ? `--cc:${courseColor};--cc-dim:${courseColor}20` : ''}">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+      </div>
+      <div class="material-icon">${m.icon}</div>
+      <div class="material-name">${m.name}</div>
+      <div class="material-applicable-toggle${applicable ? ' on' : ''}" data-toggle="${m.key}"></div>
+    </div>`;
+  }).join('');
+
+  list.querySelectorAll('.material-check').forEach(chk => {
+    chk.addEventListener('click', () => {
+      const key = chk.dataset.mat;
+      const applicable = topic.applicable ? topic.applicable[key] !== false : true;
+      if (!applicable) return;
+      topic.materials[key] = !topic.materials[key];
+      const nv = topic.materials[key];
+      chk.classList.toggle('checked', nv);
+      nv ? (chk.style.setProperty('--cc', courseColor), chk.style.setProperty('--cc-dim', courseColor+'20')) : (chk.style.removeProperty('--cc'), chk.style.removeProperty('--cc-dim'));
+      AppState.updateTopic(courseId, weekId, topicId, { materials: topic.materials });
+      updatePanelProgress(topic, courseColor);
+      renderPendientesInPanel(topic, courseId, weekId, topicId, courseColor);
+      refreshTopicInView(courseId, weekId, topicId);
+      if (document.getElementById('pendientesWidget')) renderPendientesWidget();
+    });
+  });
+
+  list.querySelectorAll('.material-applicable-toggle').forEach(tog => {
+    tog.addEventListener('click', () => {
+      const key = tog.dataset.toggle;
+      if (!topic.applicable) topic.applicable = {};
+      topic.applicable[key] = topic.applicable[key] === false;
+      if (!topic.applicable[key]) topic.materials[key] = false;
+      AppState.updateTopic(courseId, weekId, topicId, { materials: topic.materials, applicable: topic.applicable });
+      renderMaterialsList(topic, courseId, weekId, topicId, courseColor);
+      renderPendientesInPanel(topic, courseId, weekId, topicId, courseColor);
+      updatePanelProgress(topic, courseColor);
+      refreshTopicInView(courseId, weekId, topicId);
+      if (document.getElementById('pendientesWidget')) renderPendientesWidget();
+    });
+  });
+}
+
+function updatePanelProgress(topic, courseColor) {
+  const p = Calc.topicProgress(topic);
+  const s = Calc.topicStats(topic);
+  document.getElementById('tpProgressPct').textContent = p + '%';
+  document.getElementById('tpProgressPct').style.color = courseColor;
+  document.getElementById('tpProgressBar').style.width = p + '%';
+  document.getElementById('tpProgressSub').textContent = `${s.done} de ${s.total} materiales completados`;
+}
+
+function refreshTopicInView(courseId, weekId, topicId) {
+  const topic = AppState.getTopic(courseId, weekId, topicId);
+  const course = AppState.getCourse(courseId);
+  const rowEl = document.querySelector(`.topic-row[data-topic-id="${topicId}"]`);
+  if (rowEl && topic && course) {
+    const tmp = document.createElement('div');
+    tmp.innerHTML = renderTopicRow(topic, courseId, weekId, course.color);
+    const newRow = tmp.firstElementChild;
+    newRow.addEventListener('click', () => openTopicPanel(courseId, weekId, topicId));
+    rowEl.replaceWith(newRow);
+  }
+  const week = AppState.getWeek(courseId, weekId);
+  if (week) {
+    const wp = Calc.weekProgress(week);
+    const bar = document.querySelector(`#wb-${weekId} .wb-progress-bar`);
+    const pct = document.querySelector(`#wb-${weekId} .wb-progress-pct`);
+    if (bar) bar.style.width = wp + '%';
+    if (pct) pct.textContent = wp + '%';
+  }
+  const cp = Calc.courseProgress(course);
+  const cpBar = document.getElementById('courseProgressBar');
+  const cpPct = document.getElementById('courseProgressPct');
+  if (cpBar) cpBar.style.width = cp + '%';
+  if (cpPct) cpPct.textContent = cp + '%';
+}
+
+/* ============================================================
+   NAVIGATION
+   ============================================================ */
+document.getElementById('addCourseBtn').addEventListener('click', () => openCourseModal());
+document.getElementById('dashLogo').addEventListener('click', () => { renderDashboard(); showView('dashboard'); });
+document.getElementById('cvLogo').addEventListener('click', () => { renderDashboard(); showView('dashboard'); });
+document.getElementById('backToDash').addEventListener('click', () => { AppState.activeCourseId = null; closeTopicPanel(); renderDashboard(); showView('dashboard'); });
+
+/* ============================================================
+   SEARCH
+   ============================================================ */
+document.getElementById('searchInput').addEventListener('input', function() {
+  const q = this.value.trim().toLowerCase();
+  const dd = document.getElementById('searchDropdown');
+  if (!q) { dd.classList.remove('visible'); dd.innerHTML = ''; return; }
+  const results = [];
+  AppState.courses.forEach(c => { c.weeks.forEach(w => { w.topics.forEach(t => { if (t.title.toLowerCase().includes(q)) results.push({ courseId: c.id, weekId: w.id, topicId: t.id, courseName: c.name, weekNum: w.number, topicTitle: t.title }); }); }); });
+  if (!results.length) { dd.innerHTML = '<div class="search-result"><span class="sr-topic" style="color:var(--text-3)">Sin resultados</span></div>'; }
+  else { dd.innerHTML = results.slice(0,8).map(r => { const hl = r.topicTitle.replace(new RegExp(q,'gi'), m => `<span class="sr-highlight">${m}</span>`); return `<div class="search-result" data-cid="${r.courseId}" data-wid="${r.weekId}" data-tid="${r.topicId}"><span class="sr-topic">${hl}</span><span class="sr-path">${escHtml(r.courseName)} › Semana ${r.weekNum}</span></div>`; }).join(''); }
+  dd.classList.add('visible');
+  dd.querySelectorAll('.search-result[data-cid]').forEach(el => {
+    el.addEventListener('click', () => {
+      dd.classList.remove('visible'); document.getElementById('searchInput').value = '';
+      const cId = el.dataset.cid;
+      if (AppState.activeCourseId !== cId) { renderCourseView(cId); showView('courseView'); }
+      setTimeout(() => { openTopicPanel(cId, el.dataset.wid, el.dataset.tid); const wb = document.getElementById(`wb-${el.dataset.wid}`); if (wb) wb.classList.add('expanded'); }, 100);
+    });
+  });
+});
+
+document.addEventListener('click', e => {
+  if (!document.getElementById('searchInput').contains(e.target) && !document.getElementById('searchDropdown').contains(e.target))
+    document.getElementById('searchDropdown').classList.remove('visible');
+});
+
+/* ============================================================
+   COUNT-UP
+   ============================================================ */
+function animateNumber(el, target, suffix='') {
+  const start = parseInt(el.textContent) || 0;
+  const dur = 600; const t0 = performance.now();
+  (function step(now) {
+    const p = Math.min((now - t0) / dur, 1);
+    el.textContent = Math.round(start + (target - start) * (1 - Math.pow(1 - p, 3))) + suffix;
+    if (p < 1) requestAnimationFrame(step);
+  })(performance.now());
+}
+
+/* ============================================================
+   KEYBOARD
+   ============================================================ */
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    if (document.getElementById('topicPanel').classList.contains('active')) { closeTopicPanel(); return; }
+    const m = document.querySelector('.modal-overlay.active');
+    if (m) m.classList.remove('active');
+  }
+});
+
+/* ============================================================
+   BOOT
+   ============================================================ */
+function boot() {
+  AppState.init();
+  if (!AppState.courses.length) showView('onboarding');
+  else { renderDashboard(); showView('dashboard'); }
+}
+
+boot();
+</script>
+</body>
+</html>
