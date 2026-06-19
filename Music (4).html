@@ -365,7 +365,7 @@ img { display: block; }
 ═══════════════════════════════════════════════ */
 #main {
   flex: 1;
-  padding: 0;
+  padding: 0 0 100px;
   position: relative;
 }
 .view {
@@ -1650,7 +1650,7 @@ img { display: block; }
 /* ═══════════════════════════════════════════════
    SETTINGS VIEW
 ═══════════════════════════════════════════════ */
-.settings-view { padding: 24px 16px; max-width: 600px; }
+.settings-view { padding: 24px 16px; max-width: 900px; margin: 0 auto; width: 100%; }
 .settings-section { margin-bottom: 28px; }
 .settings-title { font-family: var(--font-display); font-size: 22px; letter-spacing: 1px; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
 .settings-card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; display: flex; flex-direction: column; gap: 10px; }
@@ -1869,51 +1869,62 @@ img { display: block; }
 }
 
 /* ═══════════════════════════════════════════════
-   MEDALLAS — DISTINCIÓN ESPECIAL
+   CANCIONES DESTACADAS (4.8+) — DISTINCIÓN POR COLOR
 ═══════════════════════════════════════════════ */
-.medal {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 13px;
-  line-height: 1;
-  flex-shrink: 0;
-  filter: drop-shadow(0 0 4px rgba(0,0,0,0.4));
+:root {
+  --dist-gold:   #f5c842;
+  --dist-silver: #c8d8f0;
+  --dist-bronze: #d4845a;
 }
-.medal-gold   { animation: medalGlowGold 2.6s ease-in-out infinite; }
-.medal-silver { filter: drop-shadow(0 0 4px rgba(220,220,235,0.35)); }
-.medal-bronze { filter: drop-shadow(0 0 3px rgba(205,127,50,0.3)); }
-@keyframes medalGlowGold {
-  0%,100% { filter: drop-shadow(0 0 4px rgba(255,208,0,0.5)); }
-  50%     { filter: drop-shadow(0 0 10px rgba(255,208,0,0.9)); }
-}
-/* Medalla flotante sobre la portada en grid */
-.grid-medal {
-  position: absolute;
-  top: 6px; left: 6px;
-  z-index: 3;
-  font-size: 18px;
-  line-height: 1;
-  filter: drop-shadow(0 1px 4px rgba(0,0,0,0.7));
-}
-.grid-medal.medal-gold { animation: medalGlowGold 2.6s ease-in-out infinite; }
-/* Chip de medalla en el modal hero */
-.modal-medal-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin-top: 8px;
-  padding: 4px 10px;
-  border-radius: 6px;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 1px;
-}
-.modal-medal-chip.medal-gold   { background: rgba(255,208,0,0.12);  border: 1px solid rgba(255,208,0,0.4);  color: var(--yellow); }
-.modal-medal-chip.medal-silver { background: rgba(220,220,235,0.1); border: 1px solid rgba(220,220,235,0.35); color: #dcdceb; }
-.modal-medal-chip.medal-bronze { background: rgba(205,127,50,0.12); border: 1px solid rgba(205,127,50,0.4);  color: #cd7f32; }
 
+tr.dist-gold   .song-title-main { color: var(--dist-gold); }
+tr.dist-gold   .artist-name     { color: var(--dist-gold); opacity:.82; }
+tr.dist-gold   .song-album      { color: var(--dist-gold); opacity:.55; }
+tr.dist-silver .song-title-main { color: var(--dist-silver); }
+tr.dist-silver .artist-name     { color: var(--dist-silver); opacity:.78; }
+tr.dist-silver .song-album      { color: var(--dist-silver); opacity:.5; }
+tr.dist-bronze .song-title-main { color: var(--dist-bronze); }
+tr.dist-bronze .artist-name     { color: var(--dist-bronze); opacity:.78; }
+tr.dist-bronze .song-album      { color: var(--dist-bronze); opacity:.5; }
+.grid-card.dist-gold   .grid-card-title  { color: var(--dist-gold); }
+.grid-card.dist-silver .grid-card-title  { color: var(--dist-silver); }
+.grid-card.dist-bronze .grid-card-title  { color: var(--dist-bronze); }
+.grid-card.dist-gold   .grid-card-artist { color: var(--dist-gold);   opacity:.7; }
+.grid-card.dist-silver .grid-card-artist { color: var(--dist-silver); opacity:.7; }
+.grid-card.dist-bronze .grid-card-artist { color: var(--dist-bronze); opacity:.7; }
+.modal-hero.dist-gold   .modal-title  { color: var(--dist-gold); }
+.modal-hero.dist-silver .modal-title  { color: var(--dist-silver); }
+.modal-hero.dist-bronze .modal-title  { color: var(--dist-bronze); }
+.modal-hero.dist-gold   .modal-artist { color: var(--dist-gold); }
+.modal-hero.dist-silver .modal-artist { color: var(--dist-silver); }
+.modal-hero.dist-bronze .modal-artist { color: var(--dist-bronze); }
+.album-song-title.dist-gold   { color: var(--dist-gold); }
+.album-song-title.dist-silver { color: var(--dist-silver); }
+.album-song-title.dist-bronze { color: var(--dist-bronze); }
+.dist-chip { display:inline-block; margin-top:8px; padding:3px 10px; border-radius:6px; font-family:var(--font-mono); font-size:10px; font-weight:700; letter-spacing:1.5px; }
+@keyframes distGlow {
+  0%,100% { opacity: 1; }
+  50%     { opacity: 0.6; }
+}
+
+@keyframes scoreGlow {
+  0%,100% { opacity: 1; box-shadow: 0 0 0px transparent; }
+  50%     { opacity: 0.72; box-shadow: 0 0 8px currentColor; }
+}
+
+.score-badge.dist-gold   { color: var(--dist-gold);   background: rgba(245,200,66,0.15);  border-color: rgba(245,200,66,0.4);  animation: scoreGlow 2.8s ease-in-out infinite; }
+.score-badge.dist-silver { color: var(--dist-silver); background: rgba(200,216,240,0.12); border-color: rgba(200,216,240,0.35); animation: scoreGlow 2.8s ease-in-out infinite; }
+.score-badge.dist-bronze { color: var(--dist-bronze); background: rgba(212,132,90,0.15);  border-color: rgba(212,132,90,0.4);  animation: scoreGlow 2.8s ease-in-out infinite; }
+tr.dist-gold .song-title-main, tr.dist-silver .song-title-main, tr.dist-bronze .song-title-main,
+.grid-card.dist-gold .grid-card-title, .grid-card.dist-silver .grid-card-title, .grid-card.dist-bronze .grid-card-title,
+.modal-hero.dist-gold .modal-title, .modal-hero.dist-silver .modal-title, .modal-hero.dist-bronze .modal-title,
+.album-song-title.dist-gold, .album-song-title.dist-silver, .album-song-title.dist-bronze,
+.dist-gold-chip, .dist-silver-chip, .dist-bronze-chip {
+  animation: distGlow 2.8s ease-in-out infinite;
+}
+.dist-gold-chip   { color:var(--dist-gold);   background:rgba(255,206,84,0.12); border:1px solid rgba(255,206,84,0.35); }
+.dist-silver-chip { color:var(--dist-silver); background:rgba(205,210,230,0.10); border:1px solid rgba(205,210,230,0.30); }
+.dist-bronze-chip { color:var(--dist-bronze); background:rgba(217,142,79,0.12); border:1px solid rgba(217,142,79,0.35); }
 /* ═══════════════════════════════════════════════
    PULIDO FINAL — VIDA & MICRO-INTERACCIONES
 ═══════════════════════════════════════════════ */
@@ -2095,8 +2106,11 @@ img { display: block; }
         <div class="sidebar-item" onclick="App.openAddPanel()">
           <span class="icon">+</span> Agregar canción
         </div>
-        <div class="sidebar-item" data-view="settings" onclick="App.navigate('settings')">
+   <div class="sidebar-item" data-view="settings" onclick="App.navigate('settings')">
           <span class="icon">⚙</span> Ajustes
+        </div>
+        <div class="sidebar-item" data-view="about" onclick="App.navigate('about')">
+          <span class="icon">ⓘ</span> Acerca de
         </div>
       </div>
     </nav>
@@ -2284,6 +2298,11 @@ img { display: block; }
             </div>
           </div>
         </div>
+      </div>
+
+      <!-- ABOUT VIEW -->
+      <div id="view-about" class="view">
+        <div class="settings-view" id="about-content"></div>
       </div>
 
       <!-- SETTINGS VIEW -->
@@ -2681,15 +2700,14 @@ const Utils = {
     return `${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getFullYear().toString().slice(2)}`;
   },
 
-  // Distinción especial: medalla según el mayor de crítica/personal
-  getMedal(song) {
+  getDistinction(song) {
     const best = Math.max(
       song.critica != null ? song.critica : 0,
       song.critica_p != null ? song.critica_p : 0
     );
-    if (best >= 5)    return { emoji: '🥇', tier: 'gold',   label: 'PERFECTA' };
-    if (best >= 4.9)  return { emoji: '🥈', tier: 'silver', label: 'EXCEPCIONAL' };
-    if (best >= 4.8)  return { emoji: '🥉', tier: 'bronze', label: 'DESTACADA' };
+    if (best >= 5)    return { tier: 'gold',   label: 'PERFECTA' };
+    if (best >= 4.9)  return { tier: 'silver', label: 'EXCEPCIONAL' };
+    if (best >= 4.8)  return { tier: 'bronze', label: 'DESTACADA' };
     return null;
   }
 };
@@ -3434,6 +3452,7 @@ const App = {
       if (view === 'albums')    App.renderAlbums();
       if (view === 'artists')   App.renderArtists();
       if (view === 'playlists') App.renderPlaylists();
+      if (view === 'about')     App.renderAbout();
       App.closeSidebar();
     }, 50);
   },
@@ -3760,6 +3779,9 @@ if (!songs.length) {
     const editDot = s._editedAt ? `<div class="score-edited-dot" title="Editado ${Utils.formatDate(s._editedAt)}"></div>` : '';
     const editDate = s._editedAt ? `<span class="score-edited-date">${Utils.formatDate(s._editedAt)}</span>` : '';
     const featHtml = feats.length ? `<div class="feat-chips"><span class="feat-label">feat.</span>${feats.map(f=>`<span class="feat-chip">${Utils.esc(f)}</span>`).join('')}</div>` : '';
+    const dist = Utils.getDistinction(s);
+    const distC = dist && s.critica >= 4.8 ? 'dist-' + dist.tier : '';
+    const distP = dist && s.critica_p >= 4.8 ? 'dist-' + dist.tier : '';
 
     const pills = [
       s.genero ? `<span class="pill">${Utils.esc(s.genero)}</span>` : '',
@@ -3768,12 +3790,11 @@ if (!songs.length) {
       s.pais ? `<span class="pill pill-country">${Utils.esc(s.pais)}</span>` : '',
     ].join('');
 
-    return `<tr onclick="App.openModal(${AppState.songs.indexOf(s)})" style="animation-delay:${(i%50)*20}ms">
+    return `<tr class="${dist ? 'dist-' + dist.tier : ''}" onclick="App.openModal(${AppState.songs.indexOf(s)})" style="animation-delay:${(i%50)*20}ms">
       <td class="td-stripe"><div style="background:${color}"></div></td>
       <td class="td-num">${offset + i + 1}</td>
       <td class="td-title">
-     <div class="song-title-main">
-          ${(() => { const m = Utils.getMedal(s); return m ? `<span class="medal medal-${m.tier}" title="${m.label}">${m.emoji}</span>` : ''; })()}
+        <div class="song-title-main">
           ${Utils.esc(s.titulo)}
           ${incomplete ? '<span class="badge-incomplete">⚠</span>' : ''}
         </div>
@@ -3785,14 +3806,14 @@ if (!songs.length) {
         ${featHtml}
       </td>
       <td class="td-score">
-        <div class="score-badge ${critClass}" style="position:relative">
+        <div class="score-badge ${critClass} ${distC}" style="position:relative">
           ${Utils.formatScore(s.critica)}
           ${editDot}
         </div>
         ${editDate}
       </td>
       <td class="td-score">
-        <div class="score-badge ${persClass}">
+        <div class="score-badge ${persClass} ${distP}">
           ${Utils.formatScore(s.critica_p)}
         </div>
       </td>
@@ -3835,10 +3856,10 @@ App.renderGrid = function(songs) {
       ? `<img class="grid-card-img" src="${Utils.esc(coverUrl)}" alt="" loading="lazy" onerror="this.style.display='none'">`
       : `<div class="grid-skeleton" style="width:100%;height:100%"></div>`;
 
-    return `<div class="grid-card" onclick="App.openModal(${idx})">
+    const dist = Utils.getDistinction(s);
+    return `<div class="grid-card ${dist ? 'dist-' + dist.tier : ''}" onclick="App.openModal(${idx})">
       <div class="grid-card-img-wrap" style="--stripe:${color}">
         <div style="position:absolute;top:0;left:0;right:0;height:4px;background:${color};z-index:2"></div>
-        ${(() => { const m = Utils.getMedal(s); return m ? `<span class="grid-medal medal-${m.tier}" title="${m.label}">${m.emoji}</span>` : ''; })()}
         ${imgHtml}
         <div class="grid-card-scores">
           ${s.critica !== null ? `<span class="grid-score-chip ${critClass}">${Utils.formatScore(s.critica)}</span>` : ''}
@@ -3948,6 +3969,7 @@ App.renderModal = function(song, editing) {
   const persC = Utils.scoreColor(song.critica_p);
   const delta = Utils.formatDelta(song.critica, song.critica_p);
   const incomplete = Utils.isIncomplete(song);
+  const dist = Utils.getDistinction(song);
 
   const featHtml = feats.length
     ? feats.map(f => `<span class="feat-chip">${Utils.esc(f)}</span>`).join('')
@@ -4002,9 +4024,9 @@ App.renderModal = function(song, editing) {
 
   document.getElementById('modal').innerHTML = `
     <button class="modal-close" onclick="document.getElementById('modal-overlay').classList.remove('open')">✕</button>
-    <div class="modal-hero">
+    <div class="modal-hero ${dist ? 'dist-' + dist.tier : ''}">
       <div class="modal-cover-wrap">
-        <img id="modal-cover-img" class="modal-cover" src="${Utils.esc(coverUrl)}" alt="" 
+        <img id="modal-cover-img" class="modal-cover"
           style="${coverUrl?'':'display:none'}"
           onerror="this.style.display='none'">
         ${!coverUrl ? `<div class="grid-skeleton" style="width:100%;height:100%"></div>` : ''}
@@ -4022,7 +4044,7 @@ App.renderModal = function(song, editing) {
           <span style="width:7px;height:7px;border-radius:50%;background:${colorHex};display:inline-block"></span>
           ${colorLabel}
         </div>
-        ${(() => { const m = Utils.getMedal(song); return m ? `<div class="modal-medal-chip medal-${m.tier}"><span style="font-size:14px">${m.emoji}</span> ${m.label}</div>` : ''; })()}
+        ${dist ? `<div class="dist-chip dist-${dist.tier}-chip">${dist.label}</div>` : ''}
       </div>
     </div>
     <div class="modal-body">
@@ -5476,17 +5498,36 @@ App.openArtistPanel = function(name) {
       ${discografiaHtml}
 
       <div>
-        <div class="modal-section-label">CANCIONES (${artist.songs.length})</div>
-        ${[...artist.songs].sort((a, b) => (b.critica || 0) - (a.critica || 0)).map(s => `
-          <div class="album-song-row" onclick="App.closeArtistPanel();setTimeout(()=>App.openModal(${AppState.songs.indexOf(s)}),100)">
-            <div class="album-song-title">${Utils.esc(s.titulo)} <span style="color:var(--text-muted);font-size:10px">${s.album ? '· ' + Utils.esc(s.album.slice(0, 20)) : ''}</span></div>
+        <div class="modal-section-label" style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+          <span>CANCIONES (${artist.songs.length})</span>
+          <input id="artist-songs-filter" placeholder="Filtrar…" oninput="App._filterArtistSongs(this.value)"
+            style="background:var(--bg-surface2);border:1px solid var(--border);border-radius:6px;padding:5px 10px;font-size:11px;color:var(--text);outline:none;width:120px;font-family:var(--font-body);text-transform:none;letter-spacing:0">
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">
+          <button class="sort-btn active" data-arsongsort="score" onclick="App._sortArtistSongs('${nameEsc}','score',this)">Puntuación</button>
+          <button class="sort-btn" data-arsongsort="album" onclick="App._sortArtistSongs('${nameEsc}','album',this)">Álbum</button>
+          <button class="sort-btn" data-arsongsort="az" onclick="App._sortArtistSongs('${nameEsc}','az',this)">A-Z</button>
+          <button class="sort-btn" data-arsongsort="year" onclick="App._sortArtistSongs('${nameEsc}','year',this)">Año</button>
+        </div>
+        <div id="artist-songs-list">
+        ${[...artist.songs].sort((a, b) => (Math.max(b.critica||0,b.critica_p||0)) - (Math.max(a.critica||0,a.critica_p||0))).map(s => {
+          const dist = Utils.getDistinction(s);
+          const color = Utils.colorMap[s.color] || Utils.colorMap.none;
+          const delta = Utils.formatDelta(s.critica, s.critica_p);
+          const hasDelta = s.critica !== null && s.critica_p !== null;
+          return `
+          <div class="album-song-row" data-songfilter="${Utils.esc((s.titulo+' '+(s.album||'')).toLowerCase())}" onclick="App.closeArtistPanel();setTimeout(()=>App.openModal(${AppState.songs.indexOf(s)}),100)">
+            <span style="width:3px;height:28px;border-radius:2px;background:${color};flex-shrink:0;margin-right:2px"></span>
+            <div class="album-song-title ${dist ? 'dist-' + dist.tier : ''}">${Utils.esc(s.titulo)} <span style="color:var(--text-muted);font-size:10px;font-weight:400">${s.album ? '· ' + Utils.esc(s.album.slice(0, 20)) : ''}</span></div>
+            ${hasDelta ? `<span class="delta-val ${delta.cls}" style="font-size:11px;margin-right:8px;font-family:var(--font-mono)">${delta.text}</span>` : ''}
             <div class="album-song-scores">
-              ${s.critica !== null ? `<span class="score-badge ${Utils.scoreColor(s.critica)}" style="width:38px;height:24px;font-size:12px">${Utils.formatScore(s.critica)}</span>` : '<span style="color:var(--text-muted);font-size:11px">—</span>'}
+              ${s.critica !== null ? `<span class="score-badge ${Utils.scoreColor(s.critica)}" style="width:38px;height:24px;font-size:12px">${Utils.formatScore(s.critica)}</span>` : '<span style="color:var(--text-muted);font-size:11px;width:38px;text-align:center">—</span>'}
               ${s.critica_p !== null ? `<span class="score-badge ${Utils.scoreColor(s.critica_p)}" style="width:38px;height:24px;font-size:12px">${Utils.formatScore(s.critica_p)}</span>` : ''}
             </div>
-          </div>`).join('')}
+          </div>`;
+        }).join('')}
+        </div>
       </div>
-
       <div style="margin-top:8px">
         <div class="modal-section-label">RENOMBRAR ARTISTA</div>
         <div class="artist-rename-row">
@@ -5556,6 +5597,48 @@ App.openArtistPanel = function(name) {
 App.closeArtistPanel = function() {
   document.getElementById('artist-panel').classList.remove('open');
   document.getElementById('artist-panel-overlay').classList.remove('open');
+};
+
+App._filterArtistSongs = function(val) {
+  const q = (val || '').toLowerCase().trim();
+  document.querySelectorAll('#artist-songs-list .album-song-row').forEach(row => {
+    const text = row.dataset.songfilter || '';
+    row.style.display = (!q || text.includes(q)) ? '' : 'none';
+  });
+};
+
+App._artistSongRowHtml = function(s) {
+  const dist = Utils.getDistinction(s);
+  const color = Utils.colorMap[s.color] || Utils.colorMap.none;
+  const delta = Utils.formatDelta(s.critica, s.critica_p);
+  const hasDelta = s.critica !== null && s.critica_p !== null;
+  return `
+    <div class="album-song-row" data-songfilter="${Utils.esc((s.titulo+' '+(s.album||'')).toLowerCase())}" onclick="App.closeArtistPanel();setTimeout(()=>App.openModal(${AppState.songs.indexOf(s)}),100)">
+      <span style="width:3px;height:28px;border-radius:2px;background:${color};flex-shrink:0;margin-right:2px"></span>
+      <div class="album-song-title ${dist ? 'dist-' + dist.tier : ''}">${Utils.esc(s.titulo)} <span style="color:var(--text-muted);font-size:10px;font-weight:400">${s.album ? '· ' + Utils.esc(s.album.slice(0, 20)) : ''}</span></div>
+      ${hasDelta ? `<span class="delta-val ${delta.cls}" style="font-size:11px;margin-right:8px;font-family:var(--font-mono)">${delta.text}</span>` : ''}
+      <div class="album-song-scores">
+        ${s.critica !== null ? `<span class="score-badge ${Utils.scoreColor(s.critica)}" style="width:38px;height:24px;font-size:12px">${Utils.formatScore(s.critica)}</span>` : '<span style="color:var(--text-muted);font-size:11px;width:38px;text-align:center">—</span>'}
+        ${s.critica_p !== null ? `<span class="score-badge ${Utils.scoreColor(s.critica_p)}" style="width:38px;height:24px;font-size:12px">${Utils.formatScore(s.critica_p)}</span>` : ''}
+      </div>
+    </div>`;
+};
+
+App._sortArtistSongs = function(name, mode, btn) {
+  const artist = Engine.getArtists().find(a => a.name === name);
+  if (!artist) return;
+  document.querySelectorAll('[data-arsongsort]').forEach(b => b.classList.toggle('active', b === btn));
+  const songs = [...artist.songs].sort((a, b) => {
+    if (mode === 'score') return (Math.max(b.critica||0,b.critica_p||0)) - (Math.max(a.critica||0,a.critica_p||0));
+    if (mode === 'album')  return (a.album||'zzz').localeCompare(b.album||'zzz');
+    if (mode === 'az')     return (a.titulo||'').localeCompare(b.titulo||'');
+    if (mode === 'year')   return (b.año||0) - (a.año||0);
+    return 0;
+  });
+  const list = document.getElementById('artist-songs-list');
+  if (list) list.innerHTML = songs.map(s => App._artistSongRowHtml(s)).join('');
+  const filterInput = document.getElementById('artist-songs-filter');
+  if (filterInput && filterInput.value) App._filterArtistSongs(filterInput.value);
 };
 
 App.renameArtist = async function(oldName) {
@@ -5637,10 +5720,19 @@ App.renderPlaylists = function() {
         <div class="pl-title">${Utils.esc(s.titulo)}</div>
         <div class="pl-artist">${Utils.esc(s.artista)}</div>
       </div>
-      <div style="text-align:right">
-        <div class="pl-score-main" style="color:${Utils.scoreColorHex(s[scoreField])}">${Utils.formatScore(s[scoreField])}</div>
-        <div class="pl-score-sec">${Utils.formatScore(s[secField])}</div>
-      </div>
+      ${(() => {
+        const d = Utils.getDistinction(s);
+        const mainScore = s[scoreField];
+        const distCol = d && mainScore >= 4.8
+          ? (d.tier === 'gold' ? 'var(--dist-gold)' : d.tier === 'silver' ? 'var(--dist-silver)' : 'var(--dist-bronze)')
+          : Utils.scoreColorHex(mainScore);
+        const glowStyle = d && mainScore >= 4.8
+          ? `animation:scoreGlow 2.8s ease-in-out infinite;` : '';
+        return `<div style="text-align:right">
+          <div class="pl-score-main" style="color:${distCol};${glowStyle}">${Utils.formatScore(mainScore)}</div>
+          <div class="pl-score-sec">${Utils.formatScore(s[secField])}</div>
+        </div>`;
+      })()}
     </div>`;
   }).join('');
 };
@@ -5655,6 +5747,108 @@ App.switchPlaylistTab = function(tab) {
 App.filterPlaylist = function(val) {
   AppState.playlistSearch = val;
   App.renderPlaylists();
+};
+
+App.renderAbout = function() {
+  const songs = AppState.songs;
+  const rated = songs.filter(s => s.critica !== null && s.critica_p !== null);
+  const dist = songs.filter(s => Utils.getDistinction(s)).length;
+  const albums = Engine.getAlbums().length;
+  const artists = Engine.getArtists().length;
+
+  // ─── HISTORIAL DE VERSIONES ───
+  // Para futuras actualizaciones: añade un objeto nuevo AL INICIO de este array.
+  // tag = etiqueta corta · fecha = cuándo · actual = solo true en la más reciente
+  // cambios = lista de { tipo: 'NUEVO'|'MEJORA'|'FIX', texto: '...' }
+  const CHANGELOG = [
+    {
+      version: 'v2.1',
+      fecha: 'Junio 2026',
+      actual: true,
+      titulo: 'Distinción y panel de artista',
+      cambios: [
+        { tipo: 'NUEVO',  texto: 'Distinción por color para canciones 4.8+ (bronce / plata / oro), reemplazando las medallas.' },
+        { tipo: 'NUEVO',  texto: 'El oro (5.0) tiene un sutil efecto de desvanecimiento que lo distingue del 4.9.' },
+        { tipo: 'NUEVO',  texto: 'Filtro y orden de canciones dentro del panel de artista (puntuación, álbum, A-Z, año).' },
+        { tipo: 'NUEVO',  texto: 'Sección "Acerca de" con estadísticas en vivo e historial de versiones.' },
+        { tipo: 'MEJORA', texto: 'Espacio inferior para que el botón flotante no tape las últimas filas.' },
+      ]
+    },
+    {
+      version: 'v2.0',
+      fecha: 'Junio 2026',
+      actual: false,
+      titulo: 'Primera versión',
+      cambios: [
+        { tipo: 'NUEVO', texto: 'Catálogo de canciones con tabla y grid, puntuación crítica y personal.' },
+        { tipo: 'NUEVO', texto: 'Playlists por color, filtros avanzados y TOP 250.' },
+        { tipo: 'NUEVO', texto: 'Vistas de álbumes y artistas con portadas y fotos automáticas.' },
+        { tipo: 'NUEVO', texto: 'Estadísticas, verificación de CSV de Deezer y export/import JSON.' },
+      ]
+    },
+  ];
+
+  const tipoColor = { NUEVO: 'var(--accent)', MEJORA: 'var(--green)', FIX: 'var(--yellow)' };
+
+  const changelogHtml = CHANGELOG.map(v => `
+    <div class="settings-card" style="margin-bottom:12px;${v.actual ? 'border-color:var(--accent)' : ''}">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <span style="font-family:var(--font-display);font-size:22px;letter-spacing:1px;color:${v.actual ? 'var(--accent)' : 'var(--text)'}">${v.version}</span>
+        ${v.actual ? `<span style="font-size:9px;font-family:var(--font-mono);letter-spacing:1.5px;color:var(--accent);background:var(--accent-glow);border:1px solid var(--accent);border-radius:4px;padding:2px 7px">ACTUAL</span>` : ''}
+        <span style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono);margin-left:auto">${v.fecha}</span>
+      </div>
+      <div style="font-size:13px;font-weight:600;color:var(--text-dim);margin-bottom:10px">${v.titulo}</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        ${v.cambios.map(c => `
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--text-dim);line-height:1.6">
+            <span style="font-size:9px;font-family:var(--font-mono);font-weight:700;letter-spacing:1px;color:${tipoColor[c.tipo]};flex-shrink:0;margin-top:2px;min-width:48px">${c.tipo}</span>
+            <span>${c.texto}</span>
+          </div>`).join('')}
+      </div>
+    </div>
+  `).join('');
+
+  document.getElementById('about-content').innerHTML = `
+    <div class="settings-section">
+      <div style="text-align:center;padding:8px 0 24px">
+        <div style="font-family:var(--font-display);font-size:40px;letter-spacing:3px;line-height:1">MUSIC <span style="color:var(--accent)">VAULT</span></div>
+        <div style="font-size:11px;font-family:var(--font-mono);letter-spacing:3px;color:var(--text-muted);margin-top:6px">CATÁLOGO MUSICAL PERSONAL · ${CHANGELOG[0].version}</div>
+      </div>
+      <div class="settings-card">
+        <div style="font-size:13px;color:var(--text-dim);line-height:1.7">
+          Puntúa canciones según crítica y valoración personal, organiza por playlists de color, y explora estadísticas, álbumes y artistas con datos enriquecidos automáticamente desde iTunes, TheAudioDB y Last.fm.
+        </div>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-title">TU VAULT EN NÚMEROS</div>
+      <div class="settings-card">
+        <div class="settings-row"><div class="settings-row-label">Canciones totales</div><div style="font-family:var(--font-mono);color:var(--accent)">${songs.length}</div></div>
+        <div class="settings-row"><div class="settings-row-label">Puntuadas</div><div style="font-family:var(--font-mono);color:var(--green)">${rated.length}</div></div>
+        <div class="settings-row"><div class="settings-row-label">Destacadas (4.8+)</div><div style="font-family:var(--font-mono);color:var(--yellow)">${dist}</div></div>
+        <div class="settings-row"><div class="settings-row-label">Álbumes</div><div style="font-family:var(--font-mono)">${albums}</div></div>
+        <div class="settings-row"><div class="settings-row-label">Artistas</div><div style="font-family:var(--font-mono)">${artists}</div></div>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-title">HISTORIAL DE VERSIONES</div>
+      ${changelogHtml}
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-title">PRÓXIMAMENTE</div>
+      <div class="settings-card">
+        <div style="font-size:12px;color:var(--text-muted);font-style:italic;line-height:1.7">
+          Ideas en cola para futuras versiones. Edita este bloque en el código a medida que decidas qué implementar.
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;margin-top:8px">
+          <div style="font-size:13px;color:var(--text-dim)">◦ (pendiente de definir)</div>
+        </div>
+      </div>
+    </div>
+  `;
 };
 
 App.clearPlaylistChanges = function() {
@@ -5689,22 +5883,39 @@ App.runDeezerComparison = function() {
   const csv = AppState.deezerCSV;
   if (!csv.length) { App.showSnackbar('Carga un CSV primero', false); return; }
   const playlist = document.getElementById('deezer-playlist-sel').value;
-  let vaultSongs = playlist==='all' ? AppState.songs : AppState.songs.filter(s=>s.color===playlist);
-  const exact=[], fuzzy=[], missing=[];
+  const vaultSongs = playlist === 'all' ? AppState.songs : AppState.songs.filter(s => s.color === playlist);
+
+  // Pre-normaliza el vault UNA sola vez (evita recalcular en cada comparación)
+  const vaultNorm = vaultSongs.map(vs => ({
+    song: vs,
+    t: Utils.normalizeText(vs.titulo),
+    a: Utils.normalizeText(vs.artista),
+    key: Utils.getSongKey(vs)
+  }));
+
+  const exact = [], fuzzy = [], missing = [];
   const matched = new Set();
+
   for (const csvSong of csv) {
-    let bestMatch=null, bestScore=0;
-    for (const vs of vaultSongs) {
-      const combined = Utils.diceCoefficient(csvSong.title,vs.titulo)*0.7 + Utils.diceCoefficient(csvSong.artist,vs.artista)*0.3;
-      if (combined>bestScore) { bestScore=combined; bestMatch=vs; }
+    const ct = Utils.normalizeText(csvSong.title);
+    const ca = Utils.normalizeText(csvSong.artist);
+    let bestMatch = null, bestScore = 0;
+    for (const v of vaultNorm) {
+      // Atajo barato: si la primera letra del título difiere y ninguno es vacío, salta el cálculo caro
+      const tScore = Utils.diceCoefficient(ct, v.t);
+      if (tScore < 0.3) continue; // descarta temprano lo obviamente distinto
+      const combined = tScore * 0.7 + Utils.diceCoefficient(ca, v.a) * 0.3;
+      if (combined > bestScore) { bestScore = combined; bestMatch = v; }
     }
-    if (bestScore>=0.95) { exact.push({csv:csvSong,vault:bestMatch,score:bestScore}); matched.add(Utils.getSongKey(bestMatch)); }
-    else if (bestScore>=0.65) fuzzy.push({csv:csvSong,vault:bestMatch,score:bestScore});
+    if (bestScore >= 0.9) { exact.push({ csv: csvSong, vault: bestMatch.song, score: bestScore }); matched.add(bestMatch.key); }
+    else if (bestScore >= 0.6) fuzzy.push({ csv: csvSong, vault: bestMatch.song, score: bestScore });
     else missing.push(csvSong);
   }
-  const extras = vaultSongs.filter(vs => !matched.has(Utils.getSongKey(vs)) && !csv.some(c=>Utils.diceCoefficient(c.title,vs.titulo)>=0.65));
-  const coverage = Math.round((exact.length/csv.length)*100)||0;
+
+  const extras = vaultNorm.filter(v => !matched.has(v.key)).map(v => v.song);
+  const coverage = Math.round((exact.length / csv.length) * 100) || 0;
   App._fuzzyResults = fuzzy;
+  App._missingResults = missing;
 
   document.getElementById('deezer-results').innerHTML = `
     <div class="deezer-coverage">
@@ -5724,12 +5935,10 @@ App.runDeezerComparison = function() {
     ${fuzzy.length?`<div class="deezer-section">
       <div class="deezer-section-header">
         <span class="deezer-section-title" style="color:var(--yellow)">⚠ FUZZY MATCHES (${fuzzy.length})</span>
-        <button class="btn-accept-fuzzy" onclick="App.acceptAllFuzzy()">Aceptar todas</button>
       </div>
-      ${fuzzy.map((m,i)=>`<div class="deezer-row">
+      ${fuzzy.map((m,i)=>`<div class="deezer-row" id="fuzzy-row-${i}">
         <div class="deezer-match-pct">${Math.round(m.score*100)}%</div>
         <div class="deezer-row-info"><div class="deezer-row-title">${Utils.esc(m.csv.title)}</div><div class="deezer-row-sub">CSV: ${Utils.esc(m.csv.artist)} → Vault: ${Utils.esc(m.vault?.titulo||'')} · ${Utils.esc(m.vault?.artista||'')}</div></div>
-        <button class="btn-accept-fuzzy" onclick="App.acceptFuzzyMatch(${i})">✓</button>
       </div>`).join('')}
     </div>`:''}
     ${missing.length?`<div class="deezer-section">
@@ -5737,9 +5946,9 @@ App.runDeezerComparison = function() {
         <span class="deezer-section-title" style="color:var(--red)">✕ FALTANTES EN VAULT (${missing.length})</span>
         <button class="btn-add-deezer" onclick="App.addAllMissing()">Agregar todas</button>
       </div>
-      ${missing.map(m=>`<div class="deezer-row">
+      ${missing.map((m,i)=>`<div class="deezer-row" id="missing-row-${i}">
         <div class="deezer-row-info"><div class="deezer-row-title">${Utils.esc(m.title)}</div><div class="deezer-row-sub">${Utils.esc(m.artist)}</div></div>
-        <button class="btn-add-deezer" onclick="App.addMissingSong('${m.title.replace(/'/g,"\\'")}','${m.artist.replace(/'/g,"\\'")}')">+ Agregar</button>
+        <button class="btn-add-deezer" onclick="App.addMissingByIndex(${i})">+ Agregar</button>
       </div>`).join('')}
     </div>`:''}
     ${extras.length?`<div class="deezer-section">
@@ -5751,23 +5960,40 @@ App.runDeezerComparison = function() {
   requestAnimationFrame(()=>{ const f=document.getElementById('coverage-fill'); if(f) f.style.width=coverage+'%'; });
 };
 
-App.acceptFuzzyMatch = function(idx) { App.showSnackbar('Match aceptado', false); };
-App.acceptAllFuzzy  = function()    { App.showSnackbar('Todos los fuzzy matches aceptados', false); };
+App._buildBlankSong = function(title, artist) {
+  return { titulo:title.toUpperCase(), artista:artist.toUpperCase(), album:'', critica:null, critica_p:null, playlists:[], color:null, pais:null, año:null, compositor:null, secondaryComposers:[], collabArtists:[], genero:null, subgenero:null, discografica:null };
+};
 
-App.addMissingSong = function(title, artist) {
-  AppState.songs.push({ titulo:title.toUpperCase(), artista:artist.toUpperCase(), album:'', critica:null, critica_p:null, playlists:[], color:null, pais:null, año:null, compositor:null, genero:null, subgenero:null, discografica:null });
+App.addMissingByIndex = function(i) {
+  const m = App._missingResults?.[i];
+  if (!m) return;
+  const key = `${m.title}|||${m.artist}`.toLowerCase();
+  if (AppState.songs.some(s => Utils.getSongKey(s) === key)) { App.showSnackbar('Ya existe en el vault', false); return; }
+  AppState.songs.push(App._buildBlankSong(m.title, m.artist));
   Data.save();
   App.updateHeaderStats();
   App.updateSidebarBadges();
-  App.showSnackbar(`"${title}" añadida`, false);
+  App.renderPlaylistPills();
+  const row = document.getElementById(`missing-row-${i}`);
+  if (row) { row.style.opacity = '0.4'; const btn = row.querySelector('button'); if (btn) { btn.textContent = '✓ Añadida'; btn.disabled = true; } }
+  App.showSnackbar(`"${m.title}" añadida`, false);
 };
 
 App.addAllMissing = function() {
-  if (!App._fuzzyResults) return;
-  // No re-corre la comparación completa, usa los resultados ya calculados
-  App.showSnackbar('Usa el botón individual por cada canción', false);
+  if (!App._missingResults?.length) return;
+  let added = 0;
+  for (const m of App._missingResults) {
+    const key = `${m.title}|||${m.artist}`.toLowerCase();
+    if (AppState.songs.some(s => Utils.getSongKey(s) === key)) continue;
+    AppState.songs.push(App._buildBlankSong(m.title, m.artist));
+    added++;
+  }
+  Data.save();
+  App.updateHeaderStats();
+  App.updateSidebarBadges();
+  App.renderPlaylistPills();
+  App.showSnackbar(`${added} canciones añadidas al vault`, false);
 };
-
 App.addComposerField = function() {
   const list = document.getElementById('composers-list');
   if (!list) return;
