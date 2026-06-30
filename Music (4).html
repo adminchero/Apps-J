@@ -285,6 +285,7 @@ img { display: block; }
   transform: translateX(-100%);
   transition: transform 0.35s var(--ease);
   overflow-y: auto;
+  overscroll-behavior: contain;
 }
 #sidebar.open { transform: translateX(0); }
 .sidebar-header {
@@ -666,6 +667,41 @@ img { display: block; }
   letter-spacing: 0.5px;
   flex-shrink: 0;
 }
+.badge-cover {
+  font-size: 9px;
+  color: #16d6c1;
+  background: rgba(22,214,193,0.12);
+  border: 1px solid rgba(22,214,193,0.3);
+  border-radius: 3px;
+  padding: 1px 6px;
+  font-family: var(--font-mono);
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+  text-transform: uppercase;
+}
+.cover-toggle {
+  display: flex; align-items: center; gap: 8px;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-surface2);
+  font-size: 13px;
+  color: var(--text-dim);
+  transition: all 0.2s var(--ease);
+}
+.cover-toggle .cover-toggle-dot {
+  width: 12px; height: 12px; border-radius: 50%;
+  background: var(--text-muted);
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+.cover-toggle.is-cover {
+  border-color: #16d6c1;
+  color: #16d6c1;
+  background: rgba(22,214,193,0.10);
+}
+.cover-toggle.is-cover .cover-toggle-dot { background: #16d6c1; }
 .song-album {
   font-size: 11px;
   color: var(--text-muted);
@@ -863,6 +899,7 @@ img { display: block; }
   max-width: 640px;
   max-height: calc(100vh - 32px);
   overflow-y: auto;
+  overscroll-behavior: contain;
   transform: scale(0.95) translateY(12px);
   transition: transform 0.3s var(--ease);
   position: relative;
@@ -1103,6 +1140,7 @@ img { display: block; }
   transform: translateX(100%);
   transition: transform 0.35s var(--ease);
   overflow-y: auto;
+  overscroll-behavior: contain;
 }
 #add-panel.open { transform: translateX(0); }
 .add-panel-header {
@@ -1418,6 +1456,7 @@ img { display: block; }
   transform: translateX(100%);
   transition: transform 0.35s var(--ease);
   overflow-y: auto;
+  overscroll-behavior: contain;
   display: flex; flex-direction: column;
 }
 #artist-panel.open { transform: translateX(0); }
@@ -1632,6 +1671,49 @@ img { display: block; }
 }
 .btn-accept-fuzzy:hover { background: var(--yellow); color: #000; }
 
+/* Distintivo TOP 100 ÁLBUMES — borde difuminado con destello prendido/apagado */
+@keyframes top100Glow {
+  0%,100% {
+    border-color: rgba(245,200,66,0.55);
+    box-shadow: 0 0 0 1px rgba(245,200,66,0.35), 0 0 26px -4px rgba(245,200,66,0.5);
+  }
+  50% {
+    border-color: rgba(245,200,66,0.18);
+    box-shadow: 0 0 0 1px rgba(245,200,66,0.12), 0 0 10px -4px rgba(245,200,66,0.2);
+  }
+}
+@keyframes top100GlowInner {
+  0%,100% { box-shadow: inset 0 0 40px -8px rgba(245,200,66,0.6); opacity: 1; }
+  50%     { box-shadow: inset 0 0 30px -10px rgba(245,200,66,0.2); opacity: 0.5; }
+}
+.album-card.is-top100 {
+  border-color: rgba(245,200,66,0.5);
+  animation: top100Glow 2.8s ease-in-out infinite;
+}
+.album-card.is-top100:hover {
+  animation: none;
+  box-shadow: 0 0 0 1px rgba(245,200,66,0.6), 0 0 32px -2px rgba(245,200,66,0.6);
+}
+.album-card.is-top100 .album-card-img-wrap::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 4;
+  animation: top100GlowInner 2.8s ease-in-out infinite;
+}
+.album-top100-rank {
+  position: absolute; top: 8px; right: 8px; z-index: 5;
+  font-family: var(--font-mono);
+  font-size: 11px; font-weight: 700;
+  background: rgba(245,200,66,0.92);
+  color: #1a1205;
+  border-radius: 4px;
+  padding: 2px 7px;
+  letter-spacing: 0.5px;
+}
+
 /* Álbum cards: evita que el hover levante la card cuando está expandida */
 .album-card:has(.album-songs-list.open) {
   transform: none !important;
@@ -1647,6 +1729,17 @@ img { display: block; }
   display: none;
 }
 #artist-panel-overlay.open { display: block; }
+
+/* ═══════════════════════════════════════════════
+   BLOQUEO DE SCROLL DE FONDO AL ABRIR CAPAS
+═══════════════════════════════════════════════ */
+body:has(#modal-overlay.open),
+body:has(#add-panel.open),
+body:has(#artist-panel.open),
+body:has(#sidebar.open),
+body:has(#img-picker-overlay) {
+  overflow: hidden;
+}
 /* ═══════════════════════════════════════════════
    SETTINGS VIEW
 ═══════════════════════════════════════════════ */
@@ -2198,6 +2291,14 @@ tr.dist-gold .song-title-main, tr.dist-silver .song-title-main, tr.dist-bronze .
                 <option value="zero">Sin diferencia</option>
               </select>
             </div>
+            <div class="adv-field">
+              <label>Tipo</label>
+              <select id="adv-cover" onchange="App.applyFilters()">
+                <option value="">Todas</option>
+                <option value="cover">Solo covers</option>
+                <option value="original">Solo originales</option>
+              </select>
+            </div>
           </div>
         </div>
         <div class="songs-count" id="songs-count"></div>
@@ -2251,7 +2352,7 @@ tr.dist-gold .song-title-main, tr.dist-silver .song-title-main, tr.dist-bronze .
             </div>
             <div class="pl-changes-list" id="pl-changes-list"></div>
           </div>
-          <div class="playlists-tabs">
+<div class="playlists-tabs">
             <div class="playlist-tab active" onclick="App.switchPlaylistTab('critica')" id="tab-critica">
               <div class="pt-title">TOP 250 CRÍTICA</div>
               <div class="pt-count" id="tab-critica-count">0 canciones</div>
@@ -2259,6 +2360,10 @@ tr.dist-gold .song-title-main, tr.dist-silver .song-title-main, tr.dist-bronze .
             <div class="playlist-tab" onclick="App.switchPlaylistTab('personal')" id="tab-personal">
               <div class="pt-title">TOP 250 PERSONAL</div>
               <div class="pt-count" id="tab-personal-count">0 canciones</div>
+            </div>
+            <div class="playlist-tab" onclick="App.switchPlaylistTab('top100')" id="tab-top100">
+              <div class="pt-title">TOP 100 ÁLBUMES</div>
+              <div class="pt-count" id="tab-top100-count">0 álbumes</div>
             </div>
           </div>
           <input class="playlist-search" id="playlist-search" placeholder="Buscar en la lista..." oninput="App.filterPlaylist(this.value)">
@@ -2439,6 +2544,13 @@ tr.dist-gold .song-title-main, tr.dist-silver .song-title-main, tr.dist-bronze .
               <div class="add-color-btn" data-color="none" onclick="App.selectAddColor('none')"><div class="cdot" style="background:var(--text-muted)"></div>Ninguno</div>
             </div>
           </div>
+          <div class="add-field full" style="grid-column:1/-1">
+            <label>Versión</label>
+            <button type="button" id="add-cover-toggle" class="cover-toggle" onclick="App.toggleAddCover()">
+              <span class="cover-toggle-dot"></span>
+              <span id="add-cover-label">Canción original</span>
+            </button>
+          </div>
           <div class="add-field">
             <label>Crítica (1–5)</label>
             <input type="number" id="add-critica" placeholder="4.5" step="0.1" min="1" max="5">
@@ -2544,6 +2656,7 @@ const AppState = {
   deezerCSV: [],
   importMode: 'merge',
   addColor: 'green',
+  addCover: false,
   modalSong: null,
   modalEditing: false,
   pendingDelete: null,
@@ -2552,8 +2665,9 @@ const AppState = {
   autocompleteTimer: null,
   lastTop250Critica: null,
   lastTop250Personal: null,
+  lastTop100Songs: null,
+  top100Changes: [],
 };
-
 /* ═══════════════════════════════════════════════
    LOCAL STORAGE HELPERS
 ═══════════════════════════════════════════════ */
@@ -2763,8 +2877,11 @@ const Data = {
       }
       if (!s.collabArtists) s.collabArtists = [];
     }
-    if (data.playlistNames) {
+if (data.playlistNames) {
       try { localStorage.setItem('mvPlaylistNames', JSON.stringify(data.playlistNames)); } catch {}
+    }
+    if (data.top100Albums) {
+      try { localStorage.setItem('mvTop100Albums', JSON.stringify(data.top100Albums)); } catch {}
     }
     return songs;
   },
@@ -2783,9 +2900,10 @@ const Data = {
         if (s.historia?.trim() && !cur.historia?.trim()) cur.historia = s.historia;
         if (s.secondaryComposers?.length && !cur.secondaryComposers?.length) cur.secondaryComposers = s.secondaryComposers;
         if (s.collabArtists?.length && !cur.collabArtists?.length) cur.collabArtists = s.collabArtists;
-        ['album','pais','año','compositor','genero','subgenero','discografica'].forEach(f => {
+     ['album','pais','año','compositor','genero','subgenero','discografica'].forEach(f => {
           if ((cur[f] === null || cur[f] === undefined || cur[f] === '') && s[f]) cur[f] = s[f];
         });
+        if (s.esCover && !cur.esCover) cur.esCover = true;
       }
     }
     await Data.save();
@@ -2811,6 +2929,7 @@ const Data = {
       collabArtists,
       playlistNames: LS.get('mvPlaylistNames') || { green:'PLAYLIST VERDE', red:'PLAYLIST ROJA', yellow:'PLAYLIST AMARILLA', blue:'PLAYLIST AZUL', unknown:'SIN CATEGORÍA' },
       artistData: LS.get('mvArtistData') || {},
+      top100Albums: LS.get('mvTop100Albums') || {},
       images: images
     };
   }
@@ -3272,6 +3391,97 @@ const LastFM = {
 };
 
 /* ═══════════════════════════════════════════════
+   TOP 100 ÁLBUMES — lista curada (localStorage + export)
+   Estructura: { "album|||artista": { ranking, analisis } }
+═══════════════════════════════════════════════ */
+const Top100 = {
+  _mem: null,
+
+  _key(album, artist) {
+    return `${(album||'').toUpperCase().trim()}|||${(artist||'').toUpperCase().trim()}`;
+  },
+  all() {
+    if (this._mem) return this._mem;
+    this._mem = LS.get('mvTop100Albums') || {};
+    return this._mem;
+  },
+  _save(map) {
+    this._mem = map;
+    LS.set('mvTop100Albums', map);              // intento rápido
+    if (IDB.db) IDB.set('mvTop100Albums', map).catch(() => {}); // respaldo sin límite de cuota
+  },
+  has(album, artist) {
+    return !!this.all()[this._key(album, artist)];
+  },
+  get(album, artist) {
+    return this.all()[this._key(album, artist)] || null;
+  },
+  add(album, artist, ranking) {
+    const map = this.all();
+    const k = this._key(album, artist);
+    if (!map[k]) map[k] = { ranking: ranking || null, analisis: '' };
+    else if (ranking != null) map[k].ranking = ranking;
+    this._save(map);
+  },
+  remove(album, artist) {
+    const map = this.all();
+    delete map[this._key(album, artist)];
+    this._save(map);
+  },
+  setRanking(album, artist, ranking) {
+    const map = this.all();
+    const k = this._key(album, artist);
+    if (map[k]) { map[k].ranking = ranking; this._save(map); }
+  },
+  setAnalisis(album, artist, texto) {
+    const map = this.all();
+    const k = this._key(album, artist);
+    if (!map[k]) map[k] = { ranking: null, analisis: '' };
+    map[k].analisis = texto;
+    this._save(map);
+  },
+  songsIn() {
+    const map = this.all();
+    return AppState.songs.filter(s => s.album && map[this._key(s.album, s.artista)]);
+  },
+  rankedAlbums() {
+    const map = this.all();
+    const out = [];
+    for (const [k, v] of Object.entries(map)) {
+      const [album, artista] = k.split('|||');
+      const count = AppState.songs.filter(s =>
+        (s.album||'').toUpperCase().trim() === album &&
+        (s.artista||'').toUpperCase().trim() === artista
+      ).length;
+      out.push({ key: k, album, artista, ranking: v.ranking, analisis: v.analisis, count });
+    }
+    return out.sort((a, b) => {
+      const ra = a.ranking ?? 9999, rb = b.ranking ?? 9999;
+      if (ra !== rb) return ra - rb;
+      return (a.album||'').localeCompare(b.album||'');
+    });
+  },
+  // Carga desde IDB al arrancar (preferente sobre LS si existe)
+  async preload() {
+    if (IDB.db) {
+      try {
+        const fromIDB = await IDB.get('mvTop100Albums');
+        if (fromIDB && typeof fromIDB === 'object') {
+          this._mem = fromIDB;
+          LS.set('mvTop100Albums', fromIDB);
+          return;
+        }
+      } catch {}
+    }
+    this._mem = LS.get('mvTop100Albums') || {};
+  },
+  // Invalida la caché tras import/restore
+  reload() {
+    this._mem = null;
+    this.all();
+  }
+};
+/* ═══════════════════════════════════════════════
    FILTER + SORT ENGINE
 ═══════════════════════════════════════════════ */
 const Engine = {
@@ -3308,7 +3518,9 @@ const Engine = {
     if (af.delta === 'pos')  songs = songs.filter(s => s.critica !== null && s.critica_p !== null && (s.critica_p - s.critica) > 0);
     if (af.delta === 'neg')  songs = songs.filter(s => s.critica !== null && s.critica_p !== null && (s.critica_p - s.critica) < 0);
     if (af.delta === 'zero') songs = songs.filter(s => s.critica !== null && s.critica_p !== null && Math.abs(s.critica_p - s.critica) < 0.05);
-    return Engine.sort(songs);
+    if (af.cover === 'cover')    songs = songs.filter(s => s.esCover);
+    if (af.cover === 'original') songs = songs.filter(s => !s.esCover);
+    return Engine.sort(songs); 
   },
   sort(songs) {
     const s = AppState.sort;
@@ -3431,7 +3643,7 @@ const App = {
     document.getElementById('badge-songs').textContent = AppState.songs.length;
     document.getElementById('badge-albums').textContent = Engine.getAlbums().length;
     document.getElementById('badge-artists').textContent = Engine.getArtists().length;
-    if (AppState.playlistChanges.length > 0) {
+    if (AppState.playlistChanges.length > 0 || AppState.top100Changes.length > 0) {
       document.getElementById('playlist-notif').classList.add('show');
     } else {
       document.getElementById('playlist-notif').classList.remove('show');
@@ -3510,6 +3722,7 @@ const App = {
     af.criticaFrom = get('adv-critica-from'); af.criticaTo = get('adv-critica-to');
     af.personalFrom = get('adv-personal-from'); af.personalTo = get('adv-personal-to');
     af.delta = get('adv-delta');
+    af.cover = get('adv-cover');
     AppState.advFilters = af; AppState.page = 1;
     const active = Engine.hasActiveFilters();
     document.getElementById('btn-adv-toggle').classList.toggle('has-filters', active);
@@ -3521,7 +3734,7 @@ const App = {
     AppState.colorFilter = 'all'; AppState.advFilters = {}; AppState.search = '';
     document.getElementById('global-search').value = '';
     ['adv-country','adv-genre','adv-subgenre','adv-composer','adv-rated','adv-year-from','adv-year-to',
-     'adv-critica-from','adv-critica-to','adv-personal-from','adv-personal-to','adv-delta'].forEach(id => {
+     'adv-critica-from','adv-critica-to','adv-personal-from','adv-personal-to','adv-delta','adv-cover'].forEach(id => {
       const el = document.getElementById(id); if (el) el.value = '';
     });
     document.querySelectorAll('.pl-pill').forEach(p => p.className = 'pl-pill' + (p.dataset.color === 'all' ? ' active-todas' : ''));
@@ -3592,9 +3805,13 @@ const App = {
       ArtistMedia._mem = {};
     }
     // Restaura datos de artista (bio, país, miembros)
-    if (data.artistData) {
+  if (data.artistData) {
       const cur = LS.get('mvArtistData') || {};
       LS.set('mvArtistData', { ...cur, ...data.artistData });
+    }
+    if (data.top100Albums) {
+      const cur = Top100.all();
+      Top100._save(AppState.importMode === 'replace' ? data.top100Albums : { ...cur, ...data.top100Albums });
     }
     if (AppState.importMode === 'replace') {
       AppState.songs = songs;
@@ -3797,6 +4014,7 @@ if (!songs.length) {
         <div class="song-title-main">
           ${Utils.esc(s.titulo)}
           ${incomplete ? '<span class="badge-incomplete">⚠</span>' : ''}
+          ${s.esCover ? '<span class="badge-cover">↻ COVER</span>' : ''}
         </div>
         ${s.album ? `<div class="song-album">${Utils.esc(s.album)}</div>` : ''}
         <div class="song-pills">${pills}</div>
@@ -3867,7 +4085,7 @@ App.renderGrid = function(songs) {
         </div>
       </div>
       <div class="grid-card-body">
-        <div class="grid-card-title">${Utils.esc(s.titulo)}</div>
+        <div class="grid-card-title">${Utils.esc(s.titulo)}${s.esCover ? ' <span class="badge-cover">↻</span>' : ''}</div>
         <div class="grid-card-artist">${Utils.esc(main)}</div>
         <div class="song-pills">
           ${s.genero ? `<span class="pill">${Utils.esc(s.genero)}</span>` : ''}
@@ -4000,6 +4218,13 @@ App.renderModal = function(song, editing) {
         <div class="modal-edit-field"><label>Subgénero</label><input id="me-subgenero" value="${Utils.esc(song.subgenero||'')}"></div>
         <div class="modal-edit-field"><label>Compositor</label><input id="me-compositor" value="${Utils.esc(song.compositor||'')}"></div>
         <div class="modal-edit-field full"><label>Discográfica</label><input id="me-discografica" value="${Utils.esc(song.discografica||'')}"></div>
+        <div class="modal-edit-field full">
+          <label>Versión</label>
+          <button type="button" id="me-cover-toggle" class="cover-toggle ${song.esCover?'is-cover':''}" onclick="App.modalToggleCover()">
+            <span class="cover-toggle-dot"></span>
+            <span id="me-cover-label">${song.esCover ? 'Es un cover / versión' : 'Canción original'}</span>
+          </button>
+        </div>
         <div class="modal-edit-field"><label>Crítica (1–5)</label><input type="number" id="me-critica" step="0.1" min="1" max="5" value="${song.critica??''}"></div>
         <div class="modal-edit-field"><label>Personal (1–5)</label><input type="number" id="me-personal" step="0.1" min="1" max="5" value="${song.critica_p??''}"></div>
         <div class="modal-edit-field full">
@@ -4045,6 +4270,7 @@ App.renderModal = function(song, editing) {
           ${colorLabel}
         </div>
         ${dist ? `<div class="dist-chip dist-${dist.tier}-chip">${dist.label}</div>` : ''}
+        ${song.esCover ? `<span class="badge-cover" style="display:inline-block;margin-top:8px">↻ COVER</span>` : ''}
       </div>
     </div>
     <div class="modal-body">
@@ -4165,8 +4391,11 @@ App.saveModalEdit = function() {
   song.critica      = newCritica;
   song.critica_p    = newPersonal;
   song.color        = newColor === 'none' ? null : newColor;
+  const coverBtn = document.getElementById('me-cover-toggle');
+  song.esCover = coverBtn ? coverBtn.classList.contains('is-cover') : !!song.esCover;
 
   Data.save();
+  App.refreshTop100Changes();
   AppState.modalEditing = false;
   App.renderModal(song, false);
   App.renderSongs();
@@ -4184,30 +4413,36 @@ App.saveModalEdit = function() {
 };
 
 App.checkPlaylistChanges = function(song, newCrit, newPers) {
-  const oldTop250C = Engine.getTop250('critica');
-  const oldTop250P = Engine.getTop250('personal');
-  const wasInC = oldTop250C.some(s => Utils.getSongKey(s) === Utils.getSongKey(song));
-  const wasInP = oldTop250P.some(s => Utils.getSongKey(s) === Utils.getSongKey(song));
+  // Captura el conjunto COMPLETO antes (no solo la canción editada)
+  const oldC = new Set(Engine.getTop250('critica').map(s => Utils.getSongKey(s)));
+  const oldP = new Set(Engine.getTop250('personal').map(s => Utils.getSongKey(s)));
 
+  // Aplica temporalmente los nuevos scores para recalcular el conjunto después
   const tempCritica = song.critica; const tempPersonal = song.critica_p;
   song.critica = newCrit; song.critica_p = newPers;
-  const newTop250C = Engine.getTop250('critica');
-  const newTop250P = Engine.getTop250('personal');
-  const isInC = newTop250C.some(s => Utils.getSongKey(s) === Utils.getSongKey(song));
-  const isInP = newTop250P.some(s => Utils.getSongKey(s) === Utils.getSongKey(song));
+  const newC = Engine.getTop250('critica');
+  const newP = Engine.getTop250('personal');
+  const newCset = new Set(newC.map(s => Utils.getSongKey(s)));
+  const newPset = new Set(newP.map(s => Utils.getSongKey(s)));
   song.critica = tempCritica; song.critica_p = tempPersonal;
 
+  // Mapa clave → título para nombrar a las canciones desplazadas (no solo la editada)
+  const titleByKey = new Map();
+  for (const s of AppState.songs) titleByKey.set(Utils.getSongKey(s), s.titulo);
+
   const changes = [];
-  if (!wasInC && isInC) changes.push({ song: song.titulo, type: 'entered', list: 'TOP 250 Crítica' });
-  if (wasInC && !isInC) changes.push({ song: song.titulo, type: 'exited',  list: 'TOP 250 Crítica' });
-  if (!wasInP && isInP) changes.push({ song: song.titulo, type: 'entered', list: 'TOP 250 Personal' });
-  if (wasInP && !isInP) changes.push({ song: song.titulo, type: 'exited',  list: 'TOP 250 Personal' });
+  // CRÍTICA: entradas y salidas de TODO el conjunto
+  for (const k of newCset) if (!oldC.has(k)) changes.push({ song: titleByKey.get(k) || k.split('|||')[0], type: 'entered', list: 'TOP 250 Crítica' });
+  for (const k of oldC)    if (!newCset.has(k)) changes.push({ song: titleByKey.get(k) || k.split('|||')[0], type: 'exited',  list: 'TOP 250 Crítica' });
+  // PERSONAL: igual
+  for (const k of newPset) if (!oldP.has(k)) changes.push({ song: titleByKey.get(k) || k.split('|||')[0], type: 'entered', list: 'TOP 250 Personal' });
+  for (const k of oldP)    if (!newPset.has(k)) changes.push({ song: titleByKey.get(k) || k.split('|||')[0], type: 'exited',  list: 'TOP 250 Personal' });
+
   if (changes.length) {
     AppState.playlistChanges.push(...changes);
     App.updateSidebarBadges();
   }
 };
-
 App.deleteSong = function(idx) {
   const song = AppState.songs[idx];
   if (!song) return;
@@ -4419,6 +4654,23 @@ App.selectAddColor = function(color) {
   });
 };
 
+App.toggleAddCover = function(force) {
+  AppState.addCover = (force !== undefined) ? force : !AppState.addCover;
+  const btn = document.getElementById('add-cover-toggle');
+  const lbl = document.getElementById('add-cover-label');
+  if (btn) btn.classList.toggle('is-cover', AppState.addCover);
+  if (lbl) lbl.textContent = AppState.addCover ? 'Es un cover / versión' : 'Canción original';
+};
+
+App.modalToggleCover = function() {
+  const btn = document.getElementById('me-cover-toggle');
+  const lbl = document.getElementById('me-cover-label');
+  if (!btn) return;
+  const isCover = !btn.classList.contains('is-cover');
+  btn.classList.toggle('is-cover', isCover);
+  if (lbl) lbl.textContent = isCover ? 'Es un cover / versión' : 'Canción original';
+};
+
 App.runAutocomplete = async function() {
   const title  = document.getElementById('add-titulo')?.value?.trim() || '';
   const artist = document.getElementById('add-artista')?.value?.trim() || '';
@@ -4550,10 +4802,12 @@ App.submitAddSong = function() {
     genero: get('add-genero') || null,
     subgenero: get('add-subgenero') || null,
     discografica: get('add-discografica') || null,
+    esCover: AppState.addCover,
   };
 
   AppState.songs.push(newSong);
   Data.save();
+  App.refreshTop100Changes();
   App.closeAddPanel();
 
   // Clear form
@@ -4562,6 +4816,7 @@ App.submitAddSong = function() {
   });
   App.clearComposersForm();
   App.selectAddColor('green');
+  App.toggleAddCover(false);
 
   App.renderSongs();
   App.updateHeaderStats();
@@ -4578,6 +4833,7 @@ App.renderStats = function() {
   const rated = songs.filter(s => s.critica !== null);
   const ratedP = songs.filter(s => s.critica_p !== null);
   const perfect = songs.filter(s => s.critica === 5 && s.critica_p === 5);
+  const covers = songs.filter(s => s.esCover);
   const top250 = Engine.getTop250('critica');
   const avgC = Utils.avg(rated.map(s => s.critica));
   const avgP = Utils.avg(ratedP.map(s => s.critica_p));
@@ -4656,6 +4912,7 @@ const top8personal = songs.filter(s=>s.critica_p).sort((a,b)=>b.critica_p-a.crit
     { icon:'📅', label:'Canción más antigua',        val: oldestSong?.titulo?.slice(0,20)||'—', sub: oldestSong?.año||'' },
     { icon:'🆕', label:'Canción más reciente',       val: newestSong?.titulo?.slice(0,20)||'—', sub: newestSong?.año||'' },
     { icon:'💿', label:'Artista más álbumes',        val: mostAlbums?.name?.slice(0,20)||'—',  sub: `${mostAlbums?.count||0} álbumes` },
+    { icon:'↻',  label:'Covers / versiones',         val: covers.length,                       sub: covers.length ? `${(covers.length/songs.length*100).toFixed(0)}% del catálogo` : 'Ninguno marcado' },
   ];
 
   document.getElementById('stats-content').innerHTML = `
@@ -4868,6 +5125,16 @@ const top8personal = songs.filter(s=>s.critica_p).sort((a,b)=>b.critica_p-a.crit
       })()}
     </div>
 
+   <div class="stats-section reveal-hidden">
+      <div class="stats-section-title">COVERS & VERSIONES (${covers.length})</div>
+      ${covers.length ? [...covers].sort((a,b)=>(Math.max(b.critica||0,b.critica_p||0))-(Math.max(a.critica||0,a.critica_p||0))).map((s,i)=>`
+        <div class="stats-row-item" onclick="App.openModal(${AppState.songs.indexOf(s)})">
+          <div class="stats-rank">${i+1}</div>
+          <div class="stats-row-info"><div class="stats-row-name">${Utils.esc(s.titulo)} <span class="badge-cover">↻</span></div><div class="stats-row-sub">${Utils.esc(s.artista)}${s.año?' · '+s.año:''}</div></div>
+          <div class="stats-row-score">${Utils.formatScore(s.critica)}</div>
+        </div>`).join('') : '<div style="color:var(--text-muted);font-size:13px;padding:12px 0">No hay covers marcados. Marca una canción como cover al editarla o agregarla.</div>'}
+    </div>
+
     <div class="stats-section reveal-hidden">
       <div class="stats-section-title">DATOS CURIOSOS</div>
       <div class="curiosity-grid">
@@ -4953,10 +5220,13 @@ App.renderAlbums = function(skipFetch) {
     }).join('');
     const albNameEsc = alb.name.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
     const albArtistEsc = alb.artist.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
-    return `<div class="album-card" onclick="App.toggleAlbumSongs('${key}')">
+    const inTop100 = Top100.get(alb.name, alb.artist);
+    return `<div class="album-card ${inTop100 ? 'is-top100' : ''}" onclick="App.toggleAlbumSongs('${key}')">
       <div class="album-card-img-wrap" id="albumwrap${idx}" style="position:relative">
         ${imgHtml}
         ${alb.year ? `<div class="album-year-badge">${alb.year}</div>` : ''}
+        ${inTop100 ? `<div class="album-top100-rank">${inTop100.ranking != null ? '#'+inTop100.ranking : '★'}</div>` : ''}
+        <button class="album-upload-btn" style="bottom:62px" onclick="event.stopPropagation();App.openAlbumAnalisis('${albNameEsc}','${albArtistEsc}')" title="Análisis del álbum">ℹ</button>
         <button class="album-upload-btn" style="bottom:34px" onclick="event.stopPropagation();App.uploadAlbumCover('${albNameEsc}','${albArtistEsc}',${idx})" title="Subir portada">📷</button>
         <button class="album-upload-btn" style="bottom:6px" onclick="event.stopPropagation();App.searchAlbumCover('${albNameEsc}','${albArtistEsc}',${idx})" title="Buscar portada online">🔍</button>
       </div>
@@ -5234,6 +5504,77 @@ App.searchAlbumCover = async function(album, artist, gi) {
     </div>
   `).join('');
 };
+
+App.openAlbumAnalisis = function(album, artist) {
+  const data = Top100.get(album, artist);
+  const enTop100 = !!data;
+  const analisis = data?.analisis || '';
+  document.getElementById('img-picker-overlay')?.remove();
+  document.getElementById('album-analisis-overlay')?.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'album-analisis-overlay';
+  overlay.style.cssText = `position:fixed;inset:0;z-index:9000;background:rgba(8,8,16,0.85);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:20px;`;
+  overlay.innerHTML = `
+    <div style="background:#0f0f18;border:1px solid #1e1e2e;border-radius:12px;width:100%;max-width:560px;max-height:85vh;overflow-y:auto;display:flex;flex-direction:column">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid #1e1e2e">
+        <div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px;color:#e2e2f0">${Utils.esc(album)}</div>
+          <div style="font-size:11px;color:#52526e;font-family:'Space Mono',monospace">${Utils.esc(artist)}</div>
+        </div>
+        <button onclick="document.getElementById('album-analisis-overlay').remove()" style="width:28px;height:28px;border-radius:6px;background:#1a1a28;border:1px solid #1e1e2e;color:#52526e;font-size:16px">✕</button>
+      </div>
+      <div style="padding:20px;display:flex;flex-direction:column;gap:14px">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;background:#151520;border:1px solid #1e1e2e;border-radius:8px;padding:12px">
+          <div>
+            <div style="font-size:13px;color:#e2e2f0;font-weight:600">TOP 100 Álbumes</div>
+            <div style="font-size:11px;color:#52526e">${enTop100 ? 'Este álbum está en la lista' : 'No está en la lista'}</div>
+          </div>
+          <button onclick="App._toggleAlbumTop100('${album.replace(/'/g,"\\'")}','${artist.replace(/'/g,"\\'")}')" style="padding:7px 14px;border-radius:8px;font-size:12px;font-weight:700;border:1px solid ${enTop100?'rgba(255,56,105,0.4)':'#7c5cfc'};background:${enTop100?'rgba(255,56,105,0.12)':'#7c5cfc'};color:${enTop100?'#ff3869':'#fff'}">${enTop100?'Quitar':'Agregar'}</button>
+        </div>
+        ${enTop100 ? `
+          <div>
+            <label style="display:block;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#52526e;margin-bottom:6px;font-family:'Space Mono',monospace">Ranking (1–100)</label>
+            <input id="album-rank-input" type="number" min="1" max="100" value="${data.ranking ?? ''}" placeholder="Ej: 1"
+              style="width:120px;background:#151520;border:1px solid #1e1e2e;border-radius:8px;padding:8px 10px;font-size:13px;color:#e2e2f0;outline:none;font-family:'Space Mono',monospace">
+          </div>` : ''}
+        <div>
+          <label style="display:block;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#52526e;margin-bottom:6px;font-family:'Space Mono',monospace">Análisis / Reseña</label>
+          <textarea id="album-analisis-input" placeholder="Escribe un breve análisis o resumen de este álbum..."
+            style="width:100%;min-height:160px;background:#151520;border:1px solid #1e1e2e;border-radius:8px;padding:12px;font-size:13px;color:#e2e2f0;outline:none;resize:vertical;line-height:1.6;font-family:'DM Sans',sans-serif">${Utils.esc(analisis)}</textarea>
+        </div>
+        <button onclick="App._saveAlbumAnalisis('${album.replace(/'/g,"\\'")}','${artist.replace(/'/g,"\\'")}')" style="padding:10px;background:#7c5cfc;color:#fff;border-radius:8px;font-size:13px;font-weight:700">✓ Guardar</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+};
+
+App._toggleAlbumTop100 = function(album, artist) {
+  if (Top100.has(album, artist)) Top100.remove(album, artist);
+  else Top100.add(album, artist, null);
+  App.refreshTop100Changes();
+  App.openAlbumAnalisis(album, artist); // re-render del modal
+  App.renderAlbums(true);
+  App.updateSidebarBadges();
+};
+
+App._saveAlbumAnalisis = function(album, artist) {
+  const texto = document.getElementById('album-analisis-input')?.value || '';
+  const rankEl = document.getElementById('album-rank-input');
+  if (Top100.has(album, artist)) {
+    Top100.setAnalisis(album, artist, texto);
+    if (rankEl) {
+      const r = rankEl.value ? parseInt(rankEl.value) : null;
+      Top100.setRanking(album, artist, r);
+    }
+  }
+  document.getElementById('album-analisis-overlay')?.remove();
+  App.renderAlbums(true);
+  App.showSnackbar('Análisis guardado', false);
+};
+
+
 
 App.uploadAlbumCover = function(album, artist, gi) {
   const input = document.getElementById('cover-upload-input');
@@ -5681,6 +6022,13 @@ App.renameArtist = async function(oldName) {
 ═══════════════════════════════════════════════ */
 App.renderPlaylists = function() {
   const type = AppState.playlistTab;
+
+  document.getElementById('tab-critica-count').textContent = `${Engine.getTop250('critica').length} canciones`;
+  document.getElementById('tab-personal-count').textContent = `${Engine.getTop250('personal').length} canciones`;
+  document.getElementById('tab-top100-count').textContent = `${Top100.rankedAlbums().length} álbumes`;
+
+  if (type === 'top100') { App.renderTop100(); return; }
+
   const top = Engine.getTop250(type);
   const search = AppState.playlistSearch;
   let list = search
@@ -5688,10 +6036,7 @@ App.renderPlaylists = function() {
         const q = Utils.normalizeText(search);
         return Utils.normalizeText(s.titulo).includes(q) || Utils.normalizeText(s.artista).includes(q);
       })
-    : top;
-
-  document.getElementById('tab-critica-count').textContent = `${Engine.getTop250('critica').length} canciones`;
-  document.getElementById('tab-personal-count').textContent = `${Engine.getTop250('personal').length} canciones`;
+: top;
 
   const changes = AppState.playlistChanges;
   const banner = document.getElementById('pl-changes-banner');
@@ -5713,21 +6058,33 @@ App.renderPlaylists = function() {
 
   document.getElementById('playlist-list').innerHTML = list.map((s,i)=>{
     const color = Utils.colorMap[s.color]||Utils.colorMap.none;
+    const mainScore0 = s[scoreField];
+    let titleTier = null;
+    if (mainScore0 >= 5)        titleTier = 'gold';
+    else if (mainScore0 >= 4.9) titleTier = 'silver';
+    else if (mainScore0 >= 4.8) titleTier = 'bronze';
+    const titleColor = titleTier
+      ? (titleTier === 'gold' ? 'var(--dist-gold)' : titleTier === 'silver' ? 'var(--dist-silver)' : 'var(--dist-bronze)')
+      : 'var(--text)';
+    const titleGlow = titleTier ? 'animation:distGlow 2.8s ease-in-out infinite;' : '';
     return `<div class="pl-row" onclick="App.openModal(${AppState.songs.indexOf(s)})">
       <div class="pl-rank ${i<3?'top3':''}">${i+1}</div>
       <div class="pl-stripe" style="background:${color}"></div>
       <div class="pl-info">
-        <div class="pl-title">${Utils.esc(s.titulo)}</div>
+        <div class="pl-title" style="color:${titleColor};${titleGlow}">${Utils.esc(s.titulo)}</div>
         <div class="pl-artist">${Utils.esc(s.artista)}</div>
       </div>
       ${(() => {
-        const d = Utils.getDistinction(s);
         const mainScore = s[scoreField];
-        const distCol = d && mainScore >= 4.8
-          ? (d.tier === 'gold' ? 'var(--dist-gold)' : d.tier === 'silver' ? 'var(--dist-silver)' : 'var(--dist-bronze)')
+        // El tier se calcula con el score de ESTA pestaña, no con el máximo global
+        let tier = null;
+        if (mainScore >= 5)        tier = 'gold';
+        else if (mainScore >= 4.9) tier = 'silver';
+        else if (mainScore >= 4.8) tier = 'bronze';
+        const distCol = tier
+          ? (tier === 'gold' ? 'var(--dist-gold)' : tier === 'silver' ? 'var(--dist-silver)' : 'var(--dist-bronze)')
           : Utils.scoreColorHex(mainScore);
-        const glowStyle = d && mainScore >= 4.8
-          ? `animation:scoreGlow 2.8s ease-in-out infinite;` : '';
+        const glowStyle = tier ? `animation:scoreGlow 2.8s ease-in-out infinite;` : '';
         return `<div style="text-align:right">
           <div class="pl-score-main" style="color:${distCol};${glowStyle}">${Utils.formatScore(mainScore)}</div>
           <div class="pl-score-sec">${Utils.formatScore(s[secField])}</div>
@@ -5736,11 +6093,257 @@ App.renderPlaylists = function() {
     </div>`;
   }).join('');
 };
+App.openTop100Config = function() {
+  document.getElementById('top100-config-overlay')?.remove();
+  const overlay = document.createElement('div');
+  overlay.id = 'top100-config-overlay';
+  overlay.style.cssText = `position:fixed;inset:0;z-index:9000;background:rgba(8,8,16,0.85);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:20px;`;
+  overlay.innerHTML = `
+    <div style="background:#0f0f18;border:1px solid #1e1e2e;border-radius:12px;width:100%;max-width:600px;max-height:85vh;overflow-y:auto;overscroll-behavior:contain;display:flex;flex-direction:column">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid #1e1e2e">
+        <span style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1px;color:#e2e2f0">CONFIGURAR TOP 100 ÁLBUMES</span>
+        <button id="top100-close-btn" style="width:28px;height:28px;border-radius:6px;background:#1a1a28;border:1px solid #1e1e2e;color:#52526e;font-size:16px">✕</button>
+      </div>
+      <div style="padding:16px 20px;border-bottom:1px solid #1e1e2e">
+        <div style="font-size:11px;color:#8888aa;margin-bottom:8px">Agrega álbumes de tu propio catálogo. Todas sus canciones se vinculan automáticamente.</div>
+        <input id="top100-search-input" placeholder="Buscar álbum en tu catálogo..."
+          style="width:100%;background:#151520;border:1px solid #1e1e2e;border-radius:8px;padding:9px 12px;font-size:13px;color:#e2e2f0;outline:none;font-family:'DM Sans',sans-serif">
+        <div id="top100-search-results" style="margin-top:8px;display:flex;flex-direction:column;gap:4px;max-height:200px;overflow-y:auto;overscroll-behavior:contain"></div>
+      </div>
+      <div style="padding:16px 20px">
+        <div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#52526e;font-family:'Space Mono',monospace;margin-bottom:10px">En la lista (<span id="top100-count-label">0</span>)</div>
+        <div id="top100-current-list" style="display:flex;flex-direction:column;gap:6px"></div>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+
+  const close = () => { overlay.remove(); App.renderPlaylists(); };
+  document.getElementById('top100-close-btn').addEventListener('click', close);
+  overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+  document.getElementById('top100-search-input').addEventListener('input', e => App._top100SearchCatalog(e.target.value));
+
+  App._renderTop100ConfigList();
+};
+
+App._top100SearchCatalog = function(val) {
+  const cont = document.getElementById('top100-search-results');
+  if (!cont) return;
+  const q = Utils.normalizeText(val);
+  if (!q) { cont.innerHTML = ''; return; }
+  const seen = new Set();
+  const matches = [];
+  for (const s of AppState.songs) {
+    if (!s.album) continue;
+    const k = Top100._key(s.album, s.artista);
+    if (seen.has(k)) continue;
+    seen.add(k);
+    if (Top100.has(s.album, s.artista)) continue;
+    if (Utils.normalizeText(s.album).includes(q) || Utils.normalizeText(s.artista).includes(q)) {
+      matches.push({ album: s.album, artista: s.artista });
+    }
+  }
+  if (!matches.length) { cont.innerHTML = `<div style="font-size:12px;color:#52526e;padding:8px">Sin coincidencias</div>`; return; }
+  cont.innerHTML = '';
+  matches.slice(0, 20).forEach(m => {
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;gap:10px;padding:8px 10px;background:#151520;border:1px solid #1e1e2e;border-radius:6px';
+    row.innerHTML = `
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;color:#e2e2f0;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${Utils.esc(m.album)}</div>
+        <div style="font-size:11px;color:#52526e">${Utils.esc(m.artista)}</div>
+      </div>
+      <button style="padding:5px 12px;background:rgba(124,92,252,0.15);border:1px solid #7c5cfc;color:#7c5cfc;border-radius:5px;font-size:12px;font-weight:700">+ Agregar</button>`;
+    row.querySelector('button').addEventListener('click', () => App._top100Add(m.album, m.artista));
+    cont.appendChild(row);
+  });
+};
+
+App._top100Add = function(album, artist) {
+  Top100.add(album, artist, null);
+  App.refreshTop100Changes();
+  const input = document.getElementById('top100-search-input');
+  if (input) input.value = '';
+  const res = document.getElementById('top100-search-results');
+  if (res) res.innerHTML = '';
+  App._renderTop100ConfigList();
+  App.updateSidebarBadges();
+  App.showSnackbar(`"${album}" agregado al TOP 100`, false);
+};
+
+App._top100RemoveFromConfig = function(album, artist) {
+  Top100.remove(album, artist);
+  App.refreshTop100Changes();
+  App._renderTop100ConfigList();
+  App.updateSidebarBadges();
+};
+
+App._top100SetRankFromConfig = function(album, artist, val) {
+  const r = val ? parseInt(val) : null;
+  Top100.setRanking(album, artist, r);
+};
+
+App._renderTop100ConfigList = function() {
+  const cont = document.getElementById('top100-current-list');
+  const label = document.getElementById('top100-count-label');
+  if (!cont) return;
+  const ranked = Top100.rankedAlbums();
+  if (label) label.textContent = ranked.length;
+  if (!ranked.length) { cont.innerHTML = `<div style="font-size:12px;color:#52526e;font-style:italic">Aún no hay álbumes.</div>`; return; }
+  cont.innerHTML = '';
+  ranked.forEach(a => {
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;gap:8px;padding:8px 10px;background:#151520;border:1px solid #1e1e2e;border-radius:6px';
+    row.innerHTML = `
+      <input type="number" min="1" max="100" value="${a.ranking ?? ''}" placeholder="#"
+        style="width:48px;background:#0f0f18;border:1px solid #1e1e2e;border-radius:5px;padding:5px;font-size:12px;color:#f5c842;text-align:center;outline:none;font-family:'Space Mono',monospace;flex-shrink:0">
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;color:#e2e2f0;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${Utils.esc(a.album)}</div>
+        <div style="font-size:11px;color:#52526e">${Utils.esc(a.artista)} · ${a.count} canc.</div>
+      </div>
+      <button style="width:28px;height:28px;border-radius:5px;background:rgba(255,56,105,0.12);border:1px solid rgba(255,56,105,0.3);color:#ff3869;font-size:14px;flex-shrink:0">✕</button>`;
+    row.querySelector('input').addEventListener('change', e => App._top100SetRankFromConfig(a.album, a.artista, e.target.value));
+    row.querySelector('button').addEventListener('click', () => App._top100RemoveFromConfig(a.album, a.artista));
+    cont.appendChild(row);
+  });
+};
+
+
+App.renderTop100 = function() {
+  const ranked = Top100.rankedAlbums();
+  const search = AppState.playlistSearch;
+  const list = document.getElementById('playlist-list');
+
+  // Banner de cambios reutiliza el de TOP 250
+  const banner = document.getElementById('pl-changes-banner');
+  const changesList = document.getElementById('pl-changes-list');
+  if (AppState.top100Changes.length) {
+    banner.classList.add('show');
+    changesList.innerHTML = AppState.top100Changes.slice(-8).map(c => `
+      <div class="pl-change-item">
+        <span class="change-badge ${c.type==='entered'?'badge-entered':'badge-exited'}">${c.type==='entered'?'▲ ENTRÓ':'▼ SALIÓ'}</span>
+        <span>${Utils.esc(c.song)}</span>
+        <span style="color:var(--text-muted);font-size:11px">· ${Utils.esc(c.album)}</span>
+      </div>`).join('');
+  } else {
+    banner.classList.remove('show');
+  }
+
+  if (!ranked.length) {
+    list.innerHTML = `
+      <div style="padding:16px 0">
+        <button class="btn-primary" onclick="App.openTop100Config()" style="width:100%;justify-content:center;margin-bottom:16px">⚙ Configurar TOP 100 Álbumes</button>
+        ${App.emptyState('💿','LISTA VACÍA','Aún no has agregado álbumes al TOP 100. Usa el botón de configuración para buscarlos y rankearlos.','')}
+      </div>`;
+    return;
+  }
+
+  // Resumen del conjunto
+  const totalAlbumes = ranked.length;
+  const totalCanciones = ranked.reduce((acc, a) => acc + a.count, 0);
+  const todasLasSongs = Top100.songsIn();
+  const ratedSongs = todasLasSongs.filter(s => s.critica !== null);
+  const avgGlobal = Utils.avg(ratedSongs.map(s => s.critica));
+  const rankeados = ranked.filter(a => a.ranking != null).length;
+  const summaryHtml = `
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px">
+      ${[
+        { v: totalAlbumes, l: 'Álbumes', c: 'var(--accent)' },
+        { v: totalCanciones, l: 'Canciones', c: 'var(--text)' },
+        { v: avgGlobal != null ? avgGlobal.toFixed(2) : '—', l: 'Avg crítica', c: 'var(--green)' },
+        { v: rankeados, l: 'Con ranking', c: 'var(--dist-gold)' },
+      ].map(s => `
+        <div style="text-align:center;background:var(--bg-surface2);border:1px solid var(--border);border-radius:var(--radius);padding:10px 6px">
+          <div style="font-family:var(--font-mono);font-size:18px;font-weight:700;color:${s.c}">${s.v}</div>
+          <div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-muted);margin-top:2px">${s.l}</div>
+        </div>`).join('')}
+    </div>`;
+
+  let albums = ranked;
+  if (search) {
+    const q = Utils.normalizeText(search);
+    albums = ranked.filter(a => Utils.normalizeText(a.album).includes(q) || Utils.normalizeText(a.artista).includes(q));
+  }
+
+  const rows = albums.map(a => {
+    const songs = AppState.songs.filter(s =>
+      (s.album||'').toUpperCase().trim() === a.album &&
+      (s.artista||'').toUpperCase().trim() === a.artista
+    );
+    const avg = Utils.avg(songs.map(s => s.critica).filter(v => v !== null));
+    const cover = Covers.get(a.album, a.artista);
+    const coverHtml = cover
+      ? `<img src="${Utils.esc(cover)}" style="width:48px;height:48px;border-radius:6px;object-fit:cover;flex-shrink:0" onerror="this.style.display='none'">`
+      : `<div style="width:48px;height:48px;border-radius:6px;background:var(--bg-surface3);flex-shrink:0"></div>`;
+    const songRows = songs.map(s => `
+      <div class="album-song-row" onclick="event.stopPropagation();App.openModal(${AppState.songs.indexOf(s)})">
+        <div class="album-song-title">${Utils.esc(s.titulo)}</div>
+        <div class="album-song-scores">
+          ${s.critica !== null ? `<span class="score-badge ${Utils.scoreColor(s.critica)}" style="width:38px;height:24px;font-size:12px">${Utils.formatScore(s.critica)}</span>` : ''}
+          ${s.critica_p !== null ? `<span class="score-badge ${Utils.scoreColor(s.critica_p)}" style="width:38px;height:24px;font-size:12px">${Utils.formatScore(s.critica_p)}</span>` : ''}
+        </div>
+      </div>`).join('');
+    return `
+      <div style="border-bottom:1px solid var(--border-subtle)">
+        <div class="pl-row" onclick="App.toggleTop100Album('${a.key.replace(/'/g,"\\'")}')" style="cursor:pointer">
+          <div class="pl-rank ${a.ranking && a.ranking<=3 ? 'top3':''}">${a.ranking ?? '—'}</div>
+          ${coverHtml}
+          <div class="pl-info">
+            <div class="pl-title">${Utils.esc(a.album)}</div>
+            <div class="pl-artist">${Utils.esc(a.artista)} · ${songs.length} canciones</div>
+          </div>
+          ${avg !== null ? `<div class="pl-score-main" style="color:var(--green)">${avg.toFixed(2)}</div>` : ''}
+        </div>
+        <div class="album-songs-list" id="top100-${a.key.replace(/[^a-z0-9]/gi,'_')}">${songRows || '<div style="padding:8px 12px;font-size:12px;color:var(--text-muted)">Sin canciones de este álbum en tu catálogo aún.</div>'}</div>
+      </div>`;
+  }).join('');
+
+  list.innerHTML = `
+    <button class="btn-secondary" onclick="App.openTop100Config()" style="width:100%;justify-content:center;margin-bottom:12px">⚙ Configurar TOP 100 Álbumes</button>
+    ${summaryHtml}
+    ${rows}`;
+};
+
+App.toggleTop100Album = function(key) {
+  const id = 'top100-' + key.replace(/[^a-z0-9]/gi,'_');
+  const el = document.getElementById(id);
+  if (el) el.classList.toggle('open');
+};
+
+// Detecta entradas/salidas del conjunto TOP 100 y arma avisos
+App.refreshTop100Changes = function() {
+  // Snapshot = Map de clave → {titulo, album} para poder mostrar info aunque la canción cambie o se borre
+  const currentMap = new Map();
+  for (const s of Top100.songsIn()) {
+    currentMap.set(Utils.getSongKey(s), { titulo: s.titulo, album: s.album });
+  }
+  if (AppState.lastTop100Songs === null) {
+    AppState.lastTop100Songs = currentMap;
+    return;
+  }
+  const prev = AppState.lastTop100Songs; // Map
+  const changes = [];
+  // Entradas: están ahora pero no antes
+  for (const [k, info] of currentMap) {
+    if (!prev.has(k)) changes.push({ song: info.titulo, album: info.album, type: 'entered' });
+  }
+  // Salidas: estaban antes pero no ahora
+  for (const [k, info] of prev) {
+    if (!currentMap.has(k)) changes.push({ song: info.titulo, album: info.album, type: 'exited' });
+  }
+  if (changes.length) {
+    AppState.top100Changes.push(...changes);
+    App.updateSidebarBadges();
+  }
+  AppState.lastTop100Songs = currentMap;
+}; 
+
+
 
 App.switchPlaylistTab = function(tab) {
   AppState.playlistTab = tab;
   document.getElementById('tab-critica').classList.toggle('active', tab==='critica');
   document.getElementById('tab-personal').classList.toggle('active', tab==='personal');
+  document.getElementById('tab-top100').classList.toggle('active', tab==='top100');
   App.renderPlaylists();
 };
 
@@ -5762,9 +6365,27 @@ App.renderAbout = function() {
   // cambios = lista de { tipo: 'NUEVO'|'MEJORA'|'FIX', texto: '...' }
   const CHANGELOG = [
     {
-      version: 'v2.1',
+      version: 'v2.2',
       fecha: 'Junio 2026',
       actual: true,
+      titulo: 'Covers, TOP 100 Álbumes y pulido de playlists',
+      cambios: [
+        { tipo: 'NUEVO',  texto: 'Distintivo de cover/versión por canción: se marca al agregar o editar, con badge en tabla, grid y modal.' },
+        { tipo: 'NUEVO',  texto: 'Filtro avanzado por tipo (solo covers / solo originales) y dos secciones de covers en Estadísticas.' },
+        { tipo: 'NUEVO',  texto: 'Nueva lista TOP 100 ÁLBUMES: agrega álbumes desde su configurador y todas sus canciones se vinculan automáticamente.' },
+        { tipo: 'NUEVO',  texto: 'Botón de análisis (ℹ) en cada álbum para escribir una reseña, y resumen con totales de álbumes, canciones y promedio.' },
+        { tipo: 'NUEVO',  texto: 'Borde dorado con destello prendido/apagado en los álbumes del TOP 100, sincronizado con el pulso de los puntajes.' },
+        { tipo: 'MEJORA', texto: 'Los títulos destacados (4.8+) en las playlists ahora se tiñen y laten igual que sus puntajes.' },
+        { tipo: 'MEJORA', texto: 'El fondo ya no se desliza al abrir modales, paneles o el menú lateral.' },
+        { tipo: 'FIX',    texto: 'El color de distinción en el TOP 250 ahora respeta el puntaje de cada pestaña (crítica vs personal).' },
+        { tipo: 'FIX',    texto: 'Los avisos de "salió" del TOP 250 ahora detectan las canciones desplazadas, no solo la editada.' },
+        { tipo: 'FIX',    texto: 'El TOP 100 Álbumes se guarda de forma segura en IndexedDB y persiste tras recargar.' },
+      ]
+    },
+    {
+      version: 'v2.1',
+      fecha: 'Junio 2026',
+      actual: false,
       titulo: 'Distinción y panel de artista',
       cambios: [
         { tipo: 'NUEVO',  texto: 'Distinción por color para canciones 4.8+ (bronce / plata / oro), reemplazando las medallas.' },
@@ -5961,7 +6582,7 @@ App.runDeezerComparison = function() {
 };
 
 App._buildBlankSong = function(title, artist) {
-  return { titulo:title.toUpperCase(), artista:artist.toUpperCase(), album:'', critica:null, critica_p:null, playlists:[], color:null, pais:null, año:null, compositor:null, secondaryComposers:[], collabArtists:[], genero:null, subgenero:null, discografica:null };
+  return { titulo:title.toUpperCase(), artista:artist.toUpperCase(), album:'', critica:null, critica_p:null, playlists:[], color:null, pais:null, año:null, compositor:null, secondaryComposers:[], collabArtists:[], genero:null, subgenero:null, discografica:null, esCover:false };
 };
 
 App.addMissingByIndex = function(i) {
@@ -5971,6 +6592,7 @@ App.addMissingByIndex = function(i) {
   if (AppState.songs.some(s => Utils.getSongKey(s) === key)) { App.showSnackbar('Ya existe en el vault', false); return; }
   AppState.songs.push(App._buildBlankSong(m.title, m.artist));
   Data.save();
+  App.refreshTop100Changes();
   App.updateHeaderStats();
   App.updateSidebarBadges();
   App.renderPlaylistPills();
@@ -5989,6 +6611,7 @@ App.addAllMissing = function() {
     added++;
   }
   Data.save();
+  App.refreshTop100Changes();
   App.updateHeaderStats();
   App.updateSidebarBadges();
   App.renderPlaylistPills();
@@ -6034,11 +6657,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   await Data.load();
   await Covers.preloadAll();
   await ArtistMedia.preloadAll();
+  await Top100.preload();
 
   App.updateHeaderStats();
   App.updateSidebarBadges();
   App.renderPlaylistPills();
   App.renderSongs();
+  App.refreshTop100Changes(); // toma snapshot inicial del conjunto
 
   document.addEventListener('dragover', e => e.preventDefault());
   document.addEventListener('drop', e => {
@@ -6059,4 +6684,5 @@ document.addEventListener('DOMContentLoaded', async () => {
 </script>
 </body>
 </html>
+
 
