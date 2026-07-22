@@ -267,7 +267,10 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
       <div class="top-actions">
         <button class="abtn" onclick="expandAll()">Expandir todo</button>
         <button class="abtn" onclick="collapseAll()">Colapsar todo</button>
-        <button class="abtn gold" onclick="exportData()">⬇ Exportar CSV</button>
+        <button class="abtn gold" onclick="exportData()">⬇ CSV</button>
+<button class="abtn" onclick="exportBackup()">⬇ Backup</button>
+<button class="abtn" onclick="document.getElementById('importFile').click()">⬆ Restaurar</button>
+<input type="file" id="importFile" accept=".json" style="display:none" onchange="importBackup(this)"> 
       </div>
     </div>
   </div>
@@ -637,12 +640,18 @@ var SERIES=[
      historia:'Cuarta moneda, emitida el 4 de diciembre de 2025. La cerámica Nasca (100 a.C.–800 d.C.) es famosa por sus policromos brillantes. El ceramio elegido es un cántaro escultórico con un ser mítico antropomorfo, una de las representaciones más complejas del panteón Nasca.',
      diseno:'Reverso: cántaro escultórico Nasca con ser mítico antropomorfo en policromía.',
      facts:['4 diciembre 2025','100 a.C. – 800 d.C.','Policromía de hasta 8 colores','Creadores de las Líneas de Nazca','#4 · 4 dic 2025']},
+     {id:'cp05',num:5,fecha:'18/06/2026',año:2026,rareza:'accesible',nombre:'Cultura Recuay — Mujer con Vaso Ceremonial',region:'Áncash',
+     historia:'Quinta moneda de la serie, puesta en circulación el 18 de junio de 2026 mediante la Circular N.º 0013-2026-BCRP. La cultura Recuay se desarrolló en la sierra de Áncash entre los años 200 y 600 d.C., contemporánea a los Mochica. El ceramio elegido es una botella escultórica que representa a una mujer de la nobleza indígena, con indumentaria y adornos que indican su alto estatus, sosteniendo con ambas manos un vaso ceremonial. La figura destaca por su gesto, similar a una sonrisa.',
+     diseno:'Reverso: botella escultórica Recuay con figura femenina de alto estatus sosteniendo un vaso ceremonial. A la derecha, diseño geométrico de líneas verticales y la marca de la Casa Nacional de Moneda; a la izquierda, la frase CERÁMICA PRECOLOMBINA.',
+     facts:['18 junio 2026','200–600 d.C.','Sierra de Áncash','Mujer de la nobleza Recuay con vaso ceremonial','10 millones de unidades','#5 · 18 jun 2026']},
   ]},
 ];
 
 var TOTAL=SERIES.reduce(function(s,sr){return s+sr.monedas.length;},0);
 var db={},currentFilter='all',currentSearch='',currentRareza='',currentModalId=null;
-
+function normalizar(s){
+  return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+}
 function load(){try{var s=localStorage.getItem('numis_peru_v5');if(s)db=JSON.parse(s);}catch(e){}}
 function save(){localStorage.setItem('numis_peru_v5',JSON.stringify(db));}
 function getCoin(id){return db[id]||{nueva:0,seminueva:0,conservada:0,referencia:0,notas:''};}
@@ -794,7 +803,7 @@ function updateRarezaMetrics(){
 
 /* ---- FILTROS ---- */
 function setFilter(f,btn){currentFilter=f;document.querySelectorAll('.fbtn').forEach(function(b){b.classList.remove('active');});btn.classList.add('active');applyFilter();}
-function onSearch(){currentSearch=document.getElementById('searchInput').value.toLowerCase();applyFilter();}
+function onSearch(){currentSearch=normalizar(document.getElementById('searchInput').value);applyFilter();} 
 function clearSearch(){document.getElementById('searchInput').value='';currentSearch='';applyFilter();}
 
 function setRarezaFilter(r,el){
@@ -819,7 +828,7 @@ function applyFilter(){
       var c=getCoin(m.id);
       var fm=(currentFilter==='all')||((c[currentFilter]||0)>0);
       var sm=true;
-      if(currentSearch){var txt=(m.nombre+(m.historia||'')+(m.region||'')+sr.nombre).toLowerCase();sm=txt.indexOf(currentSearch)>=0;}
+      if(currentSearch){var txt=normalizar(m.nombre+(m.historia||'')+(m.region||'')+(m.diseno||'')+sr.nombre);sm=txt.indexOf(currentSearch)>=0;} 
       var rm=(!currentRareza)||(m.rareza===currentRareza);
       var vis=fm&&sm&&rm;
       card.style.display=vis?'':'none';
@@ -943,6 +952,54 @@ function showToast(msg){
   clearTimeout(_tt);_tt=setTimeout(function(){t.classList.remove('show');},2000);
 }
 
+/* ---- BACKUP / RESTAURAR (JSON reimportable) ---- */
+function exportBackup(){
+  var payload={
+    formato:'numis_peru',
+    version:5,
+    exportado:new Date().toISOString(),
+    total_monedas:TOTAL,
+    datos:db
+  };
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}));
+  var fecha=new Date().toISOString().slice(0,10);
+  a.download='backup_coleccion_'+fecha+'.json';
+  a.click();
+  showToast('Backup guardado ✓');
+}
+
+function importBackup(input){
+  var file=input.files[0];
+  if(!file){return;}
+  var reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      var parsed=JSON.parse(e.target.result);
+      // Acepta el backup nuevo (con .datos) o un localStorage crudo antiguo
+      var nuevosDatos=parsed.datos||parsed;
+      if(typeof nuevosDatos!=='object'||Array.isArray(nuevosDatos)){
+        throw new Error('estructura');
+      }
+      var claves=Object.keys(nuevosDatos).length;
+      if(!confirm('Esto reemplazará tu registro actual con el backup ('+claves+' monedas registradas). ¿Continuar?')){
+        input.value='';return;
+      }
+      db=nuevosDatos;
+      save();
+      renderAll();
+      showToast('Backup restaurado ✓');
+    }catch(err){
+      showToast('Archivo inválido ✗');
+    }
+    input.value='';
+  };
+  reader.onerror=function(){showToast('No se pudo leer el archivo ✗');input.value='';};
+  reader.readAsText(file);
+}
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape'&&currentModalId){closeModalDirect();}
+});
 load();renderAll();
 </script>
 </body>
