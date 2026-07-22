@@ -1451,7 +1451,8 @@ function expCSVInv(){
     p.precioVenta>0?((p.precioVenta-p.costo)/p.precioVenta*100).toFixed(1):'0',
     p.stock,p.stockMinimo,f2(p.costo*p.stock)].join(','));
   dlFile('\uFEFF'+[cols.join(','),...rows].join('\n'),`bisagras-inv-${stamp()}.csv`,'text/csv');
-  closeModal('mx');toast('✅ CSV inventario exportado');
+
+closeModal('mx');toast('✅ CSV inventario exportado');
 }
 function copyJSON(){
   const txt=JSON.stringify(getExportData(),null,2);
